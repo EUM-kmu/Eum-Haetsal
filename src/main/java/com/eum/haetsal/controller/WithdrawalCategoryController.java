@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/withdrawal")
+@RequestMapping("haetsal-service/api/v2/withdrawal")
 @RequiredArgsConstructor
 public class WithdrawalCategoryController {
     private final WithdrawalCategoryService withdrawalCategoryService;

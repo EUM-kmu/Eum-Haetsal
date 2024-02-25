@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/market/post")
+@RequestMapping("haetsal-service/api/v2/market/post")
 @RequiredArgsConstructor
 @CrossOrigin("*")
 public class ApplyController {

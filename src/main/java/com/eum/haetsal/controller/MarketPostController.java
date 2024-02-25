@@ -32,7 +32,7 @@ import java.text.ParseException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/market/post")
+@RequestMapping("/haetsal-service/api/v2/market/post")
 @RequiredArgsConstructor
 @Slf4j
 public class  MarketPostController {
