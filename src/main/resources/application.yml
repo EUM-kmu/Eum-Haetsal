@@ -62,3 +62,18 @@ server:
 s3:
   access-key: ${access-key}
   secret-key: ${secret-key}
+
+# 유레카
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      #      defaultZone: http://host.docker.internal:8761/eureka
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
+logging:
+  level:
+    com.eum.haetsal: debug
