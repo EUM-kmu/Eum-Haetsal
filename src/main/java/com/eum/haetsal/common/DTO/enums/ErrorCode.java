@@ -76,6 +76,18 @@ public enum ErrorCode {
     // Transaction Delete Error
     DELETE_ERROR(200, "9999", "Delete Transaction Error Exception"),
 
+    // block된 계좌일 경우
+    BLOCK_ACCOUNT(403, "G016", "Blocked Account Exception"),
+
+    // 비밀번호가 틀렸을 경우
+    INVALID_PASSWORD(401, "G017", "Invalid Password Exception"),
+
+    // 금액이 부족
+    INSUFFICIENT_AMOUNT(402, "G018", "Insufficient Amount Exception"),
+
+    // 거래의 상태가 유효하지 않음
+    INVALID_DEAL_STATUS(400, "G019", "Invalid Transaction Status Exception"),
+
     ; // End
 
     /**
