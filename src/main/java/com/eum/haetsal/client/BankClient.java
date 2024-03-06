@@ -1,5 +1,6 @@
 package com.eum.haetsal.client;
 
+import com.eum.haetsal.EumHaetsalApplication;
 import com.eum.haetsal.common.DTO.APIResponse;
 import com.eum.haetsal.controller.DTO.request.AccountRequestDTO;
 import com.eum.haetsal.controller.DTO.request.DealRequestDTO;
@@ -10,7 +11,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "bank-service")
+@FeignClient(name = "bank-service", url = "http://localhost:8080")
 public interface BankClient {
 
     // AccountController
@@ -42,7 +43,7 @@ public interface BankClient {
     /**
      * 송금
      * @param deposit
-     * @return ResponseEntity<APIResponse<AccountResponseDTO.Deposit>>
+     * @return ResponseEntity<APIResponse<TotalTransferHistoryResponseDTO.GetTotalTransferHistory>>
      */
     @PostMapping("/account/transfer")
     ResponseEntity<APIResponse<TotalTransferHistoryResponseDTO.GetTotalTransferHistory>> transfer(@RequestBody AccountRequestDTO.Transfer transfer);

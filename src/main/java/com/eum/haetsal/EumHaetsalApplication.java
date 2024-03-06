@@ -3,6 +3,7 @@ package com.eum.haetsal;
 import com.eum.haetsal.client.FeignClientExceptionErrorDecoder;
 import feign.Logger;
 import feign.codec.ErrorDecoder;
+import feign.okhttp.OkHttpClient;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -38,6 +39,11 @@ public class EumHaetsalApplication {
     @Bean
     public FeignClientExceptionErrorDecoder commonFeignErrorDecoder() {
         return new FeignClientExceptionErrorDecoder();
+    }
+
+    @Bean
+    public OkHttpClient client() {
+        return new OkHttpClient();
     }
 
 }
