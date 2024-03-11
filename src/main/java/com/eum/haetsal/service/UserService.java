@@ -18,7 +18,7 @@ public class UserService {
 
     @Transactional
     public String create(Long userId, String password){
-        User user = User.toEntity(userId);
+        User user = User.toEntity(userId, password);
         APIResponse<AccountResponseDTO.Create> accountDTO = bankService.createAccount(password);
         user.setAccountNumber(accountDTO.getData().getAccountNumber());
         userRepository.save(user);

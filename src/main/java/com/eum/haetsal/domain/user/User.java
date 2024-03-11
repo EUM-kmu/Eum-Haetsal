@@ -19,7 +19,10 @@ public class User extends BaseTimeEntity {
     @Column(length = 50)
     private String accountNumber;
 
-    public static User toEntity(Long userId) {
-        return User.builder().userId(userId).build();
+    @Column
+    private String accountPassword;
+
+    public static User toEntity(Long userId, String password) {
+        return User.builder().userId(userId).accountPassword(password).build();
     }
 }
