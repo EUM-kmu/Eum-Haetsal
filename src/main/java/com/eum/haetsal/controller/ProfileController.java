@@ -58,11 +58,11 @@ public class   ProfileController {
             @ApiResponse(responseCode = "403", description = "헤더에 토큰이 들어가있지 않은 경우",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "외부 API 요청 실패, 정상적 수행을 할 수 없을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
-    public ProfileResponseDTO.ProfileResponse createProfile(@RequestBody ProfileRequestDTO.CreateProfile createProfile,  @RequestHeader("userId") String userId){
-        userService.create(Long.valueOf(userId));
-        ProfileResponseDTO.ProfileResponse profileResponse=profileService.create(createProfile, Long.valueOf(userId));
-//        return new ResponseEntity<>( APIResponse.of(SuccessCode.INSERT_SUCCESS,profileResponse), HttpStatus.CREATED);
-        return profileResponse;
+    public ResponseEntity<APIResponse<ProfileResponseDTO.ProfileResponse>> createProfile(@RequestBody ProfileRequestDTO.CreateProfile createProfile,  @RequestHeader("userId") String userId){
+        String accountNumber = userService.create(Long.valueOf(userId), createProfile.getPassword());
+        ProfileResponseDTO.ProfileResponse profileResponse = profileService.create(createProfile, Long.valueOf(userId));
+        profileResponse.setAccountNumber(accountNumber);
+        return new ResponseEntity<>( APIResponse.of(SuccessCode.INSERT_SUCCESS, profileResponse), HttpStatus.CREATED);
     }
 
     /**
