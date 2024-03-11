@@ -16,6 +16,7 @@ public class ProfileResponseDTO {
     public static class ProfileResponse {
         private String nickName;
         private String address;
+        private String accountNumber;
         private String profileImage; //네이버 클라우드 Url
 
     }
