@@ -7,10 +7,7 @@ import com.eum.haetsal.domain.apply.Apply;
 import com.eum.haetsal.domain.category.MarketCategory;
 import com.eum.haetsal.domain.profile.Profile;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.text.ParseException;
@@ -26,6 +23,7 @@ import java.util.Locale;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 public class MarketPost extends BaseTimeEntity {
 
     @Id
@@ -42,6 +40,7 @@ public class MarketPost extends BaseTimeEntity {
     private int currentAcceptedPeople;
     private Date startDate;
     private boolean isDeleted;
+    private Long dealId;
 
     @CreationTimestamp
     @Column
