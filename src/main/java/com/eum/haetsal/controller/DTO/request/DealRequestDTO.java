@@ -29,6 +29,7 @@ public class DealRequestDTO {
 
     @Schema(description = "거래 성사 요청")
     @Getter
+    @Builder
     public static class CompleteDeal{
         // 거래ID
         @Schema(description = "거래ID", example = "1")

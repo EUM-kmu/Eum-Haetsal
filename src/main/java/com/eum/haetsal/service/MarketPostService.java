@@ -54,7 +54,6 @@ public class MarketPostService {
 
         // 인당 지급 햇살 계산
         Long pay = Long.valueOf(marketCreate.getVolunteerTime()); //금액은 활동시간과 같은 값 설정
-//        if(marketCreate.getMarketType()== MarketType.REQUEST_HELP && user.getUserBankAccount().getBalance() < pay * marketCreate.getMaxNumOfPeople()) throw new IllegalArgumentException("잔액보다 크게 돈 설정 불가"); //잔액에 따른 예외처리
 
         String accountNumber = user.getAccountNumber();
         String password = user.getAccountPassword();
@@ -107,7 +106,6 @@ public class MarketPostService {
         getMarketPost.updateStartDate(simpleDateFormat.parse(marketUpdate.getStartDate()));
         getMarketPost.updateLocation(marketUpdate.getLocation());
         Long pay = Long.valueOf(marketUpdate.getVolunteerTime());
-//        if(getMarketPost.getMarketType()==MarketType.REQUEST_HELP && (user.getUserBankAccount().getBalance() < (pay * marketUpdate.getMaxNumOfPeople()))) throw new IllegalArgumentException("잔액보다 크게 돈 설정 불가");
         getMarketPost.updateVolunteerTime(marketUpdate.getVolunteerTime());
         getMarketPost.updateMaxNumOfPeople(marketUpdate.getMaxNumOfPeople());
         getMarketPost.updatePay(pay);
