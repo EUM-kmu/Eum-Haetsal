@@ -117,4 +117,29 @@ public class BankService {
             }
         }
     }
+
+    public APIResponse<DealResponseDTO.createDeal> successDeal(Long dealId, String[] receiverAccountNumbers, String password){
+        try{
+            DealRequestDTO.CompleteDeal completeDeal = DealRequestDTO.CompleteDeal.builder()
+                    .dealId(dealId)
+                    .receiverAccountNumbers(receiverAccountNumbers)
+                    .password(password)
+                    .build();
+
+            return bankClient.success(completeDeal).getBody();
+        } catch (FeignClientException e) {
+            switch (e.getStatus()){
+                case 400:
+                    throw new BadRequestException(e.getErrorForm().getReason());
+                case 401:
+                    throw new WrongPasswordException(e.getErrorForm().getReason());
+                case 402:
+                    throw new InsufficientAmountException(e.getErrorForm().getReason());
+                case 403:
+                    throw new BlockAccountException(e.getErrorForm().getReason());
+                default:
+                    throw new RuntimeException(e.getErrorForm().getReason());
+            }
+        }
+    }
 }
