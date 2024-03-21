@@ -73,6 +73,7 @@ public class DealRequestDTO {
 
     @Schema(description = "거래 취소 요청")
     @Getter
+    @Builder
     public static class CancelDeal{
         // 거래ID
         @Schema(description = "거래ID", example = "1")
