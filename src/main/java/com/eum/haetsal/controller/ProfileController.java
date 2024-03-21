@@ -59,6 +59,10 @@ public class   ProfileController {
             @ApiResponse(responseCode = "500", description = "외부 API 요청 실패, 정상적 수행을 할 수 없을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     public ResponseEntity<APIResponse<ProfileResponseDTO.ProfileResponse>> createProfile(@RequestBody ProfileRequestDTO.CreateProfile createProfile,  @RequestHeader("userId") String userId){
+        // 이미 존재하는 userId일 경우
+        // 1. 이미 프로필이 있는 회원 -> 에러
+        // 2. 프로필이 없는 경우(탈퇴했던 유저) -> 프로필만 재 생성, 계좌는 이미 존재
+
         String accountNumber = userService.create(Long.valueOf(userId), createProfile.getPassword());
         ProfileResponseDTO.ProfileResponse profileResponse = profileService.create(createProfile, Long.valueOf(userId));
         profileResponse.setAccountNumber(accountNumber);
