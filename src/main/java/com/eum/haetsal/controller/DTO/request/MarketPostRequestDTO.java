@@ -36,6 +36,9 @@ public class MarketPostRequestDTO {
 
         @NotNull(message = "카테고리를 입력해주세요")
         private String category;
+
+        @NotNull(message = "계좌 비밀번호를 입력해주세요")
+        private String accountPassword;
     }
     @Setter
     @Getter

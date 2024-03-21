@@ -15,6 +15,8 @@ import com.eum.haetsal.domain.marketpost.MarketPost;
 import com.eum.haetsal.domain.marketpost.MarketPostRepository;
 import com.eum.haetsal.domain.marketpost.Status;
 import com.eum.haetsal.domain.profile.Profile;
+import com.eum.haetsal.domain.user.User;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -35,8 +37,9 @@ public class MarketPostService {
     private final MarketPostRepository marketPostRepository;
     private final MarketCategoryRepository marketCategoryRepository;
     private final MarketPostResponseDTO marketPostResponseDTO;
-
+    private final BankService bankService;
     private final ApplyRepository applyRepository;
+    private final EntityManager em;
 
     /**
      * 게시글 작성 메소드
@@ -44,16 +47,28 @@ public class MarketPostService {
      * @return : 성공 여부
      * @throws ParseException : 활동 날짜 parsing 예외
      */
-    public APIResponse<MarketPostResponseDTO.MarketPostResponse> create(MarketPostRequestDTO.MarketCreate marketCreate, Profile profile) throws ParseException {
+    @Transactional
+    public APIResponse<MarketPostResponseDTO.MarketPostResponse> create(MarketPostRequestDTO.MarketCreate marketCreate, Profile profile, User user) throws ParseException {
+        // 카테고리 찾기
         MarketCategory getMarketCategory = marketCategoryRepository.findByContents(marketCreate.getCategory()).orElseThrow(() -> new IllegalArgumentException("없는 카테고리 입니다"));
 
+        // 인당 지급 햇살 계산
         Long pay = Long.valueOf(marketCreate.getVolunteerTime()); //금액은 활동시간과 같은 값 설정
 //        if(marketCreate.getMarketType()== MarketType.REQUEST_HELP && user.getUserBankAccount().getBalance() < pay * marketCreate.getMaxNumOfPeople()) throw new IllegalArgumentException("잔액보다 크게 돈 설정 불가"); //잔액에 따른 예외처리
 
-        MarketPost marketPost = MarketPost.toEntity(marketCreate,pay,profile,getMarketCategory);
-        MarketPost getMarketPost = marketPostRepository.save(marketPost);
+        String accountNumber = user.getAccountNumber();
+        String password = user.getAccountPassword();
 
-        MarketPostResponseDTO.MarketPostResponse marketPostResponse = MarketPostResponseDTO.toMarketPostResponse(getMarketPost,0);
+        MarketPost marketPost = MarketPost.toEntity(marketCreate,pay,profile,getMarketCategory);
+        em.persist(marketPost);
+
+        // 뱅크에 deal 생성 요청
+        Long dealId = bankService.createDeal(accountNumber, password, pay, (long) marketPost.getMaxNumOfPeople(), marketPost.getMarketPostId()).getData().getDealId();
+        marketPost.setDealId(dealId);
+
+        marketPostRepository.save(marketPost);
+
+        MarketPostResponseDTO.MarketPostResponse marketPostResponse = MarketPostResponseDTO.toMarketPostResponse(marketPost,0);
         return APIResponse.of(SuccessCode.INSERT_SUCCESS,marketPostResponse);
     }
 
