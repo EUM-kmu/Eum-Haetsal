@@ -142,4 +142,30 @@ public class BankService {
             }
         }
     }
+
+    public APIResponse<DealResponseDTO.createDeal> updateDeal(Long dealId, String senderAccountNumber, String password, Long deposit, Long maxPeople){
+        try{
+            DealRequestDTO.UpdateDeal updateDeal = DealRequestDTO.UpdateDeal.builder()
+                    .dealId(dealId)
+                    .senderAccountNumber(senderAccountNumber)
+                    .password(password)
+                    .deposit(deposit)
+                    .numberOfPeople(maxPeople)
+                    .build();
+            return bankClient.updateDeal(updateDeal).getBody();
+        } catch (FeignClientException e) {
+            switch (e.getStatus()){
+                case 400:
+                    throw new BadRequestException(e.getErrorForm().getReason());
+                case 401:
+                    throw new WrongPasswordException(e.getErrorForm().getReason());
+                case 402:
+                    throw new InsufficientAmountException(e.getErrorForm().getReason());
+                case 403:
+                    throw new BlockAccountException(e.getErrorForm().getReason());
+                default:
+                    throw new RuntimeException(e.getErrorForm().getReason());
+            }
+        }
+    }
 }

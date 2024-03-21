@@ -27,4 +27,6 @@ public class DealResponseDTO {
         // 게시글 ID
         private Long postId;
     }
+
+
 }

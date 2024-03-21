@@ -47,9 +47,13 @@ public class  MarketPostController {
             @ApiResponse(responseCode = "403", description = "헤더에 토큰이 들어가있지 않은 경우",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "외부 API 요청 실패, 정상적 수행을 할 수 없을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
-    @PostMapping(consumes =  {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<APIResponse<MarketPostResponseDTO.MarketPostResponse>> create(@RequestPart(value = "request") @Validated MarketPostRequestDTO.MarketCreate marketCreate, @RequestPart(value = "files") List<MultipartFile> multipartFiles, @RequestHeader("userId") String userId) throws ParseException {
-        fileService.uploadFiles(multipartFiles, "marketpost");
+    @PostMapping()//(consumes =  {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<APIResponse<MarketPostResponseDTO.MarketPostResponse>> create(
+            @RequestPart(value = "request")
+            @Validated MarketPostRequestDTO.MarketCreate marketCreate,
+//            @RequestPart(value = "files") List<MultipartFile> multipartFiles,
+            @RequestHeader("userId") String userId) throws ParseException {
+//        fileService.uploadFiles(multipartFiles, "marketpost");
         User user = userService.findByUserId(Long.valueOf(userId));
         Profile profile = profileService.findByUser(Long.valueOf(userId));
         return new ResponseEntity<>(marketPostService.create(marketCreate, profile, user), HttpStatus.CREATED);

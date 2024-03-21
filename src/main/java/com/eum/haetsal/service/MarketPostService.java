@@ -92,12 +92,16 @@ public class MarketPostService {
      * 게시글 업데이트
      * @param postId : 게시글 id
      * @param marketUpdate : 수정된 게시글 내용
-     * @return : 성동 여부
+     * @return : 성공 여부
      * @throws ParseException : 활동날짜 parsing 예외
      */
+    @Transactional
     public  APIResponse<MarketPostResponseDTO.MarketPostResponse> update(Long postId, MarketPostRequestDTO.MarketUpdate marketUpdate, Profile profile) throws ParseException {
         MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
         if(profile != getMarketPost.getProfile()) throw new IllegalArgumentException("잘못된 접근 사용자");
+        // 지원자가 한명이라도 있는경우 수정 불가
+        if(getMarketPost.getApplies().size() > 0) throw new IllegalArgumentException("지원자가 있어 수정이 불가능합니다");
+
         //수정
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.KOREAN);
         getMarketPost.updateTitle(marketUpdate.getTitle());
@@ -109,6 +113,8 @@ public class MarketPostService {
         getMarketPost.updateVolunteerTime(marketUpdate.getVolunteerTime());
         getMarketPost.updateMaxNumOfPeople(marketUpdate.getMaxNumOfPeople());
         getMarketPost.updatePay(pay);
+
+        bankService.updateDeal(getMarketPost.getDealId(), profile.getUser().getAccountNumber(), profile.getUser().getAccountPassword(), pay, (long) marketUpdate.getMaxNumOfPeople());
 
         MarketPost updatedMarketPost = marketPostRepository.save(getMarketPost);
         MarketPostResponseDTO.MarketPostResponse marketPostResponse = MarketPostResponseDTO.toMarketPostResponse(updatedMarketPost,updatedMarketPost.getApplies().size());
