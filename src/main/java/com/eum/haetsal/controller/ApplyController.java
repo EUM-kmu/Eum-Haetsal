@@ -3,8 +3,12 @@ package com.eum.haetsal.controller;
 import com.eum.haetsal.common.DTO.APIResponse;
 import com.eum.haetsal.controller.DTO.request.ApplyRequestDTO;
 import com.eum.haetsal.controller.DTO.response.ApplyResponseDTO;
+import com.eum.haetsal.controller.DTO.response.MarketPostResponseDTO;
+import com.eum.haetsal.controller.DTO.response.MarketPostResponseDTO.MarketPostResponse;
+import com.eum.haetsal.domain.marketpost.MarketPost;
 import com.eum.haetsal.domain.profile.Profile;
 import com.eum.haetsal.service.ApplyService;
+import com.eum.haetsal.service.MarketPostService;
 import com.eum.haetsal.service.ProfileService;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,6 +28,7 @@ import java.util.List;
 public class ApplyController {
     private final ApplyService applyService;
     private final ProfileService profileService;
+    private final MarketPostService marketPostService;
 
     /**
      * 지원하기
@@ -86,9 +91,14 @@ public class ApplyController {
      * @return
      */
     @PostMapping("/{postId}/accept")
-    public ResponseEntity<APIResponse> acceptByPost(@RequestHeader("userId") String userId,@RequestBody ApplyRequestDTO.AcceptList acceptList){
+    public ResponseEntity<APIResponse> acceptByPost(@PathVariable Long postId, @RequestHeader("userId") String userId,@RequestBody ApplyRequestDTO.AcceptList acceptList){
+
         Profile profile = profileService.findByUser(Long.valueOf(userId));
-        return ResponseEntity.ok(applyService.accept(acceptList.getApplyIds(),profile));
+        Long dealId = marketPostService.getMarketPosts(postId, profile).getData().getMarketPostResponse().getDealId();
+
+        applyService.accept(dealId, acceptList.getApplyIds(),profileService.findByUser(Long.valueOf(userId)));
+
+        return ResponseEntity.ok(applyService.accept(dealId,acceptList.getApplyIds(),profile));
     }
 
 
