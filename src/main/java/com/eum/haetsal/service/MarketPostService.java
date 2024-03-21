@@ -76,6 +76,7 @@ public class MarketPostService {
      * @param postId : 삭제할 게시글 id
      * @return : 성공 여부
      */
+    @Transactional
     public  APIResponse delete(Long postId,Profile profile) {
         MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
 
@@ -84,7 +85,14 @@ public class MarketPostService {
 //        List<Scrap> scraps = scrapRepository.findByMarketPost(getMarketPost).orElse(Collections.emptyList()); // 삭제된 게시글 스크랩 취소 처리
 //        scrapRepository.deleteAll(scraps);
 
+        // 만약 거래가 끝난 상황 -> 그냥 지우면 끝
+        // 거래가 진행중인 상황 -> 거래 취소
+        if(getMarketPost.getStatus() == Status.TRANSACTION_COMPLETED){
+            marketPostRepository.save(getMarketPost);
+            return APIResponse.of(SuccessCode.DELETE_SUCCESS);
+        }
         marketPostRepository.save(getMarketPost);
+        bankService.cancelDeal(getMarketPost.getDealId(), profile.getUser().getAccountNumber(), profile.getUser().getAccountPassword());
         return APIResponse.of(SuccessCode.DELETE_SUCCESS);
     }
 
