@@ -4,7 +4,9 @@ import com.eum.haetsal.client.BankClient;
 import com.eum.haetsal.common.DTO.APIResponse;
 import com.eum.haetsal.common.DTO.enums.SuccessCode;
 import com.eum.haetsal.controller.DTO.request.AccountRequestDTO;
+import com.eum.haetsal.controller.DTO.request.DealRequestDTO;
 import com.eum.haetsal.controller.DTO.response.AccountResponseDTO;
+import com.eum.haetsal.controller.DTO.response.DealResponseDTO;
 import com.eum.haetsal.controller.DTO.response.TotalTransferHistoryResponseDTO;
 import com.eum.haetsal.exception.BlockAccountException;
 import com.eum.haetsal.exception.FeignClientException;
@@ -72,6 +74,33 @@ public class BankService {
                     .amount(amount)
                     .build();
             APIResponse<TotalTransferHistoryResponseDTO.GetTotalTransferHistory> response = bankClient.transfer(transfer).getBody();
+            return response;
+        } catch (FeignClientException e) {
+            switch (e.getStatus()){
+                case 400:
+                    throw new BadRequestException(e.getErrorForm().getReason());
+                case 401:
+                    throw new WrongPasswordException(e.getErrorForm().getReason());
+                case 402:
+                    throw new InsufficientAmountException(e.getErrorForm().getReason());
+                case 403:
+                    throw new BlockAccountException(e.getErrorForm().getReason());
+                default:
+                    throw new RuntimeException(e.getErrorForm().getReason());
+            }
+        }
+    }
+
+    public APIResponse<DealResponseDTO.createDeal> createDeal(String accountNumber, String password, Long amount, Long maxPeople, Long postId){
+        try{
+            DealRequestDTO.CreateDeal createDeal = DealRequestDTO.CreateDeal.builder()
+                    .accountNumber(accountNumber)
+                    .password(password)
+                    .deposit(amount)
+                    .maxPeople(maxPeople)
+                    .postId(postId)
+                    .build();
+            APIResponse<DealResponseDTO.createDeal> response = bankClient.createDeal(createDeal).getBody();
             return response;
         } catch (FeignClientException e) {
             switch (e.getStatus()){

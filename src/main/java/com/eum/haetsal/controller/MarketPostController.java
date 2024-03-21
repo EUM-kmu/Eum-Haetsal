@@ -8,10 +8,8 @@ import com.eum.haetsal.controller.DTO.request.enums.ServiceType;
 import com.eum.haetsal.controller.DTO.response.MarketPostResponseDTO;
 import com.eum.haetsal.domain.marketpost.Status;
 import com.eum.haetsal.domain.profile.Profile;
-import com.eum.haetsal.service.BlockService;
-import com.eum.haetsal.service.FileService;
-import com.eum.haetsal.service.MarketPostService;
-import com.eum.haetsal.service.ProfileService;
+import com.eum.haetsal.domain.user.User;
+import com.eum.haetsal.service.*;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -40,6 +38,7 @@ public class  MarketPostController {
     private final BlockService blockService;
     private final FileService fileService;
     private final ProfileService profileService;
+    private final UserService userService;
 
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "성공"),
@@ -49,10 +48,11 @@ public class  MarketPostController {
             @ApiResponse(responseCode = "500", description = "외부 API 요청 실패, 정상적 수행을 할 수 없을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @PostMapping(consumes =  {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<APIResponse<MarketPostResponseDTO.MarketPostResponse>> create(@RequestPart(value = "request") @Validated MarketPostRequestDTO.MarketCreate marketCreate, @RequestPart(value = "files") List<MultipartFile> multipartFiles,@RequestHeader("userId") String userId) throws ParseException {
+    public ResponseEntity<APIResponse<MarketPostResponseDTO.MarketPostResponse>> create(@RequestPart(value = "request") @Validated MarketPostRequestDTO.MarketCreate marketCreate, @RequestPart(value = "files") List<MultipartFile> multipartFiles, @RequestHeader("userId") String userId) throws ParseException {
         fileService.uploadFiles(multipartFiles, "marketpost");
+        User user = userService.findByUserId(Long.valueOf(userId));
         Profile profile = profileService.findByUser(Long.valueOf(userId));
-        return new ResponseEntity<>(marketPostService.create(marketCreate, profile), HttpStatus.CREATED);
+        return new ResponseEntity<>(marketPostService.create(marketCreate, profile, user), HttpStatus.CREATED);
     }
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),

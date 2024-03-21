@@ -16,6 +16,10 @@ public class UserService {
     private final UserRepository userRepository;
     private final BankService bankService;
 
+    public User findByUserId(Long userId){
+        return userRepository.findById(userId).orElseThrow(() -> new NullPointerException("해당 유저가 없습니다."));
+    }
+
     @Transactional
     public String create(Long userId, String password){
         User user = User.toEntity(userId, password);
