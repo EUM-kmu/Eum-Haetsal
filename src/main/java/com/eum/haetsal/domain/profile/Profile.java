@@ -17,9 +17,7 @@ import lombok.NoArgsConstructor;
 
 import java.text.ParseException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -36,7 +34,7 @@ public class Profile extends BaseTimeEntity {
     private String name;
     private String nickname;
     private LocalDate birth;
-    private String sex;
+    private String gender;
     private String profileImage;
     private String address;
     private String fileName;
@@ -96,11 +94,11 @@ public class Profile extends BaseTimeEntity {
     public static Profile toEntity(ProfileRequestDTO.CreateProfile createProfile, User user, String profileImage, String fileName) throws ParseException {
         LocalDate birthDate = KoreaLocalDateTime.stringToLocalDateTime(createProfile.getBirth());
         return Profile.builder()
-                .nickname(createProfile.getNickname())
+                .nickname(createProfile.getNickName())
                 .user(user)
                 .name(createProfile.getName())
                 .birth(birthDate)
-                .sex(createProfile.getSex())
+                .gender(createProfile.getGender())
                 .fileName(fileName)
                 .profileImage(profileImage)
                 .build();
