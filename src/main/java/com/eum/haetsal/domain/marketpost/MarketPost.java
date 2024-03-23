@@ -106,6 +106,7 @@ public class MarketPost extends BaseTimeEntity {
         isDeleted = deleted;
     }
 
+
     public static MarketPost toEntity(MarketPostRequestDTO.MarketCreate marketCreate, Long pay, Profile profile, MarketCategory marketCategory) throws ParseException {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.KOREAN);
         return MarketPost.builder()
