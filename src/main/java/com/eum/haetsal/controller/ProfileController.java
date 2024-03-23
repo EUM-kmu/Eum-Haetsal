@@ -2,6 +2,7 @@ package com.eum.haetsal.controller;
 
 
 import com.eum.haetsal.common.DTO.APIResponse;
+import com.eum.haetsal.common.DTO.ErrorResponse;
 import com.eum.haetsal.common.DTO.enums.SuccessCode;
 import com.eum.haetsal.controller.DTO.request.ProfileRequestDTO;
 import com.eum.haetsal.controller.DTO.response.ProfileResponseDTO;
@@ -21,7 +22,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
