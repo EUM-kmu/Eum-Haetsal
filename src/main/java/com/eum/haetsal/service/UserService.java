@@ -25,7 +25,7 @@ public class UserService {
     @Transactional
     public String create(Long userId, String password){
         if(userRepository.existsById(userId)){
-           User user = userRepository.findById(userId).orElseThrow(() -> new NullPointerException("해당 유저가 없습니다."));
+           User user = userRepository.findById(userId).get();
            if (profileRepository.existsByUser(user)) throw new IllegalArgumentException("이미 프로필이 있는 회원");
               return user.getAccountNumber();
         }

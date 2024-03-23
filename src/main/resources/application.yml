@@ -5,7 +5,7 @@ spring:
     time-zone: Asia/Seoul
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3307/haetsal?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://localhost:3308/haetsal?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul
     username: root
     password: root
   mvc:
@@ -16,7 +16,7 @@ spring:
     hibernate:
       format-sql: true
       highlight-sql: true
-      ddl-auto: update
+      ddl-auto: create
 
       dialect: org.hibernate.dialect.MySQLDialect # ??? ??
     properties:
