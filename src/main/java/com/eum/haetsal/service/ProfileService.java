@@ -3,7 +3,6 @@ package com.eum.haetsal.service;
 import com.eum.haetsal.common.DTO.APIResponse;
 import com.eum.haetsal.common.DTO.FileDto;
 import com.eum.haetsal.common.DTO.enums.SuccessCode;
-import com.eum.haetsal.common.KoreaLocalDateTime;
 import com.eum.haetsal.controller.DTO.request.ProfileRequestDTO;
 import com.eum.haetsal.controller.DTO.response.ProfileResponseDTO;
 import com.eum.haetsal.domain.profile.Profile;
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.text.ParseException;
-import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +34,7 @@ public class ProfileService {
         User getUser = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("invalid userId"));
         if (profileRepository.existsByUser(getUser)) throw new IllegalArgumentException("이미 프로필이 있는 회원");
 
-        validateNickname(createProfile.getNickname());
+        validateNickname(createProfile.getNickName());
         FileDto fileDto = fileService.uploadFile(multipartFile, "profile");
         Profile profile = Profile.toEntity(createProfile,getUser,fileDto.getUploadFileUrl(),fileDto.getUploadFileName());
         Profile savedProfile = profileRepository.save(profile);
