@@ -46,13 +46,8 @@ public class Profile extends BaseTimeEntity {
     private List<Block> blockedUsers = new ArrayList<>();
 
 
-
-
     @OneToMany(mappedBy = "profile", orphanRemoval = true)
     private List<MarketPost> marketPosts = new ArrayList<>();
-
-
-
 
 
     @OneToMany(mappedBy = "profile", orphanRemoval = true)
@@ -61,10 +56,6 @@ public class Profile extends BaseTimeEntity {
 
     @OneToOne(mappedBy = "profile", orphanRemoval = true)
     private WithdrawalUser withdrawalUser;
-
-
-
-
 
     @OneToOne
     @JoinColumn(name="user_id")
