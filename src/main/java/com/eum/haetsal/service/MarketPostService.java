@@ -297,4 +297,14 @@ public class MarketPostService {
             throw new IllegalArgumentException("최신화 할 수 없는 게시글입니다.");
         }
     }
+
+    /**
+     * 게시글 신고
+     * @param postId : 게시글 id
+     */
+    public void report(Long postId, Long userId) {
+        MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
+        getMarketPost.increaseReportedCount(userId);
+        marketPostRepository.save(getMarketPost);
+    }
 }

@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -169,7 +170,22 @@ public class  MarketPostController {
         return ResponseEntity.ok(APIResponse.of(SuccessCode.UPDATE_SUCCESS));
     }
 
-
-
-
+    /**
+     * 게시글 신고
+     * @param postId
+     * @return : 성공여부
+     */
+    @Transactional
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "성공"),
+        @ApiResponse(responseCode = "400", description = "요청 형식 혹은 요청 콘텐츠가 올바르지 않을 때,", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "401", description = "토큰 시간 만료, 형식 오류,로그아웃한 유저 접근", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "403", description = "헤더에 토큰이 들어가있지 않은 경우", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "500", description = "외부 API 요청 실패, 정상적 수행을 할 수 없을 때,", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+    })
+    @PostMapping("/{postId}/report")
+    public ResponseEntity<APIResponse> report(@PathVariable Long postId, @RequestHeader("userId") String userId){
+        marketPostService.report(postId, Long.valueOf(userId));
+        return ResponseEntity.ok(APIResponse.of(SuccessCode.INSERT_SUCCESS));
+    }
 }
