@@ -2,6 +2,7 @@ package com.eum.haetsal.domain.profile;
 
 
 import com.eum.haetsal.common.BaseTimeEntity;
+import com.eum.haetsal.common.KoreaLocalDateTime;
 import com.eum.haetsal.controller.DTO.request.ProfileRequestDTO;
 import com.eum.haetsal.domain.block.Block;
 import com.eum.haetsal.domain.apply.Apply;
@@ -14,6 +15,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.text.ParseException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,8 +33,10 @@ public class Profile extends BaseTimeEntity {
     @Column
     private String name;
     private String nickname;
-    private String address;
+    private LocalDate birth;
+    private String gender;
     private String profileImage;
+    private String address;
     private String fileName;
 
     @OneToMany(mappedBy = "blocker")
@@ -86,10 +91,15 @@ public class Profile extends BaseTimeEntity {
 
 
 
-    public static Profile toEntity(ProfileRequestDTO.CreateProfile createProfile, User user, String profileImage, String fileName){
+    public static Profile toEntity(ProfileRequestDTO.CreateProfile createProfile, User user, String profileImage, String fileName) throws ParseException {
+        LocalDate birthDate = KoreaLocalDateTime.stringToLocalDateTime(createProfile.getBirth());
         return Profile.builder()
-                .nickname(createProfile.getNickname())
+                .nickname(createProfile.getNickName())
                 .user(user)
+                .name(createProfile.getName())
+                .birth(birthDate)
+                .gender(createProfile.getGender())
+                .fileName(fileName)
                 .profileImage(profileImage)
                 .build();
     }

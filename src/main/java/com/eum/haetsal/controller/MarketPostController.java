@@ -2,6 +2,7 @@ package com.eum.haetsal.controller;
 
 
 import com.eum.haetsal.common.DTO.APIResponse;
+import com.eum.haetsal.common.DTO.ErrorResponse;
 import com.eum.haetsal.common.DTO.enums.SuccessCode;
 import com.eum.haetsal.controller.DTO.request.MarketPostRequestDTO;
 import com.eum.haetsal.controller.DTO.request.enums.MarketType;
@@ -20,12 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.text.ParseException;
 import java.util.List;
