@@ -24,6 +24,7 @@ public class Apply extends BaseTimeEntity {
     @Column
     @Enumerated(EnumType.STRING)
     private Status status;
+
     @ManyToOne
     @JoinColumn(name="applicant_id")
     private Profile profile;

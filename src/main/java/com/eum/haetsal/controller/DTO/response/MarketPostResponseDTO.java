@@ -31,6 +31,9 @@ public class MarketPostResponseDTO {
         private int currentApplicant;
         private int maxNumOfPeople;
         private String category;
+
+        private Long dealId;
+
     }
     @Builder
     @Getter
@@ -64,6 +67,7 @@ public class MarketPostResponseDTO {
                 .marketType(marketPost.getMarketType())
                 .location(marketPost.getLocation())
                 .category(marketPost.getMarketCategory().getContents())
+                .dealId(marketPost.getDealId())
                 .status(marketPost.getStatus())
                 .currentApplicant(currentApplicant)
                 .maxNumOfPeople(marketPost.getMaxNumOfPeople())

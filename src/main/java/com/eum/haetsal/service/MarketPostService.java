@@ -15,6 +15,8 @@ import com.eum.haetsal.domain.marketpost.MarketPost;
 import com.eum.haetsal.domain.marketpost.MarketPostRepository;
 import com.eum.haetsal.domain.marketpost.Status;
 import com.eum.haetsal.domain.profile.Profile;
+import com.eum.haetsal.domain.user.User;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,8 +38,20 @@ public class MarketPostService {
     private final MarketPostRepository marketPostRepository;
     private final MarketCategoryRepository marketCategoryRepository;
     private final MarketPostResponseDTO marketPostResponseDTO;
-
+    private final BankService bankService;
     private final ApplyRepository applyRepository;
+    private final EntityManager em;
+
+    /**
+     * 유저와 게시글 검증
+     * @param postId : 게시글 id
+     *
+     */
+    public MarketPost validateUserAndPost(Long postId, Profile profile) {
+        MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
+        if(profile != getMarketPost.getProfile()) throw new IllegalArgumentException("잘못된 접근 사용자");
+        return getMarketPost;
+    }
 
     /**
      * 게시글 작성 메소드
@@ -44,16 +59,27 @@ public class MarketPostService {
      * @return : 성공 여부
      * @throws ParseException : 활동 날짜 parsing 예외
      */
-    public APIResponse<MarketPostResponseDTO.MarketPostResponse> create(MarketPostRequestDTO.MarketCreate marketCreate, Profile profile) throws ParseException {
+    @Transactional
+    public APIResponse<MarketPostResponseDTO.MarketPostResponse> create(MarketPostRequestDTO.MarketCreate marketCreate, Profile profile, User user) throws ParseException {
+        // 카테고리 찾기
         MarketCategory getMarketCategory = marketCategoryRepository.findByContents(marketCreate.getCategory()).orElseThrow(() -> new IllegalArgumentException("없는 카테고리 입니다"));
 
+        // 인당 지급 햇살 계산
         Long pay = Long.valueOf(marketCreate.getVolunteerTime()); //금액은 활동시간과 같은 값 설정
-//        if(marketCreate.getMarketType()== MarketType.REQUEST_HELP && user.getUserBankAccount().getBalance() < pay * marketCreate.getMaxNumOfPeople()) throw new IllegalArgumentException("잔액보다 크게 돈 설정 불가"); //잔액에 따른 예외처리
+
+        String accountNumber = user.getAccountNumber();
+        String password = user.getAccountPassword();
 
         MarketPost marketPost = MarketPost.toEntity(marketCreate,pay,profile,getMarketCategory);
-        MarketPost getMarketPost = marketPostRepository.save(marketPost);
+        em.persist(marketPost);
 
-        MarketPostResponseDTO.MarketPostResponse marketPostResponse = MarketPostResponseDTO.toMarketPostResponse(getMarketPost,0);
+        // 뱅크에 deal 생성 요청
+        Long dealId = bankService.createDeal(accountNumber, password, pay, (long) marketPost.getMaxNumOfPeople(), marketPost.getMarketPostId()).getData().getDealId();
+        marketPost.setDealId(dealId);
+
+        marketPostRepository.save(marketPost);
+
+        MarketPostResponseDTO.MarketPostResponse marketPostResponse = MarketPostResponseDTO.toMarketPostResponse(marketPost,0);
         return APIResponse.of(SuccessCode.INSERT_SUCCESS,marketPostResponse);
     }
 
@@ -62,15 +88,21 @@ public class MarketPostService {
      * @param postId : 삭제할 게시글 id
      * @return : 성공 여부
      */
+    @Transactional
     public  APIResponse delete(Long postId,Profile profile) {
-        MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
-
-        if(profile != getMarketPost.getProfile()) throw new IllegalArgumentException("잘못된 접근 사용자");
+        MarketPost getMarketPost = validateUserAndPost(postId, profile);
         getMarketPost.updateDeleted(true); //논리삭제
 //        List<Scrap> scraps = scrapRepository.findByMarketPost(getMarketPost).orElse(Collections.emptyList()); // 삭제된 게시글 스크랩 취소 처리
 //        scrapRepository.deleteAll(scraps);
 
+        // 만약 거래가 끝난 상황 -> 그냥 지우면 끝
+        // 거래가 진행중인 상황 -> 거래 취소
+        if(getMarketPost.getStatus() == Status.TRANSACTION_COMPLETED){
+            marketPostRepository.save(getMarketPost);
+            return APIResponse.of(SuccessCode.DELETE_SUCCESS);
+        }
         marketPostRepository.save(getMarketPost);
+        bankService.cancelDeal(getMarketPost.getDealId(), profile.getUser().getAccountNumber(), profile.getUser().getAccountPassword());
         return APIResponse.of(SuccessCode.DELETE_SUCCESS);
     }
 
@@ -78,12 +110,15 @@ public class MarketPostService {
      * 게시글 업데이트
      * @param postId : 게시글 id
      * @param marketUpdate : 수정된 게시글 내용
-     * @return : 성동 여부
+     * @return : 성공 여부
      * @throws ParseException : 활동날짜 parsing 예외
      */
+    @Transactional
     public  APIResponse<MarketPostResponseDTO.MarketPostResponse> update(Long postId, MarketPostRequestDTO.MarketUpdate marketUpdate, Profile profile) throws ParseException {
-        MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
-        if(profile != getMarketPost.getProfile()) throw new IllegalArgumentException("잘못된 접근 사용자");
+        MarketPost getMarketPost = validateUserAndPost(postId, profile);
+        // 지원자가 한명이라도 있는경우 수정 불가
+        if(getMarketPost.getApplies().size() > 0) throw new IllegalArgumentException("지원자가 있어 수정이 불가능합니다");
+
         //수정
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.KOREAN);
         getMarketPost.updateTitle(marketUpdate.getTitle());
@@ -92,10 +127,11 @@ public class MarketPostService {
         getMarketPost.updateStartDate(simpleDateFormat.parse(marketUpdate.getStartDate()));
         getMarketPost.updateLocation(marketUpdate.getLocation());
         Long pay = Long.valueOf(marketUpdate.getVolunteerTime());
-//        if(getMarketPost.getMarketType()==MarketType.REQUEST_HELP && (user.getUserBankAccount().getBalance() < (pay * marketUpdate.getMaxNumOfPeople()))) throw new IllegalArgumentException("잔액보다 크게 돈 설정 불가");
         getMarketPost.updateVolunteerTime(marketUpdate.getVolunteerTime());
         getMarketPost.updateMaxNumOfPeople(marketUpdate.getMaxNumOfPeople());
         getMarketPost.updatePay(pay);
+
+        bankService.updateDeal(getMarketPost.getDealId(), profile.getUser().getAccountNumber(), profile.getUser().getAccountPassword(), pay, (long) marketUpdate.getMaxNumOfPeople());
 
         MarketPost updatedMarketPost = marketPostRepository.save(getMarketPost);
         MarketPostResponseDTO.MarketPostResponse marketPostResponse = MarketPostResponseDTO.toMarketPostResponse(updatedMarketPost,updatedMarketPost.getApplies().size());
@@ -110,8 +146,7 @@ public class MarketPostService {
      * @return : 성공 여부
      */
     public  APIResponse updateState(Long postId,Status status, Profile profile) {
-        MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
-        if(profile != getMarketPost.getProfile()) throw new IllegalArgumentException("잘못된 접근 사용자");
+        MarketPost getMarketPost = validateUserAndPost(postId, profile);
 
         getMarketPost.updateStatus(status);
         marketPostRepository.save(getMarketPost);
@@ -201,7 +236,7 @@ public class MarketPostService {
      * @return
      */
     private APIResponse<List<MarketPostResponseDTO.MarketPostResponse>> getMyPosts(Profile profile) {
-        List<MarketPost> marketPosts = marketPostRepository.findByProfileAndIsDeletedFalseOrderByCreateDateDesc(profile).orElse(Collections.emptyList());
+        List<MarketPost> marketPosts = marketPostRepository.findByProfileAndIsDeletedFalseOrderByPullUpDateDesc(profile).orElse(Collections.emptyList());
 
         List<MarketPostResponseDTO.MarketPostResponse> marketPostResponses = getAllPostResponse(marketPosts);
 
@@ -237,13 +272,39 @@ public class MarketPostService {
         return APIResponse.of(SuccessCode.SELECT_SUCCESS, transactionPostDTOs);
     }
 
-    /**
-     * 거래 상태 업데이트 함수 -> 지원 데이터에 상태 업데이트로 바뀌어야함
-     * @param chatRoomId : 채팅방 Id
-     */
-    public void updateStatusCompleted(Long chatRoomId){
+//    /**
+//     * 거래 상태 업데이트 함수 -> 지원 데이터에 상태 업데이트로 바뀌어야함
+//     * @param chatRoomId : 채팅방 Id
+//     */
+//    public void updateStatusCompleted(Long chatRoomId){
 //        MarketPost marketPost = chatRoomRepository.findById(chatRoomId).orElseThrow(()->new NullPointerException("invalid chatRoomdId")).getMarketPost();
 //        marketPost.updateStatus(Status.TRANSACTION_COMPLETED);
 //        marketPostRepository.save(marketPost);
+//    }
+
+    /**
+     * 게시글의 pulluptime 최신
+     * @param postId : 게시글 id
+     */
+    public void pullUp(Long postId, Profile profile) {
+        MarketPost getMarketPost = validateUserAndPost(postId, profile);
+        // pullUpDate가 이틀을 넘었다면 최신화
+        if (getMarketPost.getPullUpDate() != null && getMarketPost.getPullUpDate().isBefore(LocalDateTime.now().minusDays(2))) {
+            getMarketPost.setPullUpDate(LocalDateTime.now());
+            marketPostRepository.save(getMarketPost);
+        }
+        else {
+            throw new IllegalArgumentException("최신화 할 수 없는 게시글입니다.");
+        }
+    }
+
+    /**
+     * 게시글 신고
+     * @param postId : 게시글 id
+     */
+    public void report(Long postId, Long userId) {
+        MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
+        getMarketPost.increaseReportedCount(userId);
+        marketPostRepository.save(getMarketPost);
     }
 }

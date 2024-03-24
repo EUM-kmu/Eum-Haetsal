@@ -2,10 +2,9 @@ package com.eum.haetsal.common;
 
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 @Component
@@ -22,6 +21,10 @@ public class KoreaLocalDateTime {
         ZonedDateTime koreaZoneTime = dateTimeUTC.atZone(ZoneId.of("Asia/Seoul"));
         String formattedKoreaZoneTime = koreaZoneTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ"));
         return formattedKoreaZoneTime;
+    }
+    public static LocalDate stringToLocalDateTime(String date) throws ParseException {
+        LocalDate formDate = LocalDate.parse(date, DateTimeFormatter.ISO_DATE);
+        return formDate;
     }
 
 

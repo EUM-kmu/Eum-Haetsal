@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.text.ParseException;
+
 @Service
 @RequiredArgsConstructor
 public class ProfileService {
@@ -27,26 +29,26 @@ public class ProfileService {
      * @param userId
      * @return
      */
-//    @Transactional
-//    public ProfileResponseDTO.ProfileResponse create(ProfileRequestDTO.CreateProfile createProfile, Long userId, MultipartFile multipartFile) {
-//        User getUser = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("invalid userId"));
-//        if (profileRepository.existsByUser(getUser)) throw new IllegalArgumentException("이미 프로필이 있는 회원");
-//
-//        validateNickname(createProfile.getNickname());
-//        FileDto fileDto = fileService.uploadFile(multipartFile, "profile");
-//        Profile profile = Profile.toEntity(createProfile,getUser,fileDto.getUploadFileUrl(),fileDto.getUploadFileName());
-//        Profile savedProfile = profileRepository.save(profile);
-//
-//        ProfileResponseDTO.ProfileResponse createProfileResponse = ProfileResponseDTO.toProfileResponse(savedProfile);
-//        return createProfileResponse;
-//
-//    }
     @Transactional
-    public ProfileResponseDTO.ProfileResponse create(ProfileRequestDTO.CreateProfile createProfile, Long userId) {
+    public ProfileResponseDTO.ProfileResponseWithToken create(ProfileRequestDTO.CreateProfile createProfile, Long userId, MultipartFile multipartFile) throws ParseException {
         User getUser = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("invalid userId"));
         if (profileRepository.existsByUser(getUser)) throw new IllegalArgumentException("이미 프로필이 있는 회원");
 
-        validateNickname(createProfile.getNickname());
+        validateNickname(createProfile.getNickName());
+        FileDto fileDto = fileService.uploadFile(multipartFile, "profile");
+        Profile profile = Profile.toEntity(createProfile,getUser,fileDto.getUploadFileUrl(),fileDto.getUploadFileName());
+        Profile savedProfile = profileRepository.save(profile);
+
+        ProfileResponseDTO.ProfileResponseWithToken createProfileResponse = ProfileResponseDTO.toProfileToken(savedProfile);
+        return createProfileResponse;
+
+    }
+    @Transactional
+    public ProfileResponseDTO.ProfileResponse createT(ProfileRequestDTO.CreateProfile createProfile, Long userId) throws ParseException {
+        User getUser = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("invalid userId"));
+        if (profileRepository.existsByUser(getUser)) throw new IllegalArgumentException("이미 프로필이 있는 회원");
+
+        validateNickname(createProfile.getNickName());
 //        FileDto fileDto = fileService.uploadFile(multipartFile, "profile");
         Profile profile = Profile.toEntity(createProfile,getUser,"","");
         Profile savedProfile = profileRepository.save(profile);
