@@ -13,6 +13,7 @@ import com.eum.haetsal.domain.profile.Profile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -83,15 +84,15 @@ public class ApplyService {
      * @param profile
      * @return
      */
-    public APIResponse accept(Long dealId, List<Long> applyIds, Profile profile) {
+    @Transactional
+    public APIResponse accept(Long postId, Long dealId, List<Long> applyIds, Profile profile) {
 
         String[] receiverAccountNumbers = applyIds.stream().map(
             applyId -> applyRepository.findById(applyId).orElseThrow(() ->
                 new NullPointerException("invalid applyId")).getProfile().getUser().getAccountNumber()).toArray(String[]::new);
 
         String password = profile.getUser().getAccountPassword();
-
-        bankService.successDeal(dealId, receiverAccountNumbers ,password);
+        MarketPost marketPost = marketPostRepository.findById(postId).orElseThrow(() -> new NullPointerException("invalid postId"));
 
         applyIds.forEach(applyId -> {
             Apply getApply = applyRepository.findById(applyId).orElseThrow(() -> new NullPointerException("invalid applyId"));
@@ -99,18 +100,18 @@ public class ApplyService {
             if (getApply.getMarketPost().getProfile() != profile) throw new IllegalArgumentException("해당 게시글에 대한 권한이 없다");
             if(getApply.getIsAccepted() || getApply.getStatus() == com.eum.haetsal.domain.apply.Status.TRADING_CANCEL) throw new IllegalArgumentException("이미 선정했더나 과거 거래 취소를 했던 사람입니다");
 
-            MarketPost marketPost = getApply.getMarketPost();
+
             getApply.updateAccepted(true); //수락
             getApply.updateStatus(com.eum.haetsal.domain.apply.Status.TRADING); //지원 상태 변경
             marketPost.addCurrentAcceptedPeople(); //게시글에 반영
 
-            if(marketPost.getCurrentAcceptedPeople() == marketPost.getMaxNumOfPeople()) {
-                marketPost.updateStatus(Status.RECRUITMENT_COMPLETED); //정원이 다차면 완료 처리
-            }
-
-            marketPostRepository.save(marketPost);
             applyRepository.save(getApply);
         });
+
+        marketPost.updateStatus(Status.RECRUITMENT_COMPLETED);
+        marketPostRepository.save(marketPost);
+
+        bankService.successDeal(dealId, receiverAccountNumbers ,password);
         return APIResponse.of(SuccessCode.UPDATE_SUCCESS, "선정성공, 채팅방 개설 완료");
     }
 

@@ -103,11 +103,13 @@ public class ApplyController {
     public ResponseEntity<APIResponse> acceptByPost(@PathVariable Long postId, @RequestHeader("userId") String userId,@RequestBody ApplyRequestDTO.AcceptList acceptList){
 
         Profile profile = profileService.findByUser(Long.valueOf(userId));
-        Long dealId = marketPostService.getMarketPosts(postId, profile).getData().getMarketPostResponse().getDealId();
 
-        applyService.accept(dealId, acceptList.getApplyIds(),profileService.findByUser(Long.valueOf(userId)));
+        MarketPostResponse marketPost = marketPostService.getMarketPosts(postId, profile).getData().getMarketPostResponse();
+        Long dealId = marketPost.getDealId();
+        if (acceptList.getApplyIds().size() > marketPost.getMaxNumOfPeople())
+            throw new IllegalArgumentException("최대 신청자 수를 넘었습니다");
 
-        return ResponseEntity.ok(applyService.accept(dealId,acceptList.getApplyIds(),profile));
+        return ResponseEntity.ok(applyService.accept(postId, dealId,acceptList.getApplyIds(),profile));
     }
 
 

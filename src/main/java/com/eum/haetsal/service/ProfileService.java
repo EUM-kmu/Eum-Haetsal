@@ -43,20 +43,20 @@ public class ProfileService {
         return createProfileResponse;
 
     }
-//    @Transactional
-//    public ProfileResponseDTO.ProfileResponse create(ProfileRequestDTO.CreateProfile createProfile, Long userId) {
-//        User getUser = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("invalid userId"));
-//        if (profileRepository.existsByUser(getUser)) throw new IllegalArgumentException("이미 프로필이 있는 회원");
-//
-//        validateNickname(createProfile.getNickname());
-////        FileDto fileDto = fileService.uploadFile(multipartFile, "profile");
-//        Profile profile = Profile.toEntity(createProfile,getUser,"","");
-//        Profile savedProfile = profileRepository.save(profile);
-//
-//        ProfileResponseDTO.ProfileResponse createProfileResponse = ProfileResponseDTO.toProfileResponse(savedProfile);
-//        return createProfileResponse;
-//
-//    }
+    @Transactional
+    public ProfileResponseDTO.ProfileResponse createT(ProfileRequestDTO.CreateProfile createProfile, Long userId) throws ParseException {
+        User getUser = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("invalid userId"));
+        if (profileRepository.existsByUser(getUser)) throw new IllegalArgumentException("이미 프로필이 있는 회원");
+
+        validateNickname(createProfile.getNickName());
+//        FileDto fileDto = fileService.uploadFile(multipartFile, "profile");
+        Profile profile = Profile.toEntity(createProfile,getUser,"","");
+        Profile savedProfile = profileRepository.save(profile);
+
+        ProfileResponseDTO.ProfileResponse createProfileResponse = ProfileResponseDTO.toProfileResponse(savedProfile);
+        return createProfileResponse;
+
+    }
 
     /**
      * 프로필 조회

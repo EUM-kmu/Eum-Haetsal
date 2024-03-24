@@ -23,18 +23,17 @@ public class UserService {
     }
 
     @Transactional
-    public String create(Long userId, String password){
+    public void create(Long userId, String password){
         if(userRepository.existsById(userId)){
            User user = userRepository.findById(userId).get();
            if (profileRepository.existsByUser(user)) throw new IllegalArgumentException("이미 프로필이 있는 회원");
-              return user.getAccountNumber();
+
         }
         else {
             User user = User.toEntity(userId, password);
             APIResponse<AccountResponseDTO.Create> accountDTO = bankService.createAccount(password);
             user.setAccountNumber(accountDTO.getData().getAccountNumber());
             userRepository.save(user);
-            return accountDTO.getData().getAccountNumber();
         }
     }
 }
