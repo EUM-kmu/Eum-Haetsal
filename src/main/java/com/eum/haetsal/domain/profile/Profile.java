@@ -92,6 +92,7 @@ public class Profile extends BaseTimeEntity {
                 .gender(createProfile.getGender())
                 .fileName(fileName)
                 .profileImage(profileImage)
+                .address(createProfile.getAddress())
                 .build();
     }
 
