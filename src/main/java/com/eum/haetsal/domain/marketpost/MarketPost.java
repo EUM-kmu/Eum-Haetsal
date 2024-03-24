@@ -6,11 +6,9 @@ import com.eum.haetsal.controller.DTO.request.enums.MarketType;
 import com.eum.haetsal.domain.apply.Apply;
 import com.eum.haetsal.domain.category.MarketCategory;
 import com.eum.haetsal.domain.profile.Profile;
+import com.eum.haetsal.domain.report.Report;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.text.ParseException;
@@ -26,10 +24,12 @@ import java.util.Locale;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 public class MarketPost extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "market_post_id")
     private Long marketPostId;
 
     @Column
@@ -42,6 +42,8 @@ public class MarketPost extends BaseTimeEntity {
     private int currentAcceptedPeople;
     private Date startDate;
     private boolean isDeleted;
+    private Long dealId;
+    private Long reportedCount;
 
     @CreationTimestamp
     @Column
@@ -68,6 +70,9 @@ public class MarketPost extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "marketPost", orphanRemoval = true)
     private List<Apply> applies = new ArrayList<>();
+
+    @OneToMany(mappedBy = "marketPost")
+    private List<Report> reports  = new ArrayList<>();
 
 
     public void updateTitle(String title) {
@@ -106,6 +111,17 @@ public class MarketPost extends BaseTimeEntity {
     public void updateDeleted(Boolean deleted) {
         isDeleted = deleted;
     }
+
+    public void increaseReportedCount(Long userId) {
+        this.reports.forEach(report -> {
+                    if(report.getUser().getUserId().equals(userId)){
+                        throw new IllegalArgumentException("이미 신고한 게시물입니다.");
+                    }
+                });
+        
+        this.reportedCount += 1;
+    }
+
 
     public static MarketPost toEntity(MarketPostRequestDTO.MarketCreate marketCreate, Long pay, Profile profile, MarketCategory marketCategory) throws ParseException {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.KOREAN);

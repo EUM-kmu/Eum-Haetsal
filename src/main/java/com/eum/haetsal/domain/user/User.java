@@ -1,23 +1,36 @@
 package com.eum.haetsal.domain.user;
 
 import com.eum.haetsal.common.BaseTimeEntity;
+import com.eum.haetsal.domain.report.Report;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import java.util.List;
+import lombok.*;
 
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 public class User extends BaseTimeEntity {
     @Id
+    @Column(name = "user_id")
     private Long userId;
 
-    public static User toEntity(Long userId) {
-        return User.builder().userId(userId).build();
+    @Column(length = 50)
+    private String accountNumber;
+
+    @Column
+    private String accountPassword;
+
+    @OneToMany(mappedBy = "user")
+    private List<Report> reports;
+
+    public static User toEntity(Long userId, String password) {
+        return User.builder().userId(userId).accountPassword(password).build();
     }
 }

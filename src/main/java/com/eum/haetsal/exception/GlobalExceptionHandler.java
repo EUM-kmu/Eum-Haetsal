@@ -226,6 +226,53 @@ public class GlobalExceptionHandler {
 //        final ErrorResponse response = ErrorResponse.of(ErrorCode.UNAUTHORIZED_ERROR, ex.getMessage());
 //        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
 //    }
+    /**
+     * [Exception] block된 계좌일 경우
+     * @param ex BlockAccountException
+     * @return ResponseEntity<ErrorResponse>
+     */
+    @ExceptionHandler(BlockAccountException.class)
+    protected ResponseEntity<ErrorResponse> BlockAccountException(BlockAccountException ex) {
+        log.error("BlockAccountException", ex);
+        final ErrorResponse response = ErrorResponse.of(ErrorCode.BLOCK_ACCOUNT, ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
+    /**
+     * [Exception] 비밀번호가 틀렸을 경우
+     * @param ex WrongPasswordException
+     * @return ResponseEntity<ErrorResponse>
+     */
+    @ExceptionHandler(WrongPasswordException.class)
+    protected ResponseEntity<ErrorResponse> WrongPasswordException(WrongPasswordException ex) {
+        log.error("WrongPasswordException", ex);
+        final ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_PASSWORD, ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+
+    /**
+     * [Exception] 금액 부족
+     * @param ex InsufficientAmountException
+     * @return ResponseEntity<ErrorResponse>
+     */
+    @ExceptionHandler(InsufficientAmountException.class)
+    protected ResponseEntity<ErrorResponse> InsufficientAmountException(InsufficientAmountException ex) {
+        log.error("InsufficientAmountException", ex);
+        final ErrorResponse response = ErrorResponse.of(ErrorCode.INSUFFICIENT_AMOUNT, ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.PAYMENT_REQUIRED);
+    }
+
+    /**
+     * [Exception] 거래의 상태가 유효하지 않음
+     * @param ex InvalidStatusException
+     * @return ResponseEntity<ErrorResponse>
+     */
+    @ExceptionHandler(InvalidStatusException.class)
+    protected ResponseEntity<ErrorResponse> InvalidDealStatusException(InvalidStatusException ex) {
+        log.error("InvalidDealStatusException", ex);
+        final ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_DEAL_STATUS, ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
 
 
     // ==================================================================================================================
