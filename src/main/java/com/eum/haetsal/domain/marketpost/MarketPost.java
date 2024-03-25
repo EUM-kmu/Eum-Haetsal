@@ -49,8 +49,8 @@ public class MarketPost extends BaseTimeEntity {
     @Column
     private LocalDateTime pullUpDate;
 
-    @Column
-    @Enumerated(EnumType.STRING)
+//    @Column
+//    @Enumerated(EnumType.STRING)
     private MarketType marketType;
     @Column
     @Enumerated(EnumType.STRING)
@@ -123,22 +123,20 @@ public class MarketPost extends BaseTimeEntity {
     }
 
 
-    public static MarketPost toEntity(MarketPostRequestDTO.MarketCreate marketCreate, Long pay, Profile profile, MarketCategory marketCategory) throws ParseException {
+    public static MarketPost toEntity(MarketPostRequestDTO.MarketCreate marketCreate, Long pay, Profile profile) throws ParseException {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.KOREAN);
         return MarketPost.builder()
                 .title(marketCreate.getTitle())
                 .content(marketCreate.getContent())
-                .startDate(simpleDateFormat.parse(marketCreate.getStartTime()))
-                .slot(marketCreate.getSlot())
+                .startDate(simpleDateFormat.parse(marketCreate.getStartDate()))
                 .pay(pay)
                 .isDeleted(false)
                 .location(marketCreate.getLocation())
                 .volunteerTime(marketCreate.getVolunteerTime())
-                .marketType(marketCreate.getMarketType())
+                .marketType(MarketType.REQUEST_HELP)
                 .maxNumOfPeople(marketCreate.getMaxNumOfPeople())
                 .status(Status.RECRUITING)
                 .profile(profile)
-                .marketCategory(marketCategory)
                 .build();
     }
 }
