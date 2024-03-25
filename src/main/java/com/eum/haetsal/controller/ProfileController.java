@@ -11,6 +11,7 @@ import com.eum.haetsal.service.AuthService;
 import com.eum.haetsal.service.FileService;
 import com.eum.haetsal.service.ProfileService;
 import com.eum.haetsal.service.UserService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,8 +32,8 @@ import java.text.ParseException;
 @Slf4j
 @RequestMapping()
 @RequiredArgsConstructor
-@Tag(name = "ProfileController", description = "프로필 관련 api")
-@CrossOrigin("*")
+@Tag(name = "Profile", description = "프로필 관련 api")
+@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
 public class   ProfileController {
     private final ProfileService profileService;
     private final FileService fileService;
@@ -60,6 +61,7 @@ public class   ProfileController {
     }
 
     // 프로필 생성 테스트 인증서버 제외
+    @Hidden
     @PostMapping(path = "/auth-service/api/v2/profile/test")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "성공"),

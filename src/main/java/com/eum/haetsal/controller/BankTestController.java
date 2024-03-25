@@ -5,6 +5,7 @@ import com.eum.haetsal.common.DTO.ErrorResponse;
 import com.eum.haetsal.controller.DTO.response.AccountResponseDTO;
 import com.eum.haetsal.controller.DTO.response.TotalTransferHistoryResponseDTO;
 import com.eum.haetsal.service.BankService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/test")
+@Hidden
+@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
 public class BankTestController {
     private final BankService bankService;
 
