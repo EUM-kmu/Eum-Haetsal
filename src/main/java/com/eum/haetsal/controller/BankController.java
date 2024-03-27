@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 @RequestMapping("/haetsal-service/api/v2/bank")
 @Tag(name = "Bank")
-@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
+@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "x-requested-with, Authorization, Content-Type")
 public class BankController {
     private final BankService bankService;
     private final UserService userService;
