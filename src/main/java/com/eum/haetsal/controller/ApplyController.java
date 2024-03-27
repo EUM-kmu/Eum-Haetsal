@@ -27,7 +27,7 @@ import java.util.List;
 @RequestMapping("haetsal-service/api/v2/market/post")
 @RequiredArgsConstructor
 @Tag(name = "Apply")
-@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
+@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "x-requested-with, Authorization, Content-Type")
 public class ApplyController {
     private final ApplyService applyService;
     private final ProfileService profileService;

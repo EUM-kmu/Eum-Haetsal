@@ -36,7 +36,7 @@ import java.util.List;
 @RequestMapping("/haetsal-service/api/v2/market/post")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
+@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "x-requested-with, Authorization, Content-Type")
 @Tag(name = "Post")
 public class  MarketPostController {
     private final MarketPostService marketPostService;
