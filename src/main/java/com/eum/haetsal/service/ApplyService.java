@@ -125,22 +125,20 @@ public class ApplyService {
      */
     public APIResponse unApply(Long postId, Long applyId, Profile profile, Profile deleteProfile) {
         Apply getApply = applyRepository.findById(applyId).orElseThrow(() -> new NullPointerException("invalid applyId"));
+        MarketPost post = marketPostRepository.findById(postId).orElseThrow(() -> new NullPointerException("invalid postId"));
+        Profile hostProfile = post.getProfile();
 
         if(!Objects.equals(getApply.getMarketPost().getMarketPostId(), postId)) throw new IllegalArgumentException("invalid postId");
         if(getApply.getIsAccepted()) throw new IllegalArgumentException("이미 선정되서 취소할 수 없습니다");
 
         /*
-        삭제할 프로필이 apply에 없다.
+        호스트가 취소 or 지원자가 취소 가 아닐 경우 권한이 없다.
          */
-//        if() throw new IllegalArgumentException("지원하시지 않았습니다.");
-
-        /*
-        지원자 본인이 취소할 경우
-         */
-        if(profile.equals(deleteProfile) && getApply.getProfile() != deleteProfile) throw new IllegalArgumentException("본인이 아닌 다른 사람의 지원을 취소할 수 없습니다");
+        if( !hostProfile.equals(profile) && !deleteProfile.equals(profile)) {
+            throw new IllegalArgumentException("취소할수있는 권한이 없습니다");
+        }
 
         applyRepository.delete(getApply);
-
         return APIResponse.of(SuccessCode.DELETE_SUCCESS);
     }
 
