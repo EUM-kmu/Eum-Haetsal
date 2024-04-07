@@ -2,6 +2,7 @@ package com.eum.haetsal.controller.DTO.request;
 
 import com.eum.haetsal.domain.marketpost.Status;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +12,7 @@ public class MarketPostRequestDTO {
 
     @Setter
     @Getter
+    @Valid
     public static class MarketCreate {
         @NotEmpty(message = "제목을 입력하세요")
         private String title;
@@ -44,7 +46,6 @@ public class MarketPostRequestDTO {
         @NotEmpty(message = "내용을 입력하세요")
         private String content;
 //        @NotNull(message = "null이 오면 안됩니다")
-//        private Slot slot;
         @Schema(description = "시작시간",example ="2023-11-29T00:17:08+0900" )
         @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}[+-]\\d{4}", message = "yyyy-MM-dd'T'HH:mm:ssZ 형식이여야 합니다")
         private String startDate;
