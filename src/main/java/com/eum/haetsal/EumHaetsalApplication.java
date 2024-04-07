@@ -22,16 +22,6 @@ public class EumHaetsalApplication {
         SpringApplication.run(EumHaetsalApplication.class, args);
     }
     @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**").allowedOrigins("*");
-            }
-        };
-    }
-
-    @Bean
     public Logger.Level feignLoggerLevel() {
         return Logger.Level.FULL;
     }
