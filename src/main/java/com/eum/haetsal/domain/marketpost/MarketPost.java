@@ -56,9 +56,6 @@ public class MarketPost extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @Column
-    @Enumerated(EnumType.STRING)
-    private Slot slot;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="profile_id")
@@ -93,7 +90,6 @@ public class MarketPost extends BaseTimeEntity {
         this.status = status;
     }
     public void updateStartDate(Date startDate) {this.startDate = startDate;}
-    public void updateSlot(Slot slot) {this.slot = slot;}
     public  void updateLocation(String location) {this.location = location;}
 
     public void updateVolunteerTime(int volunteerTime) {
