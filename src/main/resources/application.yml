@@ -16,7 +16,7 @@ spring:
     hibernate:
       format-sql: true
       highlight-sql: true
-      ddl-auto: create
+      ddl-auto: update
 
       dialect: org.hibernate.dialect.MySQLDialect # ??? ??
     properties:
@@ -77,3 +77,6 @@ eureka:
 logging:
   level:
     com.eum.haetsal: debug
+cors:
+  allowed_header: x-requested-with, authorization, Content-Type
+  allowed_orgin: http://localhost:3000

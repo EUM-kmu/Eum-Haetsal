@@ -1,6 +1,8 @@
 package com.eum.haetsal.common.DTO;
 
 import com.eum.haetsal.common.DTO.enums.ErrorCode;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Pattern;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,11 +14,17 @@ import java.util.stream.Collectors;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ErrorResponse {
+    @Schema(description = "에러 상태 코드", allowableValues = {"400", "401", "403","404","500"})
     private int status;                 // 에러 상태 코드
+    @Schema(description = "에러 구분 코드", example = "GO14")
     private String divisionCode;        // 에러 구분 코드
+    @Schema(description = "에러 메시지",example = "handle Validation Exception")
     private String resultMsg;           // 에러 메시지
+//    @Schema(description = "상세 메시지 (다양한 형태의 오류를 포함할 수 있음)", example = "{ \"field\": \"email\", \"value\": \"email.com\" ,\"reason\": \"올바른 형식의 이메일 주소여야 합니다\" }")
     private Object errors;    // 상세 에러 메시지
+    @Schema(description = "간단한 에러 이유(상세 메시지의 값이 있는 경우 빈 값이 올수있음)")
     private String reason;              // 에러 이유
+
 
     /**
      * ErrorResponse 생성자-1
