@@ -3,9 +3,12 @@ package com.eum.haetsal.controller.DTO.request;
 import com.eum.haetsal.controller.DTO.request.enums.MarketType;
 import com.eum.haetsal.domain.marketpost.Slot;
 import com.eum.haetsal.domain.marketpost.Status;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 
 public class MarketPostRequestDTO {
@@ -60,5 +63,25 @@ public class MarketPostRequestDTO {
     @Setter
     public static class UpdateStatus{
         private Status status;
+    }
+
+    @Getter
+    @Setter
+    public static class ChatTransfer{
+        // 거래ID
+        @Schema(description = "거래ID", example = "1")
+        @NotEmpty(message = "거래ID를 입력해주세요.")
+        private Long dealId;
+
+
+        // 수신 계좌번호 및 금액 리스트
+        @Schema(description = "수신 계좌번호 및 금액 리스트")
+        @NotEmpty(message = "수신 계좌번호 및 금액을 입력해주세요.")
+        private List<DealRequestDTO.ReceiverAndAmount> receiverAndAmounts;
+
+        // 송금 총액
+        @Schema(description = "송금 총액", example = "10000")
+        @NotEmpty(message = "송금 총액을 입력해주세요.")
+        private Long totalAmount;
     }
 }

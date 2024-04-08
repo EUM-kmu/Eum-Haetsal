@@ -95,6 +95,14 @@ public interface BankClient {
      * @return ResponseEntity<APIResponse<List<TotalTransferHistoryResponseDTO.GetTotalTransferHistory>>>
      */
     @PostMapping("/deal/execute")
-    ResponseEntity<APIResponse<TotalTransferHistoryResponseDTO.GetTotalTransferHistory>> executeDeal(@RequestBody DealRequestDTO.ExecuteDeal executeDeal);
+    ResponseEntity<APIResponse> executeDeal(@RequestBody DealRequestDTO.ExecuteDeal executeDeal);
+
+    /**
+     * 거래 롤백
+     * @param rollback
+     * @return ResponseEntity<APIResponse>
+     */
+    @PatchMapping("/deal/rollback")
+    ResponseEntity<APIResponse> rollbackDeal(@RequestBody DealRequestDTO.RollbackDeal rollback);
 
 }

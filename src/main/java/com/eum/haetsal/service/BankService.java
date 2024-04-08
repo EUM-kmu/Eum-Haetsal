@@ -21,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -177,6 +179,56 @@ public class BankService {
                     .password(password)
                     .build();
             return bankClient.cancelDeal(cancelDeal).getBody();
+        } catch (FeignClientException e) {
+            switch (e.getStatus()){
+                case 400:
+                    throw new BadRequestException(e.getErrorForm().getReason());
+                case 401:
+                    throw new WrongPasswordException(e.getErrorForm().getReason());
+                case 402:
+                    throw new InsufficientAmountException(e.getErrorForm().getReason());
+                case 403:
+                    throw new BlockAccountException(e.getErrorForm().getReason());
+                default:
+                    throw new RuntimeException(e.getErrorForm().getReason());
+            }
+        }
+    }
+
+    public void executeDeal(Long dealId, String senderAccountNumber, String password, Long totalAmount, List<DealRequestDTO.ReceiverAndAmount> receiverAndAmounts){
+        try{
+            DealRequestDTO.ExecuteDeal executeDeal = DealRequestDTO.ExecuteDeal.builder()
+                    .dealId(dealId)
+                    .senderAccountNumber(senderAccountNumber)
+                    .totalAmount(totalAmount)
+                    .receiverAndAmounts(receiverAndAmounts)
+                    .password(password)
+                    .build();
+            bankClient.executeDeal(executeDeal);
+        } catch (FeignClientException e) {
+            switch (e.getStatus()){
+                case 400:
+                    throw new BadRequestException(e.getErrorForm().getReason());
+                case 401:
+                    throw new WrongPasswordException(e.getErrorForm().getReason());
+                case 402:
+                    throw new InsufficientAmountException(e.getErrorForm().getReason());
+                case 403:
+                    throw new BlockAccountException(e.getErrorForm().getReason());
+                default:
+                    throw new RuntimeException(e.getErrorForm().getReason());
+            }
+        }
+    }
+
+    public void rollbackDeal(Long dealId, String accountNumber, String accountPassword) {
+        try{
+            DealRequestDTO.RollbackDeal rollbackDeal = DealRequestDTO.RollbackDeal.builder()
+                    .dealId(dealId)
+                    .senderAccountNumber(accountNumber)
+                    .password(accountPassword)
+                    .build();
+            bankClient.rollbackDeal(rollbackDeal);
         } catch (FeignClientException e) {
             switch (e.getStatus()){
                 case 400:

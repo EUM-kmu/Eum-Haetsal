@@ -1,8 +1,10 @@
 package com.eum.haetsal.service;
 
 
+import com.eum.haetsal.client.BankClient;
 import com.eum.haetsal.common.DTO.APIResponse;
 import com.eum.haetsal.common.DTO.enums.SuccessCode;
+import com.eum.haetsal.controller.DTO.request.DealRequestDTO;
 import com.eum.haetsal.controller.DTO.request.MarketPostRequestDTO;
 import com.eum.haetsal.controller.DTO.request.enums.MarketType;
 import com.eum.haetsal.controller.DTO.request.enums.ServiceType;
@@ -20,6 +22,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -305,6 +308,30 @@ public class MarketPostService {
     public void report(Long postId, Long userId) {
         MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
         getMarketPost.increaseReportedCount(userId);
+        marketPostRepository.save(getMarketPost);
+    }
+
+    /**
+     * 채팅방으로 송금
+     * @param postId : 게시글 id
+     * @param profile : 프로필
+     */
+    @Transactional
+    public void chatTransfer(Long postId, MarketPostRequestDTO.ChatTransfer chatTransfer, Profile profile) {
+        MarketPost getMarketPost = validateUserAndPost(postId, profile);
+        bankService.executeDeal(getMarketPost.getDealId(), profile.getUser().getAccountNumber(), profile.getUser().getAccountPassword(), chatTransfer.getTotalAmount(), chatTransfer.getReceiverAndAmounts());
+        marketPostRepository.save(getMarketPost);
+    }
+
+    /**
+     * 모집완료 -> 모집중
+     * @param postId : 게시글 id
+     * @param profile : 프로필
+     */
+    @Transactional
+    public void rollback(Long postId, Profile profile) {
+        MarketPost getMarketPost = validateUserAndPost(postId, profile);
+        bankService.rollbackDeal(getMarketPost.getDealId(), profile.getUser().getAccountNumber(), profile.getUser().getAccountPassword());
         marketPostRepository.save(getMarketPost);
     }
 }
