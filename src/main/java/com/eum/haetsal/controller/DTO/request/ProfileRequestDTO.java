@@ -39,5 +39,10 @@ public class ProfileRequestDTO {
         private String nickname;
 
     }
+    @Getter
+    @Setter
+    public static class BlockProfile{
+        private Long profileId;
+    }
 
 }
