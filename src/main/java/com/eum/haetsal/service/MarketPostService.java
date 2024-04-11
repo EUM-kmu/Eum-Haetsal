@@ -219,7 +219,7 @@ public class MarketPostService {
     private List<MarketPostResponseDTO.MarketPostResponse> getAllPostResponse(List<MarketPost> marketPosts){
         List<MarketPostResponseDTO.MarketPostResponse> marketPostResponses = new ArrayList<>();
         for (MarketPost marketPost : marketPosts) {
-            MarketPostResponseDTO.MarketPostResponse marketPostResponse = marketPostResponseDTO.toMarketPostResponse(marketPost);
+            MarketPostResponseDTO.MarketPostResponse marketPostResponse = marketPostResponseDTO.toMarketPostResponse(marketPost,marketPost.getApplies().size());
             marketPostResponses.add(marketPostResponse);
         }
         return marketPostResponses;
