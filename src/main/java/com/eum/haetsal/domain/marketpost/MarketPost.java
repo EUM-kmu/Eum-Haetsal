@@ -42,6 +42,7 @@ public class MarketPost extends BaseTimeEntity {
     private int currentAcceptedPeople;
     private Date startDate;
     private boolean isDeleted;
+    private Long viewsCount;
     private Long dealId;
     private Long reportedCount;
 
@@ -108,6 +109,10 @@ public class MarketPost extends BaseTimeEntity {
         isDeleted = deleted;
     }
 
+    public void addViewsCount() {
+        this.viewsCount += 1;
+    }
+
     public void increaseReportedCount(Long userId) {
         this.reports.forEach(report -> {
                     if(report.getUser().getUserId().equals(userId)){
@@ -129,6 +134,7 @@ public class MarketPost extends BaseTimeEntity {
                 .isDeleted(false)
                 .location(marketCreate.getLocation())
                 .volunteerTime(marketCreate.getVolunteerTime())
+                .viewsCount(0L)
                 .marketType(MarketType.REQUEST_HELP)
                 .maxNumOfPeople(marketCreate.getMaxNumOfPeople())
                 .status(Status.RECRUITING)

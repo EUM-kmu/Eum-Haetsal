@@ -110,8 +110,9 @@ public class  MarketPostController {
     })
     @Operation(summary = "id별 게시글 조회")
     @GetMapping("{postId}")
-    public  ResponseEntity<APIResponse<MarketPostResponseDTO.MarketPostWithComment>> findById(@PathVariable Long postId, @RequestHeader("userId") String userId){
+    public  ResponseEntity<APIResponse<MarketPostResponseDTO.MarketPostDetail>> findById(@PathVariable Long postId, @RequestHeader("userId") String userId){
         Profile profile = profileService.findByUser(Long.valueOf(userId));
+        marketPostService.addViewsCount(postId);
         return ResponseEntity.ok(marketPostService.getMarketPosts(postId,profile));
     }
 
