@@ -8,7 +8,6 @@ import lombok.Setter;
 public class ChatResponseDTO {
     @Getter
     @Setter
-    @Builder
     public static class ChatInfo{
         private MarketPostResponseDTO.MarketPostResponse marketPost;
 
