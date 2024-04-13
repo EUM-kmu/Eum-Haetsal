@@ -38,6 +38,7 @@ public class Profile extends BaseTimeEntity {
     private String profileImage;
     private String address;
     private String fileName;
+    private int dealCount;
 
     @OneToMany(mappedBy = "blocker")
     private List<Block> blockers = new ArrayList<>();
