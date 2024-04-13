@@ -60,9 +60,6 @@ public class MarketPostService {
      */
     @Transactional
     public APIResponse<MarketPostResponseDTO.MarketPostResponse> create(MarketPostRequestDTO.MarketCreate marketCreate, Profile profile, User user) throws ParseException {
-        // 카테고리 찾기
-//        MarketCategory getMarketCategory = marketCategoryRepository.findByContents(marketCreate.getCategory()).orElseThrow(() -> new IllegalArgumentException("없는 카테고리 입니다"));
-
         // 인당 지급 햇살 계산
         Long pay = Long.valueOf(marketCreate.getVolunteerTime()); //금액은 활동시간과 같은 값 설정
 
@@ -157,7 +154,7 @@ public class MarketPostService {
      * @param postId
      * @return 게시글 정보 + 댓글 리스트 조회 , 로그인한 유저 활동 조회(스크랩 여부, 지원여부, 작성자 여부)
      */
-    public  APIResponse<MarketPostResponseDTO.MarketPostWithComment> getMarketPosts(Long postId, Profile profile) {
+    public  APIResponse<MarketPostResponseDTO.MarketPostDetail> getMarketPosts(Long postId, Profile profile) {
         MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
 
 //        유저활동
@@ -167,7 +164,7 @@ public class MarketPostService {
         if(isApply){
             tradingStatus = applyRepository.findByProfileAndMarketPost(profile,getMarketPost).get().getStatus();
         }
-        MarketPostResponseDTO.MarketPostWithComment singlePostResponse = marketPostResponseDTO.toMarketPostDetails(profile,getMarketPost,isApply,tradingStatus);
+        MarketPostResponseDTO.MarketPostDetail singlePostResponse = marketPostResponseDTO.toMarketPostDetails(profile,getMarketPost,isApply,tradingStatus);
         return APIResponse.of(SuccessCode.SELECT_SUCCESS,singlePostResponse);
 
     }
@@ -304,5 +301,14 @@ public class MarketPostService {
         MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
         getMarketPost.increaseReportedCount(userId);
         marketPostRepository.save(getMarketPost);
+    }
+    public void addViewsCount(Long postId){
+        MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
+        getMarketPost.addViewsCount();
+        marketPostRepository.save(getMarketPost);
+    }
+    public MarketPostResponseDTO.MarketPostResponse getPostInfo(Long postId){
+        MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
+        return MarketPostResponseDTO.toMarketPostResponse(getMarketPost,getMarketPost.getApplies().size());
     }
 }
