@@ -19,7 +19,6 @@ import com.eum.haetsal.domain.user.User;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,7 +61,7 @@ public class MarketPostService {
     @Transactional
     public APIResponse<MarketPostResponseDTO.MarketPostResponse> create(MarketPostRequestDTO.MarketCreate marketCreate, Profile profile, User user) throws ParseException {
         // 카테고리 찾기
-        MarketCategory getMarketCategory = marketCategoryRepository.findByContents(marketCreate.getCategory()).orElseThrow(() -> new IllegalArgumentException("없는 카테고리 입니다"));
+//        MarketCategory getMarketCategory = marketCategoryRepository.findByContents(marketCreate.getCategory()).orElseThrow(() -> new IllegalArgumentException("없는 카테고리 입니다"));
 
         // 인당 지급 햇살 계산
         Long pay = Long.valueOf(marketCreate.getVolunteerTime()); //금액은 활동시간과 같은 값 설정
@@ -70,7 +69,7 @@ public class MarketPostService {
         String accountNumber = user.getAccountNumber();
         String password = user.getAccountPassword();
 
-        MarketPost marketPost = MarketPost.toEntity(marketCreate,pay,profile,getMarketCategory);
+        MarketPost marketPost = MarketPost.toEntity(marketCreate,pay,profile);
         em.persist(marketPost);
 
         // 뱅크에 deal 생성 요청
@@ -123,7 +122,6 @@ public class MarketPostService {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.KOREAN);
         getMarketPost.updateTitle(marketUpdate.getTitle());
         getMarketPost.updateContents(marketUpdate.getContent());
-        getMarketPost.updateSlot(marketUpdate.getSlot());
         getMarketPost.updateStartDate(simpleDateFormat.parse(marketUpdate.getStartDate()));
         getMarketPost.updateLocation(marketUpdate.getLocation());
         Long pay = Long.valueOf(marketUpdate.getVolunteerTime());
@@ -185,7 +183,7 @@ public class MarketPostService {
      * @return : 검색어(게시글 전체) > 카테고리 > 카테고리 내 게시글 유형 , 카테고리 내 모집중
      */
     @Transactional
-    public  APIResponse<List<MarketPostResponseDTO.MarketPostResponse>> findByFilter(String keyword, String category, MarketType marketType, Status status, Pageable pageable, List<Profile> blockedUsers) {
+    public  APIResponse<List<MarketPostResponseDTO.MarketPostResponse>> findByFilter(String keyword, String category, MarketType marketType, Status status, List<Profile> blockedUsers) {
 //        검색 키워드 있을떄
         if (!(keyword == null || keyword.isBlank())) {
             return findByKeyWord(keyword,blockedUsers);

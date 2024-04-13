@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.util.Objects;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,8 @@ import java.util.List;
 @RestController
 @RequestMapping("haetsal-service/api/v2/market/post")
 @RequiredArgsConstructor
-@CrossOrigin("*")
+@Tag(name = "Apply")
+@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "x-requested-with, Authorization, Content-Type")
 public class ApplyController {
     private final ApplyService applyService;
     private final ProfileService profileService;

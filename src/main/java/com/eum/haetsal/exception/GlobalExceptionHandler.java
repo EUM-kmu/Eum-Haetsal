@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.io.IOException;
 
@@ -39,15 +40,24 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         log.error("handleMethodArgumentNotValidException", ex);
         BindingResult bindingResult = ex.getBindingResult();
-        StringBuilder stringBuilder = new StringBuilder();
-        for (FieldError fieldError : bindingResult.getFieldErrors()) {
-            stringBuilder.append(fieldError.getField()).append(":");
-            stringBuilder.append(fieldError.getDefaultMessage());
-            stringBuilder.append(", ");
-        }
-        final ErrorResponse response = ErrorResponse.of(ErrorCode.NOT_VALID_ERROR, String.valueOf(stringBuilder));
+//        StringBuilder stringBuilder = new StringBuilder();
+//        for (FieldError fieldError : bindingResult.getFieldErrors()) {
+//            stringBuilder.append(fieldError.getField()).append(":");
+//            stringBuilder.append(fieldError.getDefaultMessage());
+//            stringBuilder.append(", ");
+//        }
+//        final ErrorResponse response = ErrorResponse.of(ErrorCode.NOT_VALID_ERROR, String.valueOf(stringBuilder));
+        final ErrorResponse response = ErrorResponse.of(ErrorCode.NOT_VALID_ERROR,bindingResult);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> NoResourceFoundExceptionHandler(NoResourceFoundException ex) {
+        log.error("NoResourceFoundException", ex);
+
+        final ErrorResponse response = ErrorResponse.of(ErrorCode.NOT_FOUND_ERROR, ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
 
     /**
      * [Exception] API 호출 시 'Header' 내에 데이터 값이 유효하지 않은 경우

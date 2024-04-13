@@ -94,7 +94,7 @@ public class ProfileResponseDTO {
                 .profileId(profile.getProfileId())
                 .nickName(profile.getNickname())
                 .profileImage(profile.getProfileImage())
-                .address("주소였던것").build();
+                .address(profile.getAddress()).build();
     }
 
 
