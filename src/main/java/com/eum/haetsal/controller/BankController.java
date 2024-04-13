@@ -4,37 +4,29 @@ import com.eum.haetsal.common.DTO.APIResponse;
 import com.eum.haetsal.common.DTO.ErrorResponse;
 import com.eum.haetsal.controller.DTO.response.AccountResponseDTO;
 import com.eum.haetsal.controller.DTO.response.TotalTransferHistoryResponseDTO;
+import com.eum.haetsal.domain.user.User;
 import com.eum.haetsal.service.BankService;
+import com.eum.haetsal.service.UserService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/test")
-@Hidden
-@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
-public class BankTestController {
+@RequestMapping("/haetsal-service/api/v2/bank")
+@Tag(name = "Bank")
+@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "x-requested-with, Authorization, Content-Type")
+public class BankController {
     private final BankService bankService;
+    private final UserService userService;
 
-    @GetMapping()
-    public APIResponse<Long> healthCheck(){
-        return bankService.healthCheck();
-    }
-
-    @GetMapping("/test")
-    public ResponseEntity<APIResponse<AccountResponseDTO.Create>> test(
-            @RequestParam String password
-    ){
-
-        return ResponseEntity.ok(bankService.createAccount(password));
-    }
 
 
     // feign client를 이용한 계좌 조회 및 에러 처리 예시
@@ -49,13 +41,9 @@ public class BankTestController {
             @ApiResponse(responseCode = "500", description = "서버 에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/account")
-    public ResponseEntity<APIResponse<AccountResponseDTO.AccountInfo>> getAccountInfo(
-            @RequestParam
-            String accountNumber,
-            @RequestParam
-            String password
-    ) {
-        return ResponseEntity.ok(bankService.getAccountInfo(accountNumber, password));
+    public ResponseEntity<APIResponse<AccountResponseDTO.AccountInfo>> getAccountInfo( @RequestHeader("userId") String userId) {
+        User user = userService.findByUserId(Long.valueOf(userId));
+        return ResponseEntity.ok(bankService.getAccountInfo(user.getAccountNumber(), user.getAccountPassword()));
     }
 
     @Operation(summary = "자유 송금", description = "자유 송금을 합니다.")
