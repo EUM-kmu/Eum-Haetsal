@@ -63,11 +63,9 @@ public class ProfileService {
      * @param userId
      * @return
      */
-    public APIResponse<ProfileResponseDTO.ProfileResponse> getMyProfile(Long userId) {
-        User getUser = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("Invalid argument"));
-        Profile getProfile = profileRepository.findByUser(getUser).orElseThrow(() -> new NullPointerException("프로필이 없습니다"));
-        ProfileResponseDTO.ProfileResponse profileResponseDTO = ProfileResponseDTO.toProfileResponse(getProfile );
-        return APIResponse.of(SuccessCode.SELECT_SUCCESS, profileResponseDTO);
+    public ProfileResponseDTO.ProfileResponse getProfile(Profile profile) {
+        ProfileResponseDTO.ProfileResponse profileResponseDTO = ProfileResponseDTO.toProfileResponse(profile );
+        return  profileResponseDTO;
     }
 
     /**
@@ -102,6 +100,10 @@ public class ProfileService {
     public Profile findByUser(Long userId){
         User getUser = userRepository.findById(userId).orElseThrow(() -> new NullPointerException("Invalid userId"));
         Profile getProfile = profileRepository.findByUser(getUser).orElseThrow(() -> new NullPointerException("None profile User"));
+        return getProfile;
+    }
+    public Profile findById(Long profileId){
+        Profile getProfile = profileRepository.findById(profileId).orElseThrow(() -> new NullPointerException("Invalid profileId"));
         return getProfile;
     }
 
