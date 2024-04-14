@@ -17,6 +17,7 @@ import com.eum.haetsal.domain.marketpost.MarketPost;
 import com.eum.haetsal.domain.marketpost.MarketPostRepository;
 import com.eum.haetsal.domain.marketpost.Status;
 import com.eum.haetsal.domain.profile.Profile;
+import com.eum.haetsal.domain.profile.ProfileRepository;
 import com.eum.haetsal.domain.user.User;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,7 @@ import java.util.Locale;
 @Slf4j
 public class MarketPostService {
     private final MarketPostRepository marketPostRepository;
+    private final ProfileRepository profileRepository;
     private final MarketCategoryRepository marketCategoryRepository;
     private final MarketPostResponseDTO marketPostResponseDTO;
     private final BankService bankService;
@@ -317,7 +319,14 @@ public class MarketPostService {
     @Transactional
     public void chatTransfer(Long postId, MarketPostRequestDTO.ChatTransfer chatTransfer, Profile profile) {
         MarketPost getMarketPost = validateUserAndPost(postId, profile);
+        getMarketPost.setStatus(Status.TRANSACTION_COMPLETED);
         bankService.executeDeal(getMarketPost.getDealId(), profile.getUser().getAccountNumber(), profile.getUser().getAccountPassword(), chatTransfer.getTotalAmount(), chatTransfer.getReceiverAndAmounts());
+        // chatTransfer.getReceiverAndAmounts()에 있는 사람들의 dealCount 증가
+        for (DealRequestDTO.ReceiverAndAmount receiverAndAmount : chatTransfer.getReceiverAndAmounts()) {
+            String receiverId = receiverAndAmount.getReceiverAccountNumber();
+            Profile receiverProfile = profileRepository.findByUser_AccountNumber(receiverId).orElseThrow(() -> new IllegalArgumentException("Invalid receiverId"));
+            receiverProfile.setDealCount(receiverProfile.getDealCount() + 1);
+        }
         marketPostRepository.save(getMarketPost);
     }
 
@@ -330,8 +339,9 @@ public class MarketPostService {
     public void rollback(Long postId, Profile profile) {
         MarketPost getMarketPost = validateUserAndPost(postId, profile);
         bankService.rollbackDeal(getMarketPost.getDealId(), profile.getUser().getAccountNumber(), profile.getUser().getAccountPassword());
+        getMarketPost.setStatus(Status.RECRUITING);
         marketPostRepository.save(getMarketPost);
-
+    }
     public void addViewsCount(Long postId){
         MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
         getMarketPost.addViewsCount();
