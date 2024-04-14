@@ -10,6 +10,7 @@ import com.eum.haetsal.domain.marketpost.MarketPost;
 import com.eum.haetsal.domain.marketpost.MarketPostRepository;
 import com.eum.haetsal.domain.marketpost.Status;
 import com.eum.haetsal.domain.profile.Profile;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -118,16 +119,28 @@ public class ApplyService {
     /**
      * 선정 전 지원 취소
      * @param postId
-     * @param profile
+
+     * @param applyId
+     * @param profile 신청자
      * @return
      */
-    public APIResponse unApply(Long postId, Profile profile) {
-        MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
-        Apply getApply = applyRepository.findByProfileAndMarketPost(profile,getMarketPost).orElseThrow(() -> new IllegalArgumentException("해당 유저는 신청한적이 없습니다"));
+    public APIResponse unApply(Long postId, Long applyId, Profile profile, Profile deleteProfile) {
+        Apply getApply = applyRepository.findById(applyId).orElseThrow(() -> new NullPointerException("invalid applyId"));
+        MarketPost post = marketPostRepository.findById(postId).orElseThrow(() -> new NullPointerException("invalid postId"));
+        Profile hostProfile = post.getProfile();
+
+        if(!Objects.equals(getApply.getMarketPost().getMarketPostId(), postId)) throw new IllegalArgumentException("invalid postId");
+        if(getApply.getIsAccepted()) throw new IllegalArgumentException("이미 선정되서 취소할 수 없습니다");
+
+        /*
+        호스트가 취소 or 지원자가 취소 가 아닐 경우 권한이 없다.
+         */
+        if( !hostProfile.equals(profile) && !deleteProfile.equals(profile)) {
+            throw new IllegalArgumentException("취소할수있는 권한이 없습니다");
+        }
 
         applyRepository.delete(getApply);
         return APIResponse.of(SuccessCode.DELETE_SUCCESS);
-
     }
 
     /**
