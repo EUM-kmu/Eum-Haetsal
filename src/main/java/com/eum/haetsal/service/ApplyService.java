@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.eum.haetsal.domain.apply.Status.TRADING_CANCEL;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -80,7 +82,7 @@ public class ApplyService {
     }
 
     /**
-     * 지언 수락
+     * 지원 수락
      * @param applyIds 수락할 지원 id들
      * @param profile
      * @return
@@ -99,7 +101,7 @@ public class ApplyService {
             Apply getApply = applyRepository.findById(applyId).orElseThrow(() -> new NullPointerException("invalid applyId"));
 
             if (getApply.getMarketPost().getProfile() != profile) throw new IllegalArgumentException("해당 게시글에 대한 권한이 없다");
-            if(getApply.getIsAccepted() || getApply.getStatus() == com.eum.haetsal.domain.apply.Status.TRADING_CANCEL) throw new IllegalArgumentException("이미 선정했더나 과거 거래 취소를 했던 사람입니다");
+            if(getApply.getIsAccepted() || getApply.getStatus() == TRADING_CANCEL) throw new IllegalArgumentException("이미 선정했더나 과거 거래 취소를 했던 사람입니다");
 
 
             getApply.updateAccepted(true); //수락
@@ -117,7 +119,7 @@ public class ApplyService {
     }
 
     /**
-     * 선정 전 지원 취소
+     * 지원 취소
      * @param postId
 
      * @param applyId
@@ -130,7 +132,8 @@ public class ApplyService {
         Profile hostProfile = post.getProfile();
 
         if(!Objects.equals(getApply.getMarketPost().getMarketPostId(), postId)) throw new IllegalArgumentException("invalid postId");
-        if(getApply.getIsAccepted()) throw new IllegalArgumentException("이미 선정되서 취소할 수 없습니다");
+//        if(getApply.getIsAccepted()) throw new IllegalArgumentException("이미 선정되서 취소할 수 없습니다");
+        if (!post.getStatus().equals(Status.RECRUITING)) throw new IllegalArgumentException("모집중인 게시글이 아닙니다");
 
         /*
         호스트가 취소 or 지원자가 취소 가 아닐 경우 권한이 없다.
@@ -139,7 +142,12 @@ public class ApplyService {
             throw new IllegalArgumentException("취소할수있는 권한이 없습니다");
         }
 
-        applyRepository.delete(getApply);
+        // 지원자의 지원 상태를 변경
+        getApply.setIsAccepted(false);
+        getApply.setStatus(TRADING_CANCEL);
+        post.setCurrentAcceptedPeople(post.getCurrentAcceptedPeople() - 1);
+
+//        applyRepository.delete(getApply);
         return APIResponse.of(SuccessCode.DELETE_SUCCESS);
     }
 
@@ -198,7 +206,7 @@ public class ApplyService {
      * @param getApply
      */
     private void cancel(Apply getApply){
-        getApply.updateStatus(com.eum.haetsal.domain.apply.Status.TRADING_CANCEL); //상태변경
+        getApply.updateStatus(TRADING_CANCEL); //상태변경
         getApply.updateAccepted(false);
         applyRepository.save(getApply);
 
