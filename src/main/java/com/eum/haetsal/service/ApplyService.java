@@ -151,28 +151,7 @@ public class ApplyService {
         return APIResponse.of(SuccessCode.DELETE_SUCCESS);
     }
 
-    /**
-     * 선정 후 활동 파기
-     * @param postId
-     * @param chatId
-     * @param userId
-     * @return
-     */
-    public void cancel(Long postId, Long chatId, Long userId) {
-//        Users getUser = usersRepository.findById(userId). orElseThrow(() -> new NullPointerException("Invalid email"));
-//        ChatRoom chatRoom = chatRoomRepository.findById(chatId).orElseThrow(() -> new IllegalArgumentException("해딩 채팅방이 없습니다"));
-//        if(chatRoom.getMarketPost().getMarketPostId() != postId) throw new IllegalArgumentException("invalid postId");
-//
-//        MarketPost getMarketPost = chatRoom.getMarketPost();
-//        Apply getApply = applyRepository.findByProfileAndMarketPost(chatRoom.getApplicant(), getMarketPost).orElseThrow(()->new IllegalArgumentException("신청한 이력이 없는데 채팅방이 있다"));
-//
-//        if(!(getUser == chatRoom.getApplicant() || getUser == chatRoom.getPostWriter() )) throw new IllegalArgumentException("활동 파기할수있는 권한이 없습니다");
-////        채팅 금지 처리
-//        chatRoom.upDateBlocked(true);
-//        cancel(getApply);
-//        return APIResponse.of(SuccessCode.DELETE_SUCCESS);
 
-    }
 
     /**
      * 차단 할 때 지원 리스트 반영
