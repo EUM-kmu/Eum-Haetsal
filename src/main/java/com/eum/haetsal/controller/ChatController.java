@@ -32,12 +32,12 @@ import java.util.List;
 public class ChatController {
     private final ChatService chatService;
 
-    @GetMapping("chat/posts")
+    @PostMapping("chat/posts")
     public ResponseEntity<List<ChatResponseDTO.PostInfo>> getPostList(@RequestBody ChatRequestDTO.PostIdList postIdList){
         List<ChatResponseDTO.PostInfo> postInfos = chatService.getPostList(postIdList.getPostIdList());
         return ResponseEntity.ok(postInfos);
     }
-    @GetMapping("chat/users")
+    @PostMapping("chat/users")
     public ResponseEntity<List<ChatResponseDTO.UserInfo>> getUserList(@RequestBody ChatRequestDTO.UserIdList userIdList ){
         List<ChatResponseDTO.UserInfo> userInfos = chatService.getUserList(userIdList.getUserIdList());
         return ResponseEntity.ok(userInfos);
