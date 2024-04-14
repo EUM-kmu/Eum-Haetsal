@@ -2,6 +2,7 @@ package com.eum.haetsal.controller.DTO.response;
 
 
 import com.eum.haetsal.controller.DTO.request.AccountRequestDTO;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,9 +29,13 @@ public class AccountResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class AccountInfo {
+        @Schema(description = "계좌")
         private String accountNumber;
+        @Schema(description = "실제 예산")
         private Long totalBudget;
+        @Schema(description = "가용금액")
         private Long availableBudget;
+        @Schema(description = "계좌 동결 여부", nullable = true)
         private Boolean isBlocked;
     }
 

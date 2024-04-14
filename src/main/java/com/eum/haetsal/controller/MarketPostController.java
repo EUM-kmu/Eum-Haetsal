@@ -11,15 +11,18 @@ import com.eum.haetsal.controller.DTO.response.MarketPostResponseDTO;
 import com.eum.haetsal.domain.marketpost.Status;
 import com.eum.haetsal.domain.profile.Profile;
 import com.eum.haetsal.domain.user.User;
-import com.eum.haetsal.service.*;
+import com.eum.haetsal.service.BlockService;
+import com.eum.haetsal.service.MarketPostService;
+import com.eum.haetsal.service.ProfileService;
+import com.eum.haetsal.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,13 +36,15 @@ import java.util.List;
 @RequestMapping("/haetsal-service/api/v2/market/post")
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "x-requested-with, Authorization, Content-Type")
+@Tag(name = "Post")
 public class  MarketPostController {
     private final MarketPostService marketPostService;
     private final BlockService blockService;
-    private final FileService fileService;
     private final ProfileService profileService;
     private final UserService userService;
 
+    @Operation(summary = "게시글 작성")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "성공"),
             @ApiResponse(responseCode = "400", description = "요청 형식 혹은 요청 콘텐츠가 올바르지 않을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -49,15 +54,14 @@ public class  MarketPostController {
     })
     @PostMapping()//(consumes =  {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<APIResponse<MarketPostResponseDTO.MarketPostResponse>> create(
-            @RequestPart(value = "request")
+            @RequestBody
             @Validated MarketPostRequestDTO.MarketCreate marketCreate,
-//            @RequestPart(value = "files") List<MultipartFile> multipartFiles,
             @RequestHeader("userId") String userId) throws ParseException {
-//        fileService.uploadFiles(multipartFiles, "marketpost");
         User user = userService.findByUserId(Long.valueOf(userId));
         Profile profile = profileService.findByUser(Long.valueOf(userId));
         return new ResponseEntity<>(marketPostService.create(marketCreate, profile, user), HttpStatus.CREATED);
     }
+    @Operation(summary = "게시글 삭제")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),
             @ApiResponse(responseCode = "400", description = "요청 형식 혹은 요청 콘텐츠가 올바르지 않을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -70,7 +74,7 @@ public class  MarketPostController {
         Profile profile = profileService.findByUser(Long.valueOf(userId));
         return ResponseEntity.ok(marketPostService.delete(postId,profile));
     }
-
+    @Operation(summary = "게시글 수정")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),
             @ApiResponse(responseCode = "400", description = "요청 형식 혹은 요청 콘텐츠가 올바르지 않을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -84,18 +88,18 @@ public class  MarketPostController {
         return ResponseEntity.ok(marketPostService.update(postId,marketUpdate,profile));
     }
 
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "성공"),
-//            @ApiResponse(responseCode = "400", description = "요청 형식 혹은 요청 콘텐츠가 올바르지 않을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-//            @ApiResponse(responseCode = "401", description = "토큰 시간 만료, 형식 오류,로그아웃한 유저 접근",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-//            @ApiResponse(responseCode = "403", description = "헤더에 토큰이 들어가있지 않은 경우",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-//            @ApiResponse(responseCode = "500", description = "외부 API 요청 실패, 정상적 수행을 할 수 없을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-//    })
-//    @PutMapping("/{postId}/status")
-//    public  ResponseEntity<APIResponse> updateState(@PathVariable Long postId, @RequestBody MarketPostRequestDTO.UpdateStatus status, @RequestHeader("userId") String userId){
-//        Profile profile = profileService.findByUser(Long.valueOf(userId));
-//        return ResponseEntity.ok(marketPostService.updateState(postId,status.getStatus(), profile));
-//    }
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공"),
+            @ApiResponse(responseCode = "400", description = "요청 형식 혹은 요청 콘텐츠가 올바르지 않을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "토큰 시간 만료, 형식 오류,로그아웃한 유저 접근",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "헤더에 토큰이 들어가있지 않은 경우",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "외부 API 요청 실패, 정상적 수행을 할 수 없을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+    })
+    @PutMapping("/{postId}/status")
+    public  ResponseEntity<APIResponse> updateState(@PathVariable Long postId, @RequestBody MarketPostRequestDTO.UpdateStatus status, @RequestHeader("userId") String userId){
+        Profile profile = profileService.findByUser(Long.valueOf(userId));
+        return ResponseEntity.ok(marketPostService.updateState(postId,status.getStatus(), profile));
+    }
 
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),
@@ -104,13 +108,15 @@ public class  MarketPostController {
             @ApiResponse(responseCode = "403", description = "헤더에 토큰이 들어가있지 않은 경우",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "외부 API 요청 실패, 정상적 수행을 할 수 없을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
+    @Operation(summary = "id별 게시글 조회")
     @GetMapping("{postId}")
-    public  ResponseEntity<APIResponse<MarketPostResponseDTO.MarketPostWithComment>> findById(@PathVariable Long postId, @RequestHeader("userId") String userId, Pageable pageable){
+    public  ResponseEntity<APIResponse<MarketPostResponseDTO.MarketPostDetail>> findById(@PathVariable Long postId, @RequestHeader("userId") String userId){
         Profile profile = profileService.findByUser(Long.valueOf(userId));
+        marketPostService.addViewsCount(postId);
         return ResponseEntity.ok(marketPostService.getMarketPosts(postId,profile));
     }
 
-
+    @Operation(summary = "게시글 조회",description = "카테고리, 검색 등 필터 설정 가능 아무 필터 없을땐 전체 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),
             @ApiResponse(responseCode = "400", description = "요청 형식 혹은 요청 콘텐츠가 올바르지 않을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -121,10 +127,10 @@ public class  MarketPostController {
     @GetMapping("")
     public  ResponseEntity<APIResponse<List<MarketPostResponseDTO.MarketPostResponse>>> findByFilter(@RequestParam(value = "search",required = false) String keyword, @RequestParam(name = "category",required = false) String category,
                                                                                                      @RequestParam(name = "marketType",required = false) MarketType marketType, @RequestParam(name = "status",required = false) Status status,
-                                                                                                     @PageableDefault Pageable pageable, @RequestHeader("userId") String userId){
+                                                                                                      @RequestHeader("userId") String userId){
         Profile profile = profileService.findByUser(Long.valueOf(userId));
         List<Profile> blockedUsers = blockService.getBlockedUser(profile);
-        return ResponseEntity.ok(marketPostService.findByFilter(keyword,category,marketType,status,pageable,blockedUsers));
+        return ResponseEntity.ok(marketPostService.findByFilter(keyword,category,marketType,status,blockedUsers));
     }
 
 
@@ -142,6 +148,7 @@ public class  MarketPostController {
             @ApiResponse(responseCode = "403", description = "헤더에 토큰이 들어가있지 않은 경우",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "외부 API 요청 실패, 정상적 수행을 할 수 없을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
+    @Operation(summary = "내 활동 조회")
     @GetMapping("/user-activity/{serviceType}")
     public ResponseEntity<APIResponse<List<MarketPostResponseDTO.MarketPostResponse>>> findByServiceType(@PathVariable ServiceType serviceType, @RequestHeader("userId") String userId){
         Profile profile = profileService.findByUser(Long.valueOf(userId));
@@ -163,6 +170,7 @@ public class  MarketPostController {
             @ApiResponse(responseCode = "403", description = "헤더에 토큰이 들어가있지 않은 경우",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "외부 API 요청 실패, 정상적 수행을 할 수 없을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
+    @Operation(summary = "끌어올리기")
     @PutMapping("/{postId}/pull-up")
     public ResponseEntity<APIResponse> pullUp(@RequestHeader("userId") String userId, @PathVariable Long postId){
         Profile profile = profileService.findByUser(Long.valueOf(userId));
@@ -183,6 +191,7 @@ public class  MarketPostController {
         @ApiResponse(responseCode = "403", description = "헤더에 토큰이 들어가있지 않은 경우", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
         @ApiResponse(responseCode = "500", description = "외부 API 요청 실패, 정상적 수행을 할 수 없을 때,", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
+    @Operation(summary = "신고하기")
     @PostMapping("/{postId}/report")
     public ResponseEntity<APIResponse> report(@PathVariable Long postId, @RequestHeader("userId") String userId){
         marketPostService.report(postId, Long.valueOf(userId));

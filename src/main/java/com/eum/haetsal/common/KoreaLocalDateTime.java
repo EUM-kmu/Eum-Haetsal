@@ -22,7 +22,7 @@ public class KoreaLocalDateTime {
         String formattedKoreaZoneTime = koreaZoneTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ"));
         return formattedKoreaZoneTime;
     }
-    public static LocalDate stringToLocalDateTime(String date) throws ParseException {
+    public static LocalDate stringToLocalDateTime(String date)  {
         LocalDate formDate = LocalDate.parse(date, DateTimeFormatter.ISO_DATE);
         return formDate;
     }

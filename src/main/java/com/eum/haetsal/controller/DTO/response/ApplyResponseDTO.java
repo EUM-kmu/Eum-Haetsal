@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class ApplyResponseDTO {
+
     @Getter
     @Builder
     public static class ApplyListResponse {
@@ -25,7 +26,7 @@ public class ApplyResponseDTO {
         private Boolean isAccepted;
     }
     public ApplyListResponse newApplyListResponse(MarketPost marketPost, Profile profile, Apply apply){
-        ProfileResponseDTO.UserInfo applicantInfo = ProfileResponseDTO.UserInfo.builder().profileId(profile.getProfileId()).profileImage(profile.getProfileImage()).nickName(profile.getNickname()).address(profile.getAddress()).build();
+        ProfileResponseDTO.UserInfo applicantInfo = ProfileResponseDTO.toUserInfo(profile);
         // 한국 시간대로 포맷팅
         String formattedCreateTime = KoreaLocalDateTime.localDateTimeToKoreaZoned(apply.getCreateDate());
         return ApplyListResponse.builder()
