@@ -164,15 +164,17 @@ public class MarketPostService {
      */
     public  APIResponse<MarketPostResponseDTO.MarketPostDetail> getMarketPosts(Long postId, Profile profile) {
         MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
-
+        Long applyId = 0L;
 //        유저활동
         Boolean isApply = applyRepository.existsByProfileAndMarketPost(profile, getMarketPost);
         com.eum.haetsal.domain.apply.Status tradingStatus = com.eum.haetsal.domain.apply.Status.NONE;
 
         if(isApply){
-            tradingStatus = applyRepository.findByProfileAndMarketPost(profile,getMarketPost).get().getStatus();
+            Apply getApply = applyRepository.findByProfileAndMarketPost(profile,getMarketPost).get();
+            tradingStatus = getApply.getStatus();
+            applyId = getApply.getApplyId();
         }
-        MarketPostResponseDTO.MarketPostDetail singlePostResponse = marketPostResponseDTO.toMarketPostDetails(profile,getMarketPost,isApply,tradingStatus);
+        MarketPostResponseDTO.MarketPostDetail singlePostResponse = marketPostResponseDTO.toMarketPostDetails(profile,getMarketPost,isApply,tradingStatus,applyId);
         return APIResponse.of(SuccessCode.SELECT_SUCCESS,singlePostResponse);
 
     }

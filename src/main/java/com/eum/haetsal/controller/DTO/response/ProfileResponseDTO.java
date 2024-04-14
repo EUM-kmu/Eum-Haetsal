@@ -20,6 +20,7 @@ public class ProfileResponseDTO {
     @Builder
     @Schema(description = "프로필 정보")
     public static class ProfileResponse {
+        private Long userId;
         private Long profileId;
 
         @Schema(description = "닉네임")
@@ -42,6 +43,7 @@ public class ProfileResponseDTO {
     @Setter
     @Builder
     public static class ProfileResponseWithToken {
+        private Long userId;
         private Long profileId;
         @Schema(description = "닉네임")
         private String nickName;
@@ -62,6 +64,7 @@ public class ProfileResponseDTO {
         int thisYear = now.getYear();
         int userBirth= profile.getBirth().getYear();
         return ProfileResponseWithToken.builder()
+                .userId(profile.getUser().getUserId())
                 .profileId(profile.getProfileId())
                 .nickName(profile.getNickname())
                 .gender(profile.getGender())
@@ -77,6 +80,7 @@ public class ProfileResponseDTO {
         int thisYear = now.getYear();
         int userBirth= profile.getBirth().getYear();
         return ProfileResponse.builder()
+                .userId(profile.getUser().getUserId())
                 .profileId(profile.getProfileId())
                 .nickName(profile.getNickname())
                 .gender(profile.getGender())
