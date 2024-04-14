@@ -56,7 +56,8 @@ public class MarketPostResponseDTO {
         private Boolean isWriter;
         @Schema(description = "지원여부")
         private Boolean isApplicant;
-//        private Boolean isScrap;
+        @Schema(description = "지원id")
+        private Long applyId;
         private com.eum.haetsal.domain.apply.Status applyStatus;
     }
     public static MarketPostResponse toMarketPostResponse(MarketPost marketPost, int currentApplicant){
@@ -71,7 +72,6 @@ public class MarketPostResponseDTO {
                 .pay(marketPost.getPay())
                 .volunteerTime(marketPost.getVolunteerTime())
                 .viewsCount(marketPost.getViewsCount())
-//                .marketType(marketPost.getMarketType())
                 .location(marketPost.getLocation())
                 .writerInfo(ProfileResponseDTO.toUserInfo(marketPost.getProfile()))
                 .dealId(marketPost.getDealId())
@@ -80,8 +80,8 @@ public class MarketPostResponseDTO {
                 .maxNumOfPeople(marketPost.getMaxNumOfPeople())
                 .build();
     }
-    public static MarketPostDetail toMarketPostDetails(Profile profile, MarketPost marketPost, Boolean isApply, com.eum.haetsal.domain.apply.Status tradingStatus){
-        UserCurrentStatus userCurrentStatus = UserCurrentStatus.builder().isApplicant(isApply).isWriter(profile==marketPost.getProfile()).applyStatus(tradingStatus).build();
+    public static MarketPostDetail toMarketPostDetails(Profile profile, MarketPost marketPost, Boolean isApply, com.eum.haetsal.domain.apply.Status tradingStatus,Long applyId){
+        UserCurrentStatus userCurrentStatus = UserCurrentStatus.builder().isApplicant(isApply).applyId(applyId).isWriter(profile==marketPost.getProfile()).applyStatus(tradingStatus).build();
         MarketPostResponse marketPostResponse = toMarketPostResponse(marketPost, marketPost.getApplies().size());
         return MarketPostDetail.builder()
 

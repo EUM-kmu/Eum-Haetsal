@@ -209,6 +209,7 @@ public class  MarketPostController {
             @ApiResponse(responseCode = "403", description = "헤더에 토큰이 들어가있지 않은 경우", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "외부 API 요청 실패, 정상적 수행을 할 수 없을 때,", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
+    @Operation(description = "채팅방 송금")
     @PostMapping("/{postId}/chat/transfer")
     public ResponseEntity<APIResponse> chatTransfer(@PathVariable Long postId, @RequestBody MarketPostRequestDTO.ChatTransfer chatTransfer, @RequestHeader("userId") String userId){
         Profile profile = profileService.findByUser(Long.valueOf(userId));
@@ -228,6 +229,7 @@ public class  MarketPostController {
             @ApiResponse(responseCode = "403", description = "헤더에 토큰이 들어가있지 않은 경우", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "외부 API 요청 실패, 정상적 수행을 할 수 없을 때,", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
+    @Operation(description = "거래 되돌리기")
     @PostMapping("/{postId}/rollback")
     public ResponseEntity<APIResponse> rollback(@PathVariable Long postId, @RequestHeader("userId") String userId){
         Profile profile = profileService.findByUser(Long.valueOf(userId));
