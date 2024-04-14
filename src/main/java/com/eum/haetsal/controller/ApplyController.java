@@ -11,6 +11,7 @@ import com.eum.haetsal.domain.profile.Profile;
 import com.eum.haetsal.service.ApplyService;
 import com.eum.haetsal.service.MarketPostService;
 import com.eum.haetsal.service.ProfileService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -66,7 +67,7 @@ public class ApplyController {
      */
 
     @DeleteMapping("/{postId}/apply/{applyId}/{deleteId}")
-
+    @Operation(summary = "지원 삭제",description = "deleteId는 삭제하고자 하는 userid, 지원자에 해당")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "성공"),
             @ApiResponse(responseCode = "400", description = "요청 형식 혹은 요청 콘텐츠가 올바르지 않을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -107,6 +108,7 @@ public class ApplyController {
      * @return
      */
     @PostMapping("/{postId}/accept")
+    @Operation(summary = "지원수락")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "성공"),
             @ApiResponse(responseCode = "400", description = "요청 형식 혹은 요청 콘텐츠가 올바르지 않을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
