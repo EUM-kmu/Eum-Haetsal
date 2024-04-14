@@ -7,7 +7,9 @@ import com.eum.haetsal.common.DTO.enums.SuccessCode;
 import com.eum.haetsal.controller.DTO.request.ProfileRequestDTO;
 import com.eum.haetsal.controller.DTO.response.ProfileResponseDTO;
 import com.eum.haetsal.controller.DTO.response.UserResponse;
+import com.eum.haetsal.domain.profile.Profile;
 import com.eum.haetsal.service.AuthService;
+import com.eum.haetsal.service.BlockService;
 import com.eum.haetsal.service.ProfileService;
 import com.eum.haetsal.service.UserService;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -37,6 +39,7 @@ public class   ProfileController {
     private final ProfileService profileService;
     private final UserService userService;
     private final AuthService authService;
+    private final BlockService blockService;
 
     @PostMapping(path = "/auth-service/api/v2/profile",consumes =  {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     @ApiResponses(value = {
@@ -91,8 +94,18 @@ public class   ProfileController {
             @ApiResponse(responseCode = "500", description = "외부 API 요청 실패, 정상적 수행을 할 수 없을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     public ResponseEntity<APIResponse<ProfileResponseDTO.ProfileResponse>> getMyProfile(@RequestParam(value = "id",required = false) Long profileId,@RequestHeader("userId") String userId){
-        Long id = !(profileId == null || profileId==0) ? profileId : Long.valueOf(userId);
-        return ResponseEntity.ok(profileService.getMyProfile( Long.valueOf(id)));
+        ProfileResponseDTO.ProfileResponse profileResponse;
+        boolean isBlocked = false;
+
+        Profile me = profileService.findByUser(Long.valueOf(userId));
+        profileResponse = profileService.getProfile(me);
+        if (!(profileId == null || profileId==0)) {
+            Profile blocked = profileService.findById(profileId); //차단할 유저 객체
+            isBlocked = blockService.isBlocked(me, blocked);
+            profileResponse = profileService.getProfile(blocked);
+        }
+        profileResponse.setBlocked(isBlocked);
+        return ResponseEntity.ok(APIResponse.of(SuccessCode.SELECT_SUCCESS,profileResponse));
     }
 
     @PutMapping(path = "/haetsal-service/api/v2/profile",consumes =  {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})

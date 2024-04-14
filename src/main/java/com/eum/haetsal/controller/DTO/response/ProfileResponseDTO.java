@@ -20,6 +20,8 @@ public class ProfileResponseDTO {
     @Builder
     @Schema(description = "프로필 정보")
     public static class ProfileResponse {
+        private Long profileId;
+
         @Schema(description = "닉네임")
         private String nickName;
         @Schema(description = "성별",allowableValues = {"male","female"})
@@ -31,6 +33,8 @@ public class ProfileResponseDTO {
         private String accountNumber;
         @Schema(description = "이미지 url")
         private String profileImage; //네이버 클라우드 Url
+        @Schema(description = "치단 여부")
+        private Boolean blocked;
 
     }
 
@@ -38,6 +42,7 @@ public class ProfileResponseDTO {
     @Setter
     @Builder
     public static class ProfileResponseWithToken {
+        private Long profileId;
         @Schema(description = "닉네임")
         private String nickName;
         @Schema(description = "성별",allowableValues = {"male","female"})
@@ -57,6 +62,7 @@ public class ProfileResponseDTO {
         int thisYear = now.getYear();
         int userBirth= profile.getBirth().getYear();
         return ProfileResponseWithToken.builder()
+                .profileId(profile.getProfileId())
                 .nickName(profile.getNickname())
                 .gender(profile.getGender())
                 .ageRange((thisYear - userBirth + 1) / 10)
@@ -71,6 +77,7 @@ public class ProfileResponseDTO {
         int thisYear = now.getYear();
         int userBirth= profile.getBirth().getYear();
         return ProfileResponse.builder()
+                .profileId(profile.getProfileId())
                 .nickName(profile.getNickname())
                 .gender(profile.getGender())
                 .ageRange((thisYear - userBirth + 1) / 10)
@@ -88,13 +95,21 @@ public class ProfileResponseDTO {
         private String nickName;
         private String profileImage;
         private String address;
+        private String gender;
+        private int ageRange;
     }
     public static UserInfo toUserInfo(Profile profile){
+        LocalDate now = LocalDate.now();
+        int thisYear = now.getYear();
+        int userBirth= profile.getBirth().getYear();
         return UserInfo.builder()
                 .profileId(profile.getProfileId())
                 .nickName(profile.getNickname())
                 .profileImage(profile.getProfileImage())
+                .ageRange((thisYear - userBirth + 1) / 10)
+                .gender(profile.getGender())
                 .address(profile.getAddress()).build();
+
     }
 
 

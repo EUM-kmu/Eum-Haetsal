@@ -119,6 +119,7 @@ public class ApplyService {
     /**
      * 선정 전 지원 취소
      * @param postId
+
      * @param applyId
      * @param profile 신청자
      * @return
