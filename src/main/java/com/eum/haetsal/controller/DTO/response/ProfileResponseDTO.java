@@ -95,13 +95,21 @@ public class ProfileResponseDTO {
         private String nickName;
         private String profileImage;
         private String address;
+        private String gender;
+        private int ageRange;
     }
     public static UserInfo toUserInfo(Profile profile){
+        LocalDate now = LocalDate.now();
+        int thisYear = now.getYear();
+        int userBirth= profile.getBirth().getYear();
         return UserInfo.builder()
                 .profileId(profile.getProfileId())
                 .nickName(profile.getNickname())
                 .profileImage(profile.getProfileImage())
+                .ageRange((thisYear - userBirth + 1) / 10)
+                .gender(profile.getGender())
                 .address(profile.getAddress()).build();
+
     }
 
 
