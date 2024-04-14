@@ -7,18 +7,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-public class ChatResponseDTO {
-    @Getter
-    @Setter
-    public static class ChatInfo{
-        private MarketPostResponseDTO.MarketPostResponse marketPost;
+import java.util.List;
+import java.util.Map;
 
-        private ProfileResponseDTO.UserInfo userInfo;
-        public ChatInfo(MarketPostResponseDTO.MarketPostResponse marketPost, Profile profile) {
-            this.marketPost = marketPost;
-            this.userInfo = ProfileResponseDTO.toUserInfo(profile);
-        }
-    }
+public class ChatResponseDTO {
     @Getter
     @Setter
     public static class PostInfo{
@@ -39,12 +31,17 @@ public class ChatResponseDTO {
         private Long profileId;
         private String profileImage;
         private String nickName;
+        private String accountNumber;
+//        private List<Map<Long,Boolean>> Block ;
+
 
         public UserInfo(Profile profile) {
             this.userId = profile.getUser().getUserId();
             this.profileId = profile.getProfileId();
             this.profileImage = profile.getProfileImage();
             this.nickName = profile.getNickname();
+            this.accountNumber = profile.getUser().getAccountNumber();
+
         }
     }
 

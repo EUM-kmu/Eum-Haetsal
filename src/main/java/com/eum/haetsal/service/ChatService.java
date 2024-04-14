@@ -2,6 +2,7 @@ package com.eum.haetsal.service;
 
 import com.eum.haetsal.controller.DTO.response.ChatResponseDTO;
 import com.eum.haetsal.controller.DTO.response.UserResponse;
+import com.eum.haetsal.domain.block.BlockRepository;
 import com.eum.haetsal.domain.marketpost.MarketPost;
 import com.eum.haetsal.domain.marketpost.MarketPostRepository;
 import com.eum.haetsal.domain.profile.Profile;
@@ -21,6 +22,7 @@ public class ChatService {
     private final MarketPostRepository marketPostRepository;
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
+    private final BlockRepository blockRepository;
     public List<ChatResponseDTO.PostInfo> getPostList(List<String> postIdList){
         List<MarketPost> marketPosts = new ArrayList<>();
         postIdList.forEach(postId -> marketPosts.add(marketPostRepository.findById(Long.valueOf(postId)).orElseThrow(() -> new IllegalArgumentException("invalid postId"))));
