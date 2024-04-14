@@ -64,10 +64,5 @@ public class BlockController {
         return new ResponseEntity<>(APIResponse.of(SuccessCode.INSERT_SUCCESS,"차단 해제"), HttpStatus.CREATED);
 
     }
-    @GetMapping()
-    public void blockedList(@RequestHeader("uesrId") String userId ) {
-        Profile blocker = profileService.findByUser(Long.valueOf(userId));
-        List<Long> getBlocked = blockService.getMyBlockedIds(blocker);
 
-    }
 }
