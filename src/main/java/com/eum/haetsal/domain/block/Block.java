@@ -18,10 +18,12 @@ public class Block {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long blockId;
 
+//    차단한 사람
     @ManyToOne
     @JoinColumn(name = "blocker_id")
     private Profile blocker;
 
+//    차단 당한 사람
     @ManyToOne
     @JoinColumn(name = "blocked_id")
     private Profile blocked;

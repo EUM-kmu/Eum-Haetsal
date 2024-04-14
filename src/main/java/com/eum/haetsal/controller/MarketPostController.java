@@ -15,6 +15,7 @@ import com.eum.haetsal.service.BlockService;
 import com.eum.haetsal.service.MarketPostService;
 import com.eum.haetsal.service.ProfileService;
 import com.eum.haetsal.service.UserService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -37,13 +38,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "x-requested-with, Authorization, Content-Type")
-@Tag(name = "Post")
 public class  MarketPostController {
     private final MarketPostService marketPostService;
     private final BlockService blockService;
     private final ProfileService profileService;
     private final UserService userService;
-
+    @Tag(name = "Post")
     @Operation(summary = "게시글 작성")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "성공"),
@@ -61,6 +61,7 @@ public class  MarketPostController {
         Profile profile = profileService.findByUser(Long.valueOf(userId));
         return new ResponseEntity<>(marketPostService.create(marketCreate, profile, user), HttpStatus.CREATED);
     }
+    @Tag(name = "Post")
     @Operation(summary = "게시글 삭제")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),
@@ -74,6 +75,7 @@ public class  MarketPostController {
         Profile profile = profileService.findByUser(Long.valueOf(userId));
         return ResponseEntity.ok(marketPostService.delete(postId,profile));
     }
+    @Tag(name = "Post")
     @Operation(summary = "게시글 수정")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),
@@ -87,7 +89,7 @@ public class  MarketPostController {
         Profile profile = profileService.findByUser(Long.valueOf(userId));
         return ResponseEntity.ok(marketPostService.update(postId,marketUpdate,profile));
     }
-
+    @Hidden
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),
             @ApiResponse(responseCode = "400", description = "요청 형식 혹은 요청 콘텐츠가 올바르지 않을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -100,7 +102,7 @@ public class  MarketPostController {
         Profile profile = profileService.findByUser(Long.valueOf(userId));
         return ResponseEntity.ok(marketPostService.updateState(postId,status.getStatus(), profile));
     }
-
+    @Tag(name = "Post")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),
             @ApiResponse(responseCode = "400", description = "요청 형식 혹은 요청 콘텐츠가 올바르지 않을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -115,7 +117,7 @@ public class  MarketPostController {
         marketPostService.addViewsCount(postId);
         return ResponseEntity.ok(marketPostService.getMarketPosts(postId,profile));
     }
-
+    @Tag(name = "Post")
     @Operation(summary = "게시글 조회",description = "카테고리, 검색 등 필터 설정 가능 아무 필터 없을땐 전체 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),
@@ -140,7 +142,7 @@ public class  MarketPostController {
      * @param userId
      * @return : 게시글 정보
      */
-
+    @Tag(name = "Post")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),
             @ApiResponse(responseCode = "400", description = "요청 형식 혹은 요청 콘텐츠가 올바르지 않을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -163,6 +165,7 @@ public class  MarketPostController {
      * @param postId
      * @return : 성공여부
      */
+    @Tag(name = "Post")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),
             @ApiResponse(responseCode = "400", description = "요청 형식 혹은 요청 콘텐츠가 올바르지 않을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -183,6 +186,7 @@ public class  MarketPostController {
      * @param postId
      * @return : 성공여부
      */
+    @Tag(name = "Post")
     @Transactional
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "성공"),
@@ -201,6 +205,7 @@ public class  MarketPostController {
     /**
      * 채팅방 송금(거래 수행)
      */
+    @Tag(name = "Transaction")
     @Transactional
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),
@@ -209,7 +214,7 @@ public class  MarketPostController {
             @ApiResponse(responseCode = "403", description = "헤더에 토큰이 들어가있지 않은 경우", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "외부 API 요청 실패, 정상적 수행을 할 수 없을 때,", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
-    @Operation(description = "채팅방 송금")
+    @Operation(summary = "채팅방 송금")
     @PostMapping("/{postId}/chat/transfer")
     public ResponseEntity<APIResponse> chatTransfer(@PathVariable Long postId, @RequestBody MarketPostRequestDTO.ChatTransfer chatTransfer, @RequestHeader("userId") String userId){
         Profile profile = profileService.findByUser(Long.valueOf(userId));
@@ -221,6 +226,7 @@ public class  MarketPostController {
      * 거래 되돌리기
      * 모집완료를 모집중으로 변경하기
      */
+    @Tag(name = "Transaction")
     @Transactional
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),
@@ -229,7 +235,7 @@ public class  MarketPostController {
             @ApiResponse(responseCode = "403", description = "헤더에 토큰이 들어가있지 않은 경우", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "외부 API 요청 실패, 정상적 수행을 할 수 없을 때,", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
-    @Operation(description = "거래 되돌리기")
+    @Operation(summary = "거래 되돌리기")
     @PostMapping("/{postId}/rollback")
     public ResponseEntity<APIResponse> rollback(@PathVariable Long postId, @RequestHeader("userId") String userId){
         Profile profile = profileService.findByUser(Long.valueOf(userId));
