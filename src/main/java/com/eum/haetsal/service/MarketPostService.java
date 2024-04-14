@@ -331,7 +331,7 @@ public class MarketPostService {
         MarketPost getMarketPost = validateUserAndPost(postId, profile);
         bankService.rollbackDeal(getMarketPost.getDealId(), profile.getUser().getAccountNumber(), profile.getUser().getAccountPassword());
         marketPostRepository.save(getMarketPost);
-
+    }
     public void addViewsCount(Long postId){
         MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
         getMarketPost.addViewsCount();
