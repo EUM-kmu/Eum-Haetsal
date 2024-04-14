@@ -13,6 +13,7 @@ public interface BlockRepository extends JpaRepository<Block,Long> {
 //    Optional<List<Block>> findByBlocked(User blocker);
     Optional<List<Block>> findByBlocked( Profile blocked);
 
+
     Boolean existsByBlockerAndBlocked(Profile blocker, Profile blocked);
     Optional<Block> findByBlockerAndBlocked(Profile blocker, Profile blocked);
 }

@@ -21,8 +21,10 @@ import com.eum.haetsal.domain.user.User;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,16 +66,13 @@ public class MarketPostService {
      */
     @Transactional
     public APIResponse<MarketPostResponseDTO.MarketPostResponse> create(MarketPostRequestDTO.MarketCreate marketCreate, Profile profile, User user) throws ParseException {
-        // 카테고리 찾기
-        MarketCategory getMarketCategory = marketCategoryRepository.findByContents(marketCreate.getCategory()).orElseThrow(() -> new IllegalArgumentException("없는 카테고리 입니다"));
-
         // 인당 지급 햇살 계산
         Long pay = Long.valueOf(marketCreate.getVolunteerTime()); //금액은 활동시간과 같은 값 설정
 
         String accountNumber = user.getAccountNumber();
         String password = user.getAccountPassword();
 
-        MarketPost marketPost = MarketPost.toEntity(marketCreate,pay,profile,getMarketCategory);
+        MarketPost marketPost = MarketPost.toEntity(marketCreate,pay,profile);
         em.persist(marketPost);
 
         // 뱅크에 deal 생성 요청
@@ -126,7 +125,6 @@ public class MarketPostService {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.KOREAN);
         getMarketPost.updateTitle(marketUpdate.getTitle());
         getMarketPost.updateContents(marketUpdate.getContent());
-        getMarketPost.updateSlot(marketUpdate.getSlot());
         getMarketPost.updateStartDate(simpleDateFormat.parse(marketUpdate.getStartDate()));
         getMarketPost.updateLocation(marketUpdate.getLocation());
         Long pay = Long.valueOf(marketUpdate.getVolunteerTime());
@@ -162,7 +160,7 @@ public class MarketPostService {
      * @param postId
      * @return 게시글 정보 + 댓글 리스트 조회 , 로그인한 유저 활동 조회(스크랩 여부, 지원여부, 작성자 여부)
      */
-    public  APIResponse<MarketPostResponseDTO.MarketPostWithComment> getMarketPosts(Long postId, Profile profile) {
+    public  APIResponse<MarketPostResponseDTO.MarketPostDetail> getMarketPosts(Long postId, Profile profile) {
         MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
 
 //        유저활동
@@ -172,7 +170,7 @@ public class MarketPostService {
         if(isApply){
             tradingStatus = applyRepository.findByProfileAndMarketPost(profile,getMarketPost).get().getStatus();
         }
-        MarketPostResponseDTO.MarketPostWithComment singlePostResponse = marketPostResponseDTO.toMarketPostDetails(profile,getMarketPost,isApply,tradingStatus);
+        MarketPostResponseDTO.MarketPostDetail singlePostResponse = marketPostResponseDTO.toMarketPostDetails(profile,getMarketPost,isApply,tradingStatus);
         return APIResponse.of(SuccessCode.SELECT_SUCCESS,singlePostResponse);
 
     }
@@ -188,7 +186,7 @@ public class MarketPostService {
      * @return : 검색어(게시글 전체) > 카테고리 > 카테고리 내 게시글 유형 , 카테고리 내 모집중
      */
     @Transactional
-    public  APIResponse<List<MarketPostResponseDTO.MarketPostResponse>> findByFilter(String keyword, String category, MarketType marketType, Status status, Pageable pageable, List<Profile> blockedUsers) {
+    public  APIResponse<List<MarketPostResponseDTO.MarketPostResponse>> findByFilter(String keyword, String category, MarketType marketType, Status status, List<Profile> blockedUsers) {
 //        검색 키워드 있을떄
         if (!(keyword == null || keyword.isBlank())) {
             return findByKeyWord(keyword,blockedUsers);
@@ -333,5 +331,15 @@ public class MarketPostService {
         MarketPost getMarketPost = validateUserAndPost(postId, profile);
         bankService.rollbackDeal(getMarketPost.getDealId(), profile.getUser().getAccountNumber(), profile.getUser().getAccountPassword());
         marketPostRepository.save(getMarketPost);
+
+    public void addViewsCount(Long postId){
+        MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
+        getMarketPost.addViewsCount();
+        marketPostRepository.save(getMarketPost);
+    }
+    public MarketPostResponseDTO.MarketPostResponse getPostInfo(Long postId){
+        MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
+        return MarketPostResponseDTO.toMarketPostResponse(getMarketPost,getMarketPost.getApplies().size());
+
     }
 }
