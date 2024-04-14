@@ -14,4 +14,5 @@ public interface ProfileRepository extends JpaRepository<Profile,Long> {
 
     Boolean existsByUser(User user);
 
+    Optional<Profile> findByUser_AccountNumber(String receiverId);
 }
