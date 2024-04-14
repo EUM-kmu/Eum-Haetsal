@@ -1,10 +1,13 @@
 package com.eum.haetsal.controller.DTO.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 public class BankAccountRequestDTO {
     @Getter
@@ -46,4 +49,6 @@ public class BankAccountRequestDTO {
     public static class CardName {
         private String cardName;
     }
+
+
 }

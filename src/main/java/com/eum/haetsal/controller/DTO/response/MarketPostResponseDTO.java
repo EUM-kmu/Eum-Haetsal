@@ -2,7 +2,6 @@ package com.eum.haetsal.controller.DTO.response;
 
 
 import com.eum.haetsal.common.KoreaLocalDateTime;
-import com.eum.haetsal.controller.DTO.request.enums.MarketType;
 import com.eum.haetsal.domain.marketpost.MarketPost;
 import com.eum.haetsal.domain.marketpost.Status;
 import com.eum.haetsal.domain.profile.Profile;
@@ -37,17 +36,15 @@ public class MarketPostResponseDTO {
         private int currentApplicant;
         @Schema(description = "최대 지원자")
         private int maxNumOfPeople;
-//        private String category;
-//private MarketType marketType;
-
+        @Schema(description = "조회수")
+        private Long viewsCount;
         private Long dealId;
-
+        private ProfileResponseDTO.UserInfo writerInfo;
     }
     @Builder
     @Getter
     @AllArgsConstructor
-    public static class MarketPostWithComment {
-        private ProfileResponseDTO.UserInfo writerInfo;
+    public static class MarketPostDetail {
         private UserCurrentStatus userCurrentStatus;
         private MarketPostResponse marketPostResponse;
     }
@@ -73,22 +70,24 @@ public class MarketPostResponseDTO {
                 .content(marketPost.getContent())
                 .pay(marketPost.getPay())
                 .volunteerTime(marketPost.getVolunteerTime())
+                .viewsCount(marketPost.getViewsCount())
 //                .marketType(marketPost.getMarketType())
                 .location(marketPost.getLocation())
-//                .category(marketPost.getMarketCategory().getContents())
+                .writerInfo(ProfileResponseDTO.toUserInfo(marketPost.getProfile()))
                 .dealId(marketPost.getDealId())
                 .status(marketPost.getStatus())
                 .currentApplicant(currentApplicant)
                 .maxNumOfPeople(marketPost.getMaxNumOfPeople())
                 .build();
     }
-    public static MarketPostWithComment toMarketPostDetails(Profile profile, MarketPost marketPost, Boolean isApply, com.eum.haetsal.domain.apply.Status tradingStatus){
+    public static MarketPostDetail toMarketPostDetails(Profile profile, MarketPost marketPost, Boolean isApply, com.eum.haetsal.domain.apply.Status tradingStatus){
         UserCurrentStatus userCurrentStatus = UserCurrentStatus.builder().isApplicant(isApply).isWriter(profile==marketPost.getProfile()).applyStatus(tradingStatus).build();
         MarketPostResponse marketPostResponse = toMarketPostResponse(marketPost, marketPost.getApplies().size());
-        return MarketPostWithComment.builder()
-                .writerInfo(ProfileResponseDTO.toUserInfo(marketPost.getProfile()))
+        return MarketPostDetail.builder()
+
                 .userCurrentStatus(userCurrentStatus)
                 .marketPostResponse(marketPostResponse)
                 .build();
     }
+
 }
