@@ -8,6 +8,7 @@ import com.eum.haetsal.controller.DTO.request.ProfileRequestDTO;
 import com.eum.haetsal.controller.DTO.response.ProfileResponseDTO;
 import com.eum.haetsal.controller.DTO.response.UserResponse;
 import com.eum.haetsal.domain.profile.Profile;
+import com.eum.haetsal.domain.user.User;
 import com.eum.haetsal.service.AuthService;
 import com.eum.haetsal.service.BlockService;
 import com.eum.haetsal.service.ProfileService;
@@ -93,14 +94,14 @@ public class   ProfileController {
             @ApiResponse(responseCode = "403", description = "헤더에 토큰이 들어가있지 않은 경우",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "외부 API 요청 실패, 정상적 수행을 할 수 없을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
-    public ResponseEntity<APIResponse<ProfileResponseDTO.ProfileResponse>> getMyProfile(@RequestParam(value = "id",required = false) Long profileId,@RequestHeader("userId") String userId){
+    public ResponseEntity<APIResponse<ProfileResponseDTO.ProfileResponse>> getMyProfile(@RequestParam(value = "otherUserId",required = false) Long otherUserId, @RequestHeader("userId") String userId){
         ProfileResponseDTO.ProfileResponse profileResponse;
         boolean isBlocked = false;
 
         Profile me = profileService.findByUser(Long.valueOf(userId));
         profileResponse = profileService.getProfile(me);
-        if (!(profileId == null || profileId==0)) {
-            Profile blocked = profileService.findById(profileId); //차단할 유저 객체
+        if (!(otherUserId == null || otherUserId ==0)) {
+            Profile blocked = profileService.findByUser(otherUserId); //차단할 유저 객체
             isBlocked = blockService.isBlocked(me, blocked);
             profileResponse = profileService.getProfile(blocked);
         }

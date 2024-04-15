@@ -41,7 +41,7 @@ public class BlockController {
     @PostMapping("")
     public ResponseEntity<APIResponse> blockedAction(@RequestBody ProfileRequestDTO.BlockProfile blockProfile , @RequestHeader("userId") String userId){
         Profile blocker = profileService.findByUser(Long.valueOf(userId));
-        Profile blocked = profileService.findById(blockProfile.getProfileId()); //차단할 유저 객체
+        Profile blocked = profileService.findByUser(blockProfile.getUserId()); //차단할 유저 객체
 
         blockService.blockedAction(blocker, blocked);
         return new ResponseEntity<>(APIResponse.of(SuccessCode.INSERT_SUCCESS,"차단 성공"), HttpStatus.CREATED);
@@ -57,7 +57,7 @@ public class BlockController {
     @DeleteMapping("")
     public ResponseEntity<APIResponse> deleteBlockedAction(@RequestBody ProfileRequestDTO.BlockProfile blockProfile , @RequestHeader("userId") String userId){
         Profile blocker = profileService.findByUser(Long.valueOf(userId));
-        Profile blocked = profileService.findById(blockProfile.getProfileId()); //차단할 유저 객체
+        Profile blocked = profileService.findByUser(blockProfile.getUserId()); //차단할 유저 객체
 
         blockService.deleteBlockedAction(blocker, blocked); //차단•해제에 대한 판별
 
