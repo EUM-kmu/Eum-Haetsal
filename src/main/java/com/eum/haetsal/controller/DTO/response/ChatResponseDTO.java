@@ -17,11 +17,15 @@ public class ChatResponseDTO {
         private Long postId;
         private Status status;
         private String title;
+        private Long pay;
+        private Long dealId;
 
         public PostInfo(MarketPost marketPost) {
             this.postId = marketPost.getMarketPostId();
             this.status = marketPost.getStatus();
             this.title = marketPost.getTitle();
+            this.pay = marketPost.getPay();
+            this.dealId = marketPost.getDealId();
         }
     }
     @Getter
