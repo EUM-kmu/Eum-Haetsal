@@ -75,6 +75,9 @@ public class MarketPostRequestDTO {
         @NotEmpty(message = "거래ID를 입력해주세요.")
         private Long dealId;
 
+        @Schema(description = "비밀번호", example = "1234")
+        @NotEmpty(message = "계좌 비밀번호를 입력해주세요")
+        private String password;
 
         // 수신 계좌번호 및 금액 리스트
         @Schema(description = "수신 계좌번호 및 금액 리스트")

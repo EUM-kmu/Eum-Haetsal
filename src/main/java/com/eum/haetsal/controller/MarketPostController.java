@@ -11,10 +11,7 @@ import com.eum.haetsal.controller.DTO.response.MarketPostResponseDTO;
 import com.eum.haetsal.domain.marketpost.Status;
 import com.eum.haetsal.domain.profile.Profile;
 import com.eum.haetsal.domain.user.User;
-import com.eum.haetsal.service.BlockService;
-import com.eum.haetsal.service.MarketPostService;
-import com.eum.haetsal.service.ProfileService;
-import com.eum.haetsal.service.UserService;
+import com.eum.haetsal.service.*;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -89,7 +86,6 @@ public class  MarketPostController {
         Profile profile = profileService.findByUser(Long.valueOf(userId));
         return ResponseEntity.ok(marketPostService.update(postId,marketUpdate,profile));
     }
-    @Hidden
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),
             @ApiResponse(responseCode = "400", description = "요청 형식 혹은 요청 콘텐츠가 올바르지 않을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
