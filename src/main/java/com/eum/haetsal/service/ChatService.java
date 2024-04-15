@@ -23,7 +23,7 @@ public class ChatService {
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
     private final BlockRepository blockRepository;
-    public List<ChatResponseDTO.PostInfo> getPostList(List<String> postIdList){
+    public List<ChatResponseDTO.PostInfo> getPostList(List<Integer> postIdList){
         List<MarketPost> marketPosts = new ArrayList<>();
         postIdList.forEach(postId -> marketPosts.add(marketPostRepository.findById(Long.valueOf(postId)).orElseThrow(() -> new IllegalArgumentException("invalid postId"))));
         List<ChatResponseDTO.PostInfo> postInfos = marketPosts.stream().map(ChatResponseDTO.PostInfo::new).collect(Collectors.toList());
