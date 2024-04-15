@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.eum.haetsal.domain.apply.Status.TRADING_CANCEL;
+import static com.eum.haetsal.domain.apply.Status.*;
 
 @Service
 @Slf4j
@@ -105,7 +105,7 @@ public class ApplyService {
 
 
             getApply.updateAccepted(true); //수락
-            getApply.updateStatus(com.eum.haetsal.domain.apply.Status.TRADING); //지원 상태 변경
+            getApply.updateStatus(TRADING); //지원 상태 변경
             marketPost.addCurrentAcceptedPeople(); //게시글에 반영
 
             applyRepository.save(getApply);
@@ -141,13 +141,17 @@ public class ApplyService {
         if( !hostProfile.equals(profile) && !deleteProfile.equals(profile)) {
             throw new IllegalArgumentException("취소할수있는 권한이 없습니다");
         }
-
+        if(getApply.getStatus() == TRADING) {
+            getApply.setIsAccepted(false);
+            getApply.setStatus(TRADING_CANCEL);
+            applyRepository.save(getApply);
+        }else if (getApply.getStatus() == WAITING){
+            applyRepository.delete(getApply);
+        }
         // 지원자의 지원 상태를 변경
-        getApply.setIsAccepted(false);
-        getApply.setStatus(TRADING_CANCEL);
         post.setCurrentAcceptedPeople(post.getCurrentAcceptedPeople() - 1);
+        marketPostRepository.save(post);
 
-//        applyRepository.delete(getApply);
         return APIResponse.of(SuccessCode.DELETE_SUCCESS);
     }
 
@@ -202,7 +206,7 @@ public class ApplyService {
         for (Apply apply:applies) {
             if (apply.getStatus() == com.eum.haetsal.domain.apply.Status.WAITING) {
                 applyRepository.delete(apply);
-            } else if (apply.getStatus() == com.eum.haetsal.domain.apply.Status.TRADING) {
+            } else if (apply.getStatus() == TRADING) {
                 cancel(apply);
             }
         }
