@@ -42,7 +42,7 @@ public class ProfileRequestDTO {
     @Getter
     @Setter
     public static class BlockProfile{
-        private Long profileId;
+        private Long userId;
     }
 
 }

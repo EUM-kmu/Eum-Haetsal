@@ -102,10 +102,7 @@ public class ProfileService {
         Profile getProfile = profileRepository.findByUser(getUser).orElseThrow(() -> new NullPointerException("None profile User"));
         return getProfile;
     }
-    public Profile findById(Long profileId){
-        Profile getProfile = profileRepository.findById(profileId).orElseThrow(() -> new NullPointerException("Invalid profileId"));
-        return getProfile;
-    }
+
 
 
 }

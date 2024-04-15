@@ -21,7 +21,6 @@ public class ProfileResponseDTO {
     @Schema(description = "프로필 정보")
     public static class ProfileResponse {
         private Long userId;
-        private Long profileId;
 
         @Schema(description = "닉네임")
         private String nickName;
@@ -44,7 +43,6 @@ public class ProfileResponseDTO {
     @Builder
     public static class ProfileResponseWithToken {
         private Long userId;
-        private Long profileId;
         @Schema(description = "닉네임")
         private String nickName;
         @Schema(description = "성별",allowableValues = {"male","female"})
@@ -65,7 +63,6 @@ public class ProfileResponseDTO {
         int userBirth= profile.getBirth().getYear();
         return ProfileResponseWithToken.builder()
                 .userId(profile.getUser().getUserId())
-                .profileId(profile.getProfileId())
                 .nickName(profile.getNickname())
                 .gender(profile.getGender())
                 .ageRange((thisYear - userBirth + 1) / 10)
@@ -81,7 +78,6 @@ public class ProfileResponseDTO {
         int userBirth= profile.getBirth().getYear();
         return ProfileResponse.builder()
                 .userId(profile.getUser().getUserId())
-                .profileId(profile.getProfileId())
                 .nickName(profile.getNickname())
                 .gender(profile.getGender())
                 .ageRange((thisYear - userBirth + 1) / 10)
@@ -95,7 +91,6 @@ public class ProfileResponseDTO {
     @Setter
     @Builder
     public static class UserInfo{
-        private Long profileId;
         private String nickName;
         private String profileImage;
         private String address;
@@ -107,7 +102,6 @@ public class ProfileResponseDTO {
         int thisYear = now.getYear();
         int userBirth= profile.getBirth().getYear();
         return UserInfo.builder()
-                .profileId(profile.getProfileId())
                 .nickName(profile.getNickname())
                 .profileImage(profile.getProfileImage())
                 .ageRange((thisYear - userBirth + 1) / 10)
