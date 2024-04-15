@@ -35,7 +35,7 @@ import java.text.ParseException;
 @RequestMapping()
 @RequiredArgsConstructor
 @Tag(name = "Profile", description = "프로필 관련 api")
-@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "x-requested-with, Authorization, Content-Type")
+@CrossOrigin(origins = {"http://localhost:3000","https://hanmaeul.vercel.app"}, allowedHeaders = "x-requested-with, Authorization, Content-Type")
 public class   ProfileController {
     private final ProfileService profileService;
     private final UserService userService;

@@ -18,7 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("haetsal-service/api/v2/withdrawal")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
+@CrossOrigin(origins = {"http://localhost:3000","https://hanmaeul.vercel.app"}, allowedHeaders = "*")
 public class WithdrawalCategoryController {
     private final WithdrawalCategoryService withdrawalCategoryService;
     @Hidden
