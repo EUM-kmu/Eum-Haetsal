@@ -115,7 +115,7 @@ public class MarketPost extends BaseTimeEntity {
 
     public void increaseReportedCount(Long userId) {
         this.reports.forEach(report -> {
-                    if(report.getUser().getUserId().equals(userId)){
+                    if(report.getProfile().getUser().getUserId().equals(userId)){
                         throw new IllegalArgumentException("이미 신고한 게시물입니다.");
                     }
                 });

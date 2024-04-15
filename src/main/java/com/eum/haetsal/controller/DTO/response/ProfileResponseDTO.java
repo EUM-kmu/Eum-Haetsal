@@ -66,7 +66,7 @@ public class ProfileResponseDTO {
                 .nickName(profile.getNickname())
                 .gender(profile.getGender())
                 .ageRange((thisYear - userBirth + 1) / 10)
-                .address("주소였던것")
+                .address(profile.getAddress())
                 .accountNumber(profile.getUser().getAccountNumber())
                 .profileImage(profile.getProfileImage())
                 .build();
@@ -81,7 +81,7 @@ public class ProfileResponseDTO {
                 .nickName(profile.getNickname())
                 .gender(profile.getGender())
                 .ageRange((thisYear - userBirth + 1) / 10)
-                .address("주소였던것")
+                .address(profile.getAddress())
                 .accountNumber(profile.getUser().getAccountNumber())
                 .profileImage(profile.getProfileImage())
                 .build();

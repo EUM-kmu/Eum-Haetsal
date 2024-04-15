@@ -196,8 +196,9 @@ public class  MarketPostController {
     })
     @Operation(summary = "신고하기")
     @PostMapping("/{postId}/report")
-    public ResponseEntity<APIResponse> report(@PathVariable Long postId, @RequestHeader("userId") String userId){
-        marketPostService.report(postId, Long.valueOf(userId));
+    public ResponseEntity<APIResponse> report(@PathVariable Long postId,@RequestBody MarketPostRequestDTO.ReportReason reportReason, @RequestHeader("userId") String userId){
+        Profile profile = profileService.findByUser(Long.valueOf(userId));
+        marketPostService.report(postId, Long.valueOf(userId),reportReason.getReason(),profile);
         return ResponseEntity.ok(APIResponse.of(SuccessCode.INSERT_SUCCESS));
     }
 
