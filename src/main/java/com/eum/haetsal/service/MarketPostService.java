@@ -18,6 +18,8 @@ import com.eum.haetsal.domain.marketpost.MarketPostRepository;
 import com.eum.haetsal.domain.marketpost.Status;
 import com.eum.haetsal.domain.profile.Profile;
 import com.eum.haetsal.domain.profile.ProfileRepository;
+import com.eum.haetsal.domain.report.Report;
+import com.eum.haetsal.domain.report.ReportRepository;
 import com.eum.haetsal.domain.user.User;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +43,7 @@ import java.util.Locale;
 @RequiredArgsConstructor
 @Slf4j
 public class MarketPostService {
+    private final ReportRepository reportRepository;
     private final MarketPostRepository marketPostRepository;
     private final ProfileRepository profileRepository;
     private final MarketCategoryRepository marketCategoryRepository;
@@ -307,10 +310,12 @@ public class MarketPostService {
      * 게시글 신고
      * @param postId : 게시글 id
      */
-    public void report(Long postId, Long userId) {
+    public void report(Long postId, Long userId,String reason,Profile profile) {
         MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
         getMarketPost.increaseReportedCount(userId);
         marketPostRepository.save(getMarketPost);
+        Report report = Report.toEntity(reason,profile , getMarketPost);
+        reportRepository.save(report);
     }
 
     /**

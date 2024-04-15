@@ -7,6 +7,7 @@ import com.eum.haetsal.controller.DTO.request.ProfileRequestDTO;
 import com.eum.haetsal.domain.block.Block;
 import com.eum.haetsal.domain.apply.Apply;
 import com.eum.haetsal.domain.marketpost.MarketPost;
+import com.eum.haetsal.domain.report.Report;
 import com.eum.haetsal.domain.withdrawaluser.WithdrawalUser;
 import com.eum.haetsal.domain.user.User;
 import jakarta.persistence.*;
@@ -55,6 +56,9 @@ public class Profile extends BaseTimeEntity {
 
     @OneToOne(mappedBy = "profile", orphanRemoval = true)
     private WithdrawalUser withdrawalUser;
+
+    @OneToMany(mappedBy = "profile")
+    private List<Report> reports;
 
     @OneToOne
     @JoinColumn(name="user_id")

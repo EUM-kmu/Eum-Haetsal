@@ -27,8 +27,7 @@ public class User extends BaseTimeEntity {
     @Column
     private String accountPassword;
 
-    @OneToMany(mappedBy = "user")
-    private List<Report> reports;
+
 
     public static User toEntity(Long userId, String password) {
         return User.builder().userId(userId).accountPassword(password).build();

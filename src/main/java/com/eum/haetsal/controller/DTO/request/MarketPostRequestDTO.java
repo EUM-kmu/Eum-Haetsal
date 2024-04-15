@@ -66,6 +66,11 @@ public class MarketPostRequestDTO {
     public static class UpdateStatus{
         private Status status;
     }
+    @Getter
+    @Setter
+    public static class ReportReason{
+        private String reason;
+    }
 
     @Getter
     @Setter
