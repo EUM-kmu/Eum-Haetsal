@@ -327,7 +327,7 @@ public class MarketPostService {
     public void chatTransfer(Long postId, MarketPostRequestDTO.ChatTransfer chatTransfer, Profile profile) {
         MarketPost getMarketPost = validateUserAndPost(postId, profile);
         getMarketPost.setStatus(Status.TRANSACTION_COMPLETED);
-        bankService.executeDeal(getMarketPost.getDealId(), profile.getUser().getAccountNumber(), chatTransfer.getPassword(), chatTransfer.getTotalAmount(), chatTransfer.getReceiverAndAmounts());
+        bankService.executeDeal(getMarketPost.getDealId(), profile.getUser().getAccountNumber(),profile.getUser().getAccountPassword(), chatTransfer.getTotalAmount(), chatTransfer.getReceiverAndAmounts());
         // chatTransfer.getReceiverAndAmounts()에 있는 사람들의 dealCount 증가
         for (DealRequestDTO.ReceiverAndAmount receiverAndAmount : chatTransfer.getReceiverAndAmounts()) {
             String receiverId = receiverAndAmount.getReceiverAccountNumber();
