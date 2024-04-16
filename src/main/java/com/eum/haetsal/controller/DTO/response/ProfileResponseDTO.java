@@ -91,6 +91,7 @@ public class ProfileResponseDTO {
     @Setter
     @Builder
     public static class UserInfo{
+        private Long userId;
         private String nickName;
         private String profileImage;
         private String address;
@@ -102,6 +103,7 @@ public class ProfileResponseDTO {
         int thisYear = now.getYear();
         int userBirth= profile.getBirth().getYear();
         return UserInfo.builder()
+                .userId(profile.getUser().getUserId())
                 .nickName(profile.getNickname())
                 .profileImage(profile.getProfileImage())
                 .ageRange((thisYear - userBirth + 1) / 10)
