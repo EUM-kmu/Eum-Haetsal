@@ -35,8 +35,8 @@ public class ProfileService {
         if (profileRepository.existsByUser(getUser)) throw new IllegalArgumentException("이미 프로필이 있는 회원");
 
         validateNickname(createProfile.getNickName());
-        FileDto fileDto = fileService.uploadFile(multipartFile, "profile");
-        Profile profile = Profile.toEntity(createProfile,getUser,fileDto.getUploadFileUrl(),fileDto.getUploadFileName());
+//        FileDto fileDto = fileService.uploadFile(multipartFile, "profile");
+        Profile profile = Profile.toEntity(createProfile,getUser);
         Profile savedProfile = profileRepository.save(profile);
 
         ProfileResponseDTO.ProfileResponseWithToken createProfileResponse = ProfileResponseDTO.toProfileToken(savedProfile);
@@ -50,7 +50,7 @@ public class ProfileService {
 
         validateNickname(createProfile.getNickName());
 //        FileDto fileDto = fileService.uploadFile(multipartFile, "profile");
-        Profile profile = Profile.toEntity(createProfile,getUser,"","");
+        Profile profile = Profile.toEntity(createProfile,getUser);
         Profile savedProfile = profileRepository.save(profile);
 
         ProfileResponseDTO.ProfileResponse createProfileResponse = ProfileResponseDTO.toProfileResponse(savedProfile);
