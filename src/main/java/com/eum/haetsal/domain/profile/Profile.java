@@ -85,7 +85,7 @@ public class Profile extends BaseTimeEntity {
 
 
 
-    public static Profile toEntity(ProfileRequestDTO.CreateProfile createProfile, User user, String profileImage, String fileName) throws ParseException {
+    public static Profile toEntity(ProfileRequestDTO.CreateProfile createProfile, User user) throws ParseException {
         LocalDate birthDate = KoreaLocalDateTime.stringToLocalDateTime(createProfile.getBirth());
         return Profile.builder()
                 .nickname(createProfile.getNickName())
@@ -93,8 +93,8 @@ public class Profile extends BaseTimeEntity {
                 .name(createProfile.getName())
                 .birth(birthDate)
                 .gender(createProfile.getGender())
-                .fileName(fileName)
-                .profileImage(profileImage)
+//                .fileName(fileName)
+//                .profileImage(profileImage)
                 .address(createProfile.getAddress())
                 .build();
     }
