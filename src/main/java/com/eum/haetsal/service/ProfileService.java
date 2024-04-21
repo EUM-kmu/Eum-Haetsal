@@ -30,7 +30,7 @@ public class ProfileService {
      * @return
      */
     @Transactional
-    public ProfileResponseDTO.ProfileResponseWithToken create(ProfileRequestDTO.CreateProfile createProfile, Long userId, MultipartFile multipartFile) throws ParseException {
+    public ProfileResponseDTO.ProfileResponseWithToken create(ProfileRequestDTO.CreateProfile createProfile, Long userId) throws ParseException {
         User getUser = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("invalid userId"));
         if (profileRepository.existsByUser(getUser)) throw new IllegalArgumentException("이미 프로필이 있는 회원");
 
