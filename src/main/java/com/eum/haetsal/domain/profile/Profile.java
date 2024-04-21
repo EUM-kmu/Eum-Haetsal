@@ -11,11 +11,13 @@ import com.eum.haetsal.domain.report.Report;
 import com.eum.haetsal.domain.withdrawaluser.WithdrawalUser;
 import com.eum.haetsal.domain.user.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 @Entity
@@ -38,6 +40,9 @@ public class Profile extends BaseTimeEntity {
     private String address;
     private String fileName;
     private int dealCount;
+    @Lob
+    @Column(columnDefinition = "longblob")
+    private byte[] file;
 
     @OneToMany(mappedBy = "blocker")
     private List<Block> blockers = new ArrayList<>();
@@ -93,6 +98,7 @@ public class Profile extends BaseTimeEntity {
                 .name(createProfile.getName())
                 .birth(birthDate)
                 .gender(createProfile.getGender())
+                .file(Base64.getDecoder().decode(createProfile.getFile()))
 //                .fileName(fileName)
 //                .profileImage(profileImage)
                 .address(createProfile.getAddress())

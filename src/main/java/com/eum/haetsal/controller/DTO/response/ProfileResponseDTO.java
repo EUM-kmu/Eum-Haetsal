@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.Base64;
 
 @Component
 @Slf4j
@@ -32,7 +33,7 @@ public class ProfileResponseDTO {
         @Schema(description = "계좌정보")
         private String accountNumber;
         @Schema(description = "이미지 url")
-        private String profileImage; //네이버 클라우드 Url
+        private String profileImage; //네이버 클라우드 Urlprivate String profileImage; //네이버 클라우드 Url
         @Schema(description = "치단 여부")
         private Boolean blocked;
 
@@ -68,7 +69,7 @@ public class ProfileResponseDTO {
                 .ageRange((thisYear - userBirth + 1) / 10)
                 .address(profile.getAddress())
                 .accountNumber(profile.getUser().getAccountNumber())
-                .profileImage(profile.getProfileImage())
+                .profileImage(Base64.getEncoder().encodeToString(profile.getFile()))
                 .build();
     }
 
@@ -83,7 +84,7 @@ public class ProfileResponseDTO {
                 .ageRange((thisYear - userBirth + 1) / 10)
                 .address(profile.getAddress())
                 .accountNumber(profile.getUser().getAccountNumber())
-                .profileImage(profile.getProfileImage())
+                .profileImage(Base64.getEncoder().encodeToString(profile.getFile()))
                 .build();
     }
 
@@ -105,7 +106,7 @@ public class ProfileResponseDTO {
         return UserInfo.builder()
                 .userId(profile.getUser().getUserId())
                 .nickName(profile.getNickname())
-                .profileImage(profile.getProfileImage())
+                .profileImage(Base64.getEncoder().encodeToString(profile.getFile()))
                 .ageRange((thisYear - userBirth + 1) / 10)
                 .gender(profile.getGender())
                 .address(profile.getAddress()).build();
