@@ -29,7 +29,8 @@ public class ProfileRequestDTO {
         @Schema(description = "성별",allowableValues = {"male","female"})
         private String gender;
         private String address;
-        private String file;
+        private byte[] file;
+        private byte[] fileByte;
 
 
     }

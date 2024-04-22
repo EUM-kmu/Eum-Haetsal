@@ -90,8 +90,8 @@ public class FileService {
 
         return s3files;
     }
-    public FileDto uploadFileFromBase64(String base64String, String originalFileName, String filePath) {
-        byte[] decodedBytes = Base64.getDecoder().decode(base64String);
+    public FileDto uploadFileFromBase64(byte[] base64String, String originalFileName, String filePath) {
+//        byte[] decodedBytes = Base64.getDecoder().decode(base64String);
 
         // 파일 이름에서 확장자 추출
         String fileExtension = StringUtils.getFilenameExtension(originalFileName);
@@ -107,9 +107,9 @@ public class FileService {
         String uploadFileUrl = "";
 
         // base64 문자열을 파일로 변환하여 업로드
-        try (InputStream inputStream = new ByteArrayInputStream(decodedBytes)) {
+        try (InputStream inputStream = new ByteArrayInputStream(base64String)) {
             ObjectMetadata objectMetadata = new ObjectMetadata();
-            objectMetadata.setContentLength(decodedBytes.length);
+            objectMetadata.setContentLength(base64String.length);
             objectMetadata.setContentType("image/" + fileExtension); // 이미지인 경우에는 확장자에 따라 Content-Type 설정
 
             // S3에 파일 업로드
