@@ -35,7 +35,7 @@ public class ProfileService {
         if (profileRepository.existsByUser(getUser)) throw new IllegalArgumentException("이미 프로필이 있는 회원");
 
         validateNickname(createProfile.getNickName());
-        FileDto fileDto = fileService.uploadFileFromBase64(createProfile.getFile(),"profile", "profile");
+        FileDto fileDto = fileService.uploadFileFromBase64(createProfile.getFileByte(),"profile", "profile");
         Profile profile = Profile.toEntity(createProfile,getUser,fileDto);
         Profile savedProfile = profileRepository.save(profile);
 
