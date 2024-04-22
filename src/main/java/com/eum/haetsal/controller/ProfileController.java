@@ -62,26 +62,6 @@ public class   ProfileController {
         return new ResponseEntity<>( APIResponse.of(SuccessCode.INSERT_SUCCESS, profileResponseWithToken), HttpStatus.CREATED);
     }
 
-    // 프로필 생성 테스트 인증서버 제외
-    @Hidden
-    @PostMapping(path = "/auth-service/api/v2/profile/test")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "성공"),
-            @ApiResponse(responseCode = "400", description = "요청 형식 혹은 요청 콘텐츠가 올바르지 않을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "401", description = "토큰 시간 만료, 형식 오류,로그아웃한 유저 접근",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "403", description = "헤더에 토큰이 들어가있지 않은 경우",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "500", description = "외부 API 요청 실패, 정상적 수행을 할 수 없을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-    })
-    public ResponseEntity<APIResponse<ProfileResponseDTO.ProfileResponse>> createProfileT(@RequestPart(value = "request") ProfileRequestDTO.CreateProfile createProfile, @RequestHeader("userId") String userId) throws ParseException {
-        // 이미 존재하는 userId일 경우
-        // 1. 이미 프로필이 있는 회원 -> 에러
-        // 2. 프로필이 없는 경우(탈퇴했던 유저) -> 프로필만 재 생성, 계좌는 이미 존재
-
-        userService.create(Long.valueOf(userId), createProfile.getPassword());
-        ProfileResponseDTO.ProfileResponse profileResponse = profileService.createT(createProfile, Long.valueOf(userId));
-        return new ResponseEntity<>( APIResponse.of(SuccessCode.INSERT_SUCCESS, profileResponse), HttpStatus.CREATED);
-    }
-
     /**
      * 프로필 조회
      * @return

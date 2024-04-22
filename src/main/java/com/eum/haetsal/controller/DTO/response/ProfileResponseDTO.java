@@ -69,7 +69,7 @@ public class ProfileResponseDTO {
                 .ageRange((thisYear - userBirth + 1) / 10)
                 .address(profile.getAddress())
                 .accountNumber(profile.getUser().getAccountNumber())
-                .profileImage(Base64.getEncoder().encodeToString(profile.getFile()))
+                .profileImage(profile.getProfileImage())
                 .build();
     }
 
@@ -84,7 +84,7 @@ public class ProfileResponseDTO {
                 .ageRange((thisYear - userBirth + 1) / 10)
                 .address(profile.getAddress())
                 .accountNumber(profile.getUser().getAccountNumber())
-                .profileImage(Base64.getEncoder().encodeToString(profile.getFile()))
+                .profileImage(profile.getProfileImage())
                 .build();
     }
 
@@ -106,7 +106,7 @@ public class ProfileResponseDTO {
         return UserInfo.builder()
                 .userId(profile.getUser().getUserId())
                 .nickName(profile.getNickname())
-                .profileImage(Base64.getEncoder().encodeToString(profile.getFile()))
+                .profileImage(profile.getProfileImage())
                 .ageRange((thisYear - userBirth + 1) / 10)
                 .gender(profile.getGender())
                 .address(profile.getAddress()).build();

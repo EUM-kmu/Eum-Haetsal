@@ -2,6 +2,7 @@ package com.eum.haetsal.domain.profile;
 
 
 import com.eum.haetsal.common.BaseTimeEntity;
+import com.eum.haetsal.common.DTO.FileDto;
 import com.eum.haetsal.common.KoreaLocalDateTime;
 import com.eum.haetsal.controller.DTO.request.ProfileRequestDTO;
 import com.eum.haetsal.domain.block.Block;
@@ -90,7 +91,7 @@ public class Profile extends BaseTimeEntity {
 
 
 
-    public static Profile toEntity(ProfileRequestDTO.CreateProfile createProfile, User user) throws ParseException {
+    public static Profile toEntity(ProfileRequestDTO.CreateProfile createProfile, User user, FileDto fileDto) throws ParseException {
         LocalDate birthDate = KoreaLocalDateTime.stringToLocalDateTime(createProfile.getBirth());
         return Profile.builder()
                 .nickname(createProfile.getNickName())
@@ -99,8 +100,8 @@ public class Profile extends BaseTimeEntity {
                 .birth(birthDate)
                 .gender(createProfile.getGender())
                 .file(Base64.getDecoder().decode(createProfile.getFile()))
-//                .fileName(fileName)
-//                .profileImage(profileImage)
+                .fileName(fileDto.getUploadFileName())
+                .profileImage(fileDto.getUploadFileUrl())
                 .address(createProfile.getAddress())
                 .build();
     }
