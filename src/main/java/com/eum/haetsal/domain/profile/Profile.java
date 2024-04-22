@@ -41,9 +41,7 @@ public class Profile extends BaseTimeEntity {
     private String address;
     private String fileName;
     private int dealCount;
-    @Lob
-    @Column(columnDefinition = "longblob")
-    private byte[] file;
+
 
     @OneToMany(mappedBy = "blocker")
     private List<Block> blockers = new ArrayList<>();
@@ -99,7 +97,6 @@ public class Profile extends BaseTimeEntity {
                 .name(createProfile.getName())
                 .birth(birthDate)
                 .gender(createProfile.getGender())
-                .file(Base64.getDecoder().decode(createProfile.getFile()))
                 .fileName(fileDto.getUploadFileName())
                 .profileImage(fileDto.getUploadFileUrl())
                 .address(createProfile.getAddress())
