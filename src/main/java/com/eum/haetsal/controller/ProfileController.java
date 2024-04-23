@@ -24,11 +24,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.text.ParseException;
+import java.util.Arrays;
 
 @RestController
 @Slf4j
@@ -42,6 +44,7 @@ public class   ProfileController {
     private final AuthService authService;
     private final BlockService blockService;
 
+    @Transactional
     @PostMapping(path = "/auth-service/api/v2/profile",consumes =  {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "성공"),
@@ -54,10 +57,10 @@ public class   ProfileController {
         // 이미 존재하는 userId일 경우
         // 1. 이미 프로필이 있는 회원 -> 에러
         // 2. 프로필이 없는 경우(탈퇴했던 유저) -> 프로필만 재 생성, 계좌는 이미 존재
-
+        log.info(Arrays.toString(createProfile.getFileByte()));
+        ProfileResponseDTO.ProfileResponseWithToken profileResponseWithToken = profileService.create(createProfile, Long.valueOf(userId));
         userService.create(Long.valueOf(userId), createProfile.getPassword());
         UserResponse.TokenInfo tokenInfo = authService.getToken(userId);
-        ProfileResponseDTO.ProfileResponseWithToken profileResponseWithToken = profileService.create(createProfile, Long.valueOf(userId));
         profileResponseWithToken.setTokenInfo(tokenInfo);
         return new ResponseEntity<>( APIResponse.of(SuccessCode.INSERT_SUCCESS, profileResponseWithToken), HttpStatus.CREATED);
     }
