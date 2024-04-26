@@ -139,6 +139,7 @@ public class MarketPost extends BaseTimeEntity {
                 .maxNumOfPeople(marketCreate.getMaxNumOfPeople())
                 .status(Status.RECRUITING)
                 .profile(profile)
+                .reportedCount(0L)
                 .build();
     }
 }
