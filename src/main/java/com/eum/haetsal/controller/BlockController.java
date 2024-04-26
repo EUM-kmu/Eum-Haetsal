@@ -1,11 +1,14 @@
 package com.eum.haetsal.controller;
 
+import com.eum.haetsal.client.ChatClient;
 import com.eum.haetsal.common.DTO.APIResponse;
 import com.eum.haetsal.common.DTO.ErrorResponse;
 import com.eum.haetsal.common.DTO.enums.SuccessCode;
 import com.eum.haetsal.controller.DTO.request.ProfileRequestDTO;
+import com.eum.haetsal.controller.DTO.response.BlockResponseDTO;
 import com.eum.haetsal.domain.profile.Profile;
 import com.eum.haetsal.service.BlockService;
+import com.eum.haetsal.service.ChatService;
 import com.eum.haetsal.service.ProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,6 +33,7 @@ import java.util.List;
 public class BlockController {
     private final ProfileService profileService;
     private final BlockService blockService;
+    private final ChatService chatService;
     @Operation(summary = "차단하기", description = "유저 차단")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "성공"),
@@ -39,12 +43,13 @@ public class BlockController {
             @ApiResponse(responseCode = "500", description = "외부 API 요청 실패, 정상적 수행을 할 수 없을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @PostMapping("")
-    public ResponseEntity<APIResponse> blockedAction(@RequestBody ProfileRequestDTO.BlockProfile blockProfile , @RequestHeader("userId") String userId){
+    public ResponseEntity<APIResponse<BlockResponseDTO.TotalChatInfo>> blockedAction(@RequestBody ProfileRequestDTO.BlockProfile blockProfile , @RequestHeader("userId") String userId){
         Profile blocker = profileService.findByUser(Long.valueOf(userId));
         Profile blocked = profileService.findByUser(blockProfile.getUserId()); //차단할 유저 객체
-
+        BlockResponseDTO.TotalChatInfo totalChatInfo = chatService.getChatList(userId, String.valueOf(blockProfile.getUserId()));
         blockService.blockedAction(blocker, blocked);
-        return new ResponseEntity<>(APIResponse.of(SuccessCode.INSERT_SUCCESS,"차단 성공"), HttpStatus.CREATED);
+
+        return new ResponseEntity<>(APIResponse.of(SuccessCode.INSERT_SUCCESS,totalChatInfo), HttpStatus.CREATED);
 
     }
     @Operation(summary = "차단 해제", description = "차단해제")@ApiResponses(value = {
