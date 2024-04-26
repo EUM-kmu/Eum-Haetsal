@@ -1,7 +1,10 @@
 package com.eum.haetsal.service;
 
+import com.eum.haetsal.client.ChatClient;
+import com.eum.haetsal.client.DTO.BaseResponseEntity;
+import com.eum.haetsal.client.DTO.ChatResponse;
+import com.eum.haetsal.controller.DTO.response.BlockResponseDTO;
 import com.eum.haetsal.controller.DTO.response.ChatResponseDTO;
-import com.eum.haetsal.controller.DTO.response.UserResponse;
 import com.eum.haetsal.domain.block.BlockRepository;
 import com.eum.haetsal.domain.marketpost.MarketPost;
 import com.eum.haetsal.domain.marketpost.MarketPostRepository;
@@ -23,6 +26,7 @@ public class ChatService {
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
     private final BlockRepository blockRepository;
+    private final ChatClient chatClient;
     public List<ChatResponseDTO.PostInfo> getPostList(List<Integer> postIdList){
         List<MarketPost> marketPosts = new ArrayList<>();
         postIdList.forEach(postId -> marketPosts.add(marketPostRepository.findById(Long.valueOf(postId)).orElseThrow(() -> new IllegalArgumentException("invalid postId"))));
@@ -39,5 +43,11 @@ public class ChatService {
         });
         List<ChatResponseDTO.UserInfo> userInfos = profiles.stream().map(ChatResponseDTO.UserInfo::new).collect(Collectors.toList());
         return userInfos;
+    }
+    public BlockResponseDTO.TotalChatInfo getChatList(String blockerId, String blockedId){
+        List<ChatResponse> response = chatClient.getChatList(blockerId, blockedId);
+        BlockResponseDTO.TotalChatInfo totalChatInfo = new BlockResponseDTO.TotalChatInfo(Long.valueOf(blockedId), response);
+        return totalChatInfo;
+
     }
 }
