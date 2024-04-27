@@ -101,7 +101,8 @@ public class ApplyService {
             Apply getApply = applyRepository.findById(applyId).orElseThrow(() -> new NullPointerException("invalid applyId"));
 
             if (getApply.getMarketPost().getProfile() != profile) throw new IllegalArgumentException("해당 게시글에 대한 권한이 없다");
-            if(getApply.getIsAccepted() || getApply.getStatus() == TRADING_CANCEL) throw new IllegalArgumentException("이미 선정했더나 과거 거래 취소를 했던 사람입니다");
+            if(!marketPost.getStatus().equals(Status.RECRUITING)) throw new IllegalArgumentException("이미 모집완료 된 게시글입니다");
+            if( getApply.getStatus().equals(TRADING_CANCEL)) throw new IllegalArgumentException("과거 거래 취소를 했던 사람입니다");
 
 
             getApply.updateAccepted(true); //수락
