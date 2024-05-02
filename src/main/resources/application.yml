@@ -77,6 +77,6 @@ eureka:
 logging:
   level:
     com.eum.haetsal: debug
-cors:
-  allowed_header: x-requested-with, authorization, Content-Type
-  allowed_orgin: http://localhost:3000
+#cors:
+#  allowed_header: x-requested-with, authorization, Content-Type
+#  allowed_orgin: http://localhost:3000

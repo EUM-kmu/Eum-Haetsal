@@ -1,5 +1,6 @@
 package com.eum.haetsal.controller.DTO.response;
 
+import com.eum.haetsal.common.KoreaLocalDateTime;
 import com.eum.haetsal.domain.marketpost.MarketPost;
 import com.eum.haetsal.domain.marketpost.Status;
 import com.eum.haetsal.domain.profile.Profile;
@@ -17,15 +18,19 @@ public class ChatResponseDTO {
         private Long postId;
         private Status status;
         private String title;
+        private String  createdDate;
         private Long pay;
         private Long dealId;
+        private UserInfo userInfo;
 
         public PostInfo(MarketPost marketPost) {
             this.postId = marketPost.getMarketPostId();
+            this.createdDate =KoreaLocalDateTime.localDateTimeToKoreaZoned(marketPost.getCreateDate());
             this.status = marketPost.getStatus();
             this.title = marketPost.getTitle();
             this.pay = marketPost.getPay();
             this.dealId = marketPost.getDealId();
+            this.userInfo = new UserInfo(marketPost.getProfile());
         }
     }
     @Getter
@@ -35,6 +40,7 @@ public class ChatResponseDTO {
         private Long profileId;
         private String profileImage;
         private String nickName;
+        private String address;
         private String accountNumber;
 //        private List<Map<Long,Boolean>> Block ;
 
@@ -44,6 +50,7 @@ public class ChatResponseDTO {
             this.profileId = profile.getProfileId();
             this.profileImage = profile.getProfileImage();
             this.nickName = profile.getNickname();
+            this.address = profile.getAddress();
             this.accountNumber = profile.getUser().getAccountNumber();
 
         }
