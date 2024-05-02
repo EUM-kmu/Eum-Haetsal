@@ -25,10 +25,13 @@ public class ProfileRequestDTO {
         @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "날짜 형태 yyyy-MM-dd ")
         @Schema(description = "생일",example = "2001-09-12")
         private String birth;
+        @NotEmpty
         @Pattern(regexp = "^(male|female)$", message = "Gender must be either 'male' or 'female'")
         @Schema(description = "성별",allowableValues = {"male","female"})
         private String gender;
+        @NotEmpty
         private String address;
+        @NotEmpty
         private byte[] fileByte;
 
 
