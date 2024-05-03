@@ -1,5 +1,6 @@
 package com.eum.haetsal.service;
 
+import com.eum.haetsal.client.AuthClient;
 import com.eum.haetsal.common.DTO.APIResponse;
 import com.eum.haetsal.controller.DTO.response.AccountResponseDTO;
 import com.eum.haetsal.domain.profile.ProfileRepository;
@@ -17,6 +18,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final BankService bankService;
     private final ProfileRepository profileRepository;
+    private final AuthClient authClient;
 
     public User findByUserId(Long userId){
         return userRepository.findById(userId).orElseThrow(() -> new NullPointerException("해당 유저가 없습니다."));
@@ -36,4 +38,9 @@ public class UserService {
             userRepository.save(user);
         }
     }
+    @Transactional
+    public void withdrawal(String authorizationHeader,String userId){
+        authClient.withdrawal(authorizationHeader,userId);
+    }
+
 }

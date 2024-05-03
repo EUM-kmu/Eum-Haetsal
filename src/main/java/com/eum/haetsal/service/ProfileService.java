@@ -102,6 +102,18 @@ public class ProfileService {
         Profile getProfile = profileRepository.findByUser(getUser).orElseThrow(() -> new NullPointerException("None profile User"));
         return getProfile;
     }
+    @Transactional
+    public void removePrivacy(Profile profile){
+        profile.setAddress("");
+        profile.setName("");
+        profile.setNickname("알수없음");
+        profile.setUser(null);
+        fileService.deleteFile("profile",profile.getFileName());
+        profile.setFileName("");
+        profile.setProfileImage("");
+        profile.setDeleted(false);
+        profileRepository.save(profile);
+    }
 
 
 

@@ -46,7 +46,7 @@ public class BlockController {
     public ResponseEntity<APIResponse<BlockResponseDTO.TotalChatInfo>> blockedAction(@RequestBody ProfileRequestDTO.BlockProfile blockProfile , @RequestHeader("userId") String userId){
         Profile blocker = profileService.findByUser(Long.valueOf(userId));
         Profile blocked = profileService.findByUser(blockProfile.getUserId()); //차단할 유저 객체
-        BlockResponseDTO.TotalChatInfo totalChatInfo = chatService.getChatList(userId, String.valueOf(blockProfile.getUserId()));
+        BlockResponseDTO.TotalChatInfo totalChatInfo = chatService.getChatList(String.valueOf(blocker.getProfileId()), String.valueOf(blocked.getProfileId()));
         blockService.blockedAction(blocker, blocked);
 
         return new ResponseEntity<>(APIResponse.of(SuccessCode.INSERT_SUCCESS,totalChatInfo), HttpStatus.CREATED);

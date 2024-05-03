@@ -11,6 +11,5 @@ import java.util.List;
 @FeignClient(name = "chat-service", url = "http://223.130.141.109:5000/")
 public interface ChatClient {
     @GetMapping("/api/haetsal/oneToOneChat")
-    List<ChatResponse> getChatList(@RequestParam String myId,
-                                                       @RequestParam String theOtherId);
+    List<ChatResponse> getChatList(@RequestParam String myProfileId, @RequestParam String otherProfileId);
 }

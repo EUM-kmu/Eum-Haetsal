@@ -1,6 +1,5 @@
 package com.eum.haetsal.controller.DTO.request;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,7 +13,7 @@ public class ChatRequestDTO {
     }
     @Getter
     @Setter
-    public static class UserIdList{
-        private List<String> userIdList;
+    public static class ProfileIdList {
+        private List<String> profileIdList;
     }
 }
