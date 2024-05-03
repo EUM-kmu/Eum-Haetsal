@@ -8,7 +8,6 @@ import java.util.Optional;
 public interface ProfileRepository extends JpaRepository<Profile,Long> {
     Boolean existsByNickname(String nickname);
 
-    Optional<Profile> findByNickname(String nickName);
 
     Optional<Profile> findByUser(User users);
 

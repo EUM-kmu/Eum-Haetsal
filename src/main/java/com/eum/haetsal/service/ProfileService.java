@@ -107,7 +107,6 @@ public class ProfileService {
         profile.setAddress("");
         profile.setName("");
         profile.setNickname("알수없음");
-        profile.setUser(null);
         fileService.deleteFile("profile",profile.getFileName());
         profile.setFileName("");
         profile.setProfileImage("");
