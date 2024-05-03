@@ -33,12 +33,16 @@ public class UserController {
     public ResponseEntity<APIResponse<List<InitialResponseDTO.WithdrawalCategoryResponse>>> getCategories(){
         return ResponseEntity.ok(withdrawalCategoryService.getCategories());
     }
+
     @Transactional
     @PostMapping("/withdrawal")
     public ResponseEntity<?> withdrawal(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String authorizationHeader,@RequestHeader("userId") String userId){
-        Profile profile = profileService.findByUser(Long.valueOf(userId));
-        profileService.removePrivacy(profile);
+
         userService.withdrawal(authorizationHeader,userId);
+
+        // 프로필 이름 변경 및 알수없는 계정으로 처리
+//        Profile profile = profileService.findByUser(Long.valueOf(userId));
+//        profileService.removePrivacy(profile);
         return ResponseEntity.ok("");
     }
 }
