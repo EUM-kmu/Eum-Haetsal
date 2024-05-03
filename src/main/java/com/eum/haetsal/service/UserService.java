@@ -25,17 +25,27 @@ public class UserService {
     }
 
     @Transactional
-    public void create(Long userId, String password){
+    public void create(Long userId, String password,Long previousUserId){
         if(userRepository.existsById(userId)){
            User user = userRepository.findById(userId).get();
            if (profileRepository.existsByUser(user)) throw new IllegalArgumentException("이미 프로필이 있는 회원");
 
         }
         else {
-            User user = User.toEntity(userId, password);
-            APIResponse<AccountResponseDTO.Create> accountDTO = bankService.createAccount(password);
-            user.setAccountNumber(accountDTO.getData().getAccountNumber());
+            if(previousUserId == -1 || previousUserId ==null){
+                User user = User.toEntity(userId, password);
+                APIResponse<AccountResponseDTO.Create> accountDTO = bankService.createAccount(password);
+                user.setAccountNumber(accountDTO.getData().getAccountNumber());
+                userRepository.save(user);
+                return;
+            }
+            User deletedUser = userRepository.findById(previousUserId).orElseThrow(() -> new IllegalArgumentException("탈퇴한 유저id 가 잘못되었습니다"));
+            User user = User.toEntity(userId, deletedUser.getAccountPassword());
+            user.setAccountNumber(deletedUser.getAccountNumber());
+            deletedUser.setAccountNumber("");
+            deletedUser.setAccountNumber("");
             userRepository.save(user);
+            userRepository.save(deletedUser);
         }
     }
     @Transactional

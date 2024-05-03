@@ -57,7 +57,7 @@ public class   ProfileController {
         // 이미 존재하는 userId일 경우
         // 1. 이미 프로필이 있는 회원 -> 에러
         // 2. 프로필이 없는 경우(탈퇴했던 유저) -> 프로필만 재 생성, 계좌는 이미 존재
-        userService.create(Long.valueOf(userId), createProfile.getPassword());
+        userService.create(Long.valueOf(userId), createProfile.getPassword(),createProfile.getPreviousUserId());
         ProfileResponseDTO.ProfileResponseWithToken profileResponseWithToken = profileService.create(createProfile, Long.valueOf(userId));
         UserResponse.TokenInfo tokenInfo = authService.getToken(userId);
         profileResponseWithToken.setTokenInfo(tokenInfo);

@@ -34,7 +34,6 @@ public class ProfileService {
         User getUser = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("invalid userId"));
         if (profileRepository.existsByUser(getUser)) throw new IllegalArgumentException("이미 프로필이 있는 회원");
 
-        validateNickname(createProfile.getNickName());
         FileDto fileDto = fileService.uploadFileFromBase64(createProfile.getFileByte(),"profile", "profile");
         Profile profile = Profile.toEntity(createProfile,getUser,fileDto);
         Profile savedProfile = profileRepository.save(profile);
@@ -69,14 +68,6 @@ public class ProfileService {
     }
 
     /**
-     * 닉네임 중복 확인
-     * @param nickname
-     */
-    private void validateNickname(String nickname){
-        if(profileRepository.existsByNickname(nickname)) throw new IllegalArgumentException("이미 있는 닉네임");
-    }
-
-    /**
      * 프로필 수정
      * @param updateProfile
      * @param userId
@@ -85,7 +76,6 @@ public class ProfileService {
     @Transactional
     public APIResponse updateMyProfile(ProfileRequestDTO.UpdateProfile updateProfile,Long userId,MultipartFile multipartFile) {
         Profile getProfile = findByUser(userId);
-        validateNickname(updateProfile.getNickname());
 
         fileService.deleteFile("profile",getProfile.getFileName());
         FileDto fileDto = fileService.uploadFile(multipartFile,"profile");

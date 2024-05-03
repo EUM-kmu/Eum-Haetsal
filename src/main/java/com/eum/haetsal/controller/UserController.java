@@ -22,7 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("haetsal-service/api/v2/user")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"http://localhost:3000","https://hanmaeul.vercel.app"}, allowedHeaders = "*")
+@CrossOrigin(origins = {"http://localhost:3000","https://hanmaeul.vercel.app"},  allowedHeaders = "x-requested-with, Authorization, Content-Type")
 @Slf4j
 public class UserController {
     private final WithdrawalCategoryService withdrawalCategoryService;
