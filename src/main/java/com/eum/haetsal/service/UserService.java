@@ -1,8 +1,12 @@
 package com.eum.haetsal.service;
 
 import com.eum.haetsal.client.AuthClient;
+import com.eum.haetsal.client.BankClient;
 import com.eum.haetsal.common.DTO.APIResponse;
 import com.eum.haetsal.controller.DTO.response.AccountResponseDTO;
+import com.eum.haetsal.domain.marketpost.MarketPost;
+import com.eum.haetsal.domain.marketpost.MarketPostRepository;
+import com.eum.haetsal.domain.profile.Profile;
 import com.eum.haetsal.domain.profile.ProfileRepository;
 import com.eum.haetsal.domain.user.User;
 import com.eum.haetsal.domain.user.UserRepository;
@@ -10,6 +14,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+import static com.eum.haetsal.domain.marketpost.Status.RECRUITING;
+import static com.eum.haetsal.domain.marketpost.Status.RECRUITMENT_COMPLETED;
 
 @Service
 @Slf4j
@@ -19,6 +28,10 @@ public class UserService {
     private final BankService bankService;
     private final ProfileRepository profileRepository;
     private final AuthClient authClient;
+    private final ProfileService profileService;
+    private final MarketPostService marketPostService;
+    private final MarketPostRepository marketPostRepository;
+    private final BankClient bankClient;
 
     public User findByUserId(Long userId){
         return userRepository.findById(userId).orElseThrow(() -> new NullPointerException("해당 유저가 없습니다."));
@@ -41,6 +54,22 @@ public class UserService {
     @Transactional
     public void withdrawal(String authorizationHeader,String userId){
         authClient.withdrawal(authorizationHeader,userId);
+
+        User user = findByUserId(Long.valueOf(userId));
+        Profile profile = profileService.findByUser(Long.valueOf(userId));
+
+        // 진행중인 거래가 있다면 거래 취소
+        // 모집중, 모집완료 모두 게시글과 거래 취소 및 삭제
+        List<MarketPost> mps = marketPostRepository.findByProfileAndStatusIn(profile, List.of(RECRUITING, RECRUITMENT_COMPLETED));
+        for (MarketPost mp : mps) {
+            marketPostService.delete(mp.getMarketPostId(), profile);
+        }
+
+        // 프로필 이름 변경 및 알수없는 계정으로 처리
+        profileService.removePrivacy(profile);
+
+        // 뱅크 계좌 블락
+        bankClient.blockAccount(user.getAccountNumber());
     }
 
 }
