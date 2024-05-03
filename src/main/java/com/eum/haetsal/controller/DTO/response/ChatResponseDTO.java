@@ -4,13 +4,8 @@ import com.eum.haetsal.common.KoreaLocalDateTime;
 import com.eum.haetsal.domain.marketpost.MarketPost;
 import com.eum.haetsal.domain.marketpost.Status;
 import com.eum.haetsal.domain.profile.Profile;
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
-import java.util.Map;
 
 public class ChatResponseDTO {
     @Getter
@@ -49,6 +44,7 @@ public class ChatResponseDTO {
         private String nickName;
         private String address;
         private String accountNumber;
+        private boolean isDeleted;
 //        private List<Map<Long,Boolean>> Block ;
 
 
@@ -59,7 +55,7 @@ public class ChatResponseDTO {
             this.nickName = profile.getNickname();
             this.address = profile.getAddress();
             this.accountNumber = profile.getUser().getAccountNumber();
-
+            this.isDeleted = profile.isDeleted();
         }
     }
 
