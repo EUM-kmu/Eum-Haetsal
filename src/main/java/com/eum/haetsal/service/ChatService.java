@@ -25,6 +25,7 @@ public class ChatService {
     private final MarketPostRepository marketPostRepository;
     private final ProfileRepository profileRepository;
     private final BlockRepository blockRepository;
+    private final UserRepository userRepository;
     private final ChatClient chatClient;
     public List<ChatResponseDTO.PostInfo> getPostList(List<Integer> postIdList){
         List<MarketPost> marketPosts = new ArrayList<>();
@@ -33,10 +34,11 @@ public class ChatService {
         return postInfos;
     }
 
-    public List<ChatResponseDTO.UserInfo> getUserList(List<String> profileIdList) {
+    public List<ChatResponseDTO.UserInfo> getUserList(List<String> userIdList) {
         List<Profile> profiles = new ArrayList<>();
-        profileIdList.forEach(profileId->{
-            Profile getProfile = profileRepository.findById(Long.valueOf(profileId)).orElseThrow(() -> new IllegalArgumentException("프로필 미 생성 유저"));
+        userIdList.forEach(userId->{
+            User getUser = userRepository.findById(Long.valueOf(userId)).orElseThrow(() -> new IllegalArgumentException("Invalid userId"));
+            Profile getProfile = profileRepository.findByUser(getUser).orElseThrow(() -> new IllegalArgumentException("프로필 미 생성 유저"));
             profiles.add(getProfile);
         });
         List<ChatResponseDTO.UserInfo> userInfos = profiles.stream().map(ChatResponseDTO.UserInfo::new).collect(Collectors.toList());

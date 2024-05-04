@@ -11,7 +11,6 @@ public class ProfileRequestDTO {
     @Getter
     @Setter
     public static class CreateProfile{
-        private Long previousUserId;
         @NotEmpty
         @Schema(description = "닉네임")
         private String nickName;

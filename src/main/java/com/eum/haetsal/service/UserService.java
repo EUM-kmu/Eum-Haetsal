@@ -56,7 +56,7 @@ public class UserService {
             User user = User.toEntity(userId, deletedUser.getAccountPassword());
             user.setAccountNumber(deletedUser.getAccountNumber());
             deletedUser.setAccountNumber("");
-            deletedUser.setAccountNumber("");
+            deletedUser.setAccountPassword("");
             userRepository.save(user);
             userRepository.save(deletedUser);
         }

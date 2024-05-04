@@ -29,7 +29,7 @@ import java.util.List;
 @RequestMapping("/haetsal-service/api/v2/block")
 @RequiredArgsConstructor
 @Tag(name = "Block", description = "차단 관련 api")
-@CrossOrigin(origins = {"http://localhost:3000","https://hanmaeul.vercel.app"}, allowedHeaders = "x-requested-with, Authorization, Content-Type")
+@CrossOrigin(origins = {"http://localhost:3000","https://hanmaeul.vercel.app","https://k-eum2023.web.app"}, allowedHeaders = "x-requested-with, Authorization, Content-Type")
 public class BlockController {
     private final ProfileService profileService;
     private final BlockService blockService;

@@ -24,8 +24,8 @@ public class ChatController {
         return ResponseEntity.ok(postInfos);
     }
     @PostMapping("chat/users")
-    public ResponseEntity<List<ChatResponseDTO.UserInfo>> getUserList(@RequestBody ChatRequestDTO.ProfileIdList profileIdList){
-        List<ChatResponseDTO.UserInfo> userInfos = chatService.getUserList(profileIdList.getProfileIdList());
+    public ResponseEntity<List<ChatResponseDTO.UserInfo>> getUserList(@RequestBody ChatRequestDTO.UserIdList userIdList ){
+        List<ChatResponseDTO.UserInfo> userInfos = chatService.getUserList(userIdList.getUserIdList());
         return ResponseEntity.ok(userInfos);
     }
 }
