@@ -29,7 +29,6 @@ public class MarketPostResponseDTO {
         private int volunteerTime;
         @Schema(description = "생성 시간",example = "2023-11-29T00:17:08+0900")
         private String  createdDate;
-
         @Schema(description = "진행도")
         private Status status;
         @Schema(description = "현재 지원자")
@@ -40,6 +39,8 @@ public class MarketPostResponseDTO {
         private Long viewsCount;
         private Long dealId;
         private ProfileResponseDTO.UserInfo writerInfo;
+        private boolean deleted;
+
     }
     @Builder
     @Getter
@@ -64,6 +65,7 @@ public class MarketPostResponseDTO {
         String createdTime = KoreaLocalDateTime.localDateTimeToKoreaZoned(marketPost.getCreateDate());
         String startTime = KoreaLocalDateTime.dateToKoreaZone(marketPost.getStartDate());
         return MarketPostResponse.builder()
+                .deleted(marketPost.isDeleted())
                 .postId(marketPost.getMarketPostId())
                 .title(marketPost.getTitle())
                 .createdDate(createdTime)
