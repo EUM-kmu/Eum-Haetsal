@@ -20,7 +20,7 @@ public class ChatResponseDTO {
         private Status status;
         private Long dealId;
         private Long pay;
-        private boolean deleted
+        private boolean deleted;
         private UserInfo userInfo;
 
         public PostInfo(MarketPost marketPost) {
