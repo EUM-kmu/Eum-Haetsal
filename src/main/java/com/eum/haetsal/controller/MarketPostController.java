@@ -36,7 +36,7 @@ import java.util.List;
 @RequestMapping("/haetsal-service/api/v2/market/post")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = {"http://localhost:3000","https://hanmaeul.vercel.app"}, allowedHeaders = "x-requested-with, Authorization, Content-Type")
+@CrossOrigin(origins = {"http://localhost:3000","https://hanmaeul.vercel.app","https://k-eum2023.web.app"}, allowedHeaders = "x-requested-with, Authorization, Content-Type")
 public class  MarketPostController {
     private final MarketPostService marketPostService;
     private final BlockService blockService;

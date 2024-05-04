@@ -37,7 +37,7 @@ import java.util.Arrays;
 @RequestMapping()
 @RequiredArgsConstructor
 @Tag(name = "Profile", description = "프로필 관련 api")
-@CrossOrigin(origins = {"http://localhost:3000","https://hanmaeul.vercel.app"}, allowedHeaders = "x-requested-with, Authorization, Content-Type")
+@CrossOrigin(origins = {"http://localhost:3000","https://hanmaeul.vercel.app","https://k-eum2023.web.app"}, allowedHeaders = "x-requested-with, Authorization, Content-Type")
 public class   ProfileController {
     private final ProfileService profileService;
     private final UserService userService;
@@ -53,11 +53,12 @@ public class   ProfileController {
             @ApiResponse(responseCode = "403", description = "헤더에 토큰이 들어가있지 않은 경우",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "외부 API 요청 실패, 정상적 수행을 할 수 없을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
-    public ResponseEntity<APIResponse<ProfileResponseDTO.ProfileResponseWithToken>> createProfile(@RequestBody @Validated ProfileRequestDTO.CreateProfile createProfile, @RequestHeader("userId") String userId) throws ParseException {
+    public ResponseEntity<APIResponse<ProfileResponseDTO.ProfileResponseWithToken>> createProfile(@RequestBody @Validated ProfileRequestDTO.CreateProfile createProfile, @RequestHeader("userId") String userId,@RequestHeader("previousUserId") String previousUserId) throws ParseException {
         // 이미 존재하는 userId일 경우
         // 1. 이미 프로필이 있는 회원 -> 에러
         // 2. 프로필이 없는 경우(탈퇴했던 유저) -> 프로필만 재 생성, 계좌는 이미 존재
-        userService.create(Long.valueOf(userId), createProfile.getPassword(),createProfile.getPreviousUserId());
+        log.info(previousUserId);
+        userService.create(Long.valueOf(userId), createProfile.getPassword(), Long.valueOf(previousUserId));
         ProfileResponseDTO.ProfileResponseWithToken profileResponseWithToken = profileService.create(createProfile, Long.valueOf(userId));
         UserResponse.TokenInfo tokenInfo = authService.getToken(userId);
         profileResponseWithToken.setTokenInfo(tokenInfo);

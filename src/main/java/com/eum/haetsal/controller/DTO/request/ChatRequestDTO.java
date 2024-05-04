@@ -13,7 +13,7 @@ public class ChatRequestDTO {
     }
     @Getter
     @Setter
-    public static class ProfileIdList {
-        private List<String> profileIdList;
+    public static class UserIdList {
+        private List<String> userIdList;
     }
 }
