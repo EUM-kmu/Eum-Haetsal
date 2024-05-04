@@ -20,6 +20,7 @@ public class ChatResponseDTO {
         private Status status;
         private Long dealId;
         private Long pay;
+        private boolean deleted
         private UserInfo userInfo;
 
         public PostInfo(MarketPost marketPost) {
@@ -32,6 +33,7 @@ public class ChatResponseDTO {
             this.status = marketPost.getStatus();
             this.pay = marketPost.getPay();
             this.dealId = marketPost.getDealId();
+            this.deleted = marketPost.isDeleted();
             this.userInfo = new UserInfo(marketPost.getProfile());
         }
     }
