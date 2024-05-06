@@ -37,7 +37,7 @@ import java.util.Arrays;
 @RequestMapping()
 @RequiredArgsConstructor
 @Tag(name = "Profile", description = "프로필 관련 api")
-@CrossOrigin(origins = {"http://localhost:3000","https://hanmaeul.vercel.app","https://k-eum2023.web.app"}, allowedHeaders = "x-requested-with, Authorization, Content-Type")
+@CrossOrigin(origins = {"http://localhost:3000","https://hanmaeul.vercel.app","https://k-eum2023.web.app"}, allowedHeaders = "*")
 public class   ProfileController {
     private final ProfileService profileService;
     private final UserService userService;
