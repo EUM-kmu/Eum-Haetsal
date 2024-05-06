@@ -24,7 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("haetsal-service/api/v2/user")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"http://localhost:3000","https://hanmaeul.vercel.app","https://k-eum2023.web.app"}, allowedHeaders = "x-requested-with, Authorization, Content-Type")
+@CrossOrigin(origins = {"http://localhost:3000","https://hanmaeul.vercel.app","https://k-eum2023.web.app"}, allowedHeaders = "*")
 @Slf4j
 public class UserController {
     private final WithdrawalCategoryService withdrawalCategoryService;
