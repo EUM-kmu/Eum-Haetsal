@@ -70,7 +70,7 @@ public class UserService {
 
         // 진행중인 거래가 있다면 거래 취소
         // 모집중, 모집완료 모두 게시글과 거래 취소 및 삭제
-        List<MarketPost> mps = marketPostRepository.findByProfileAndStatusIn(profile, List.of(RECRUITING, RECRUITMENT_COMPLETED));
+        List<MarketPost> mps = marketPostRepository.findByProfileAndDeletedAndStatusIn(profile, false,List.of(RECRUITING, RECRUITMENT_COMPLETED));
         for (MarketPost mp : mps) {
             marketPostService.delete(mp.getMarketPostId(), profile);
         }
