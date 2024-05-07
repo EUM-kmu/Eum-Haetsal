@@ -61,7 +61,11 @@ public interface MarketPostRepository extends JpaRepository<MarketPost,Long> {
     Optional<List<MarketPost>> findByKeywords(
             @Param("title") String title
     );
+    @Query("SELECT mp FROM MarketPost mp " +
+            "WHERE mp.profile = :profile " +
+            "AND mp.isDeleted = false " +
+            "AND (mp.status  IN :statusList) ")
 
-    List<MarketPost> findByProfileAndDeletedAndStatusIn(Profile profile,boolean deleted, List<Status> statusList);
+    List<MarketPost> findByProfileAndDeletedAndStatusIn(@Param("profile") Profile profile,@Param("statusList") List<Status> statusList);
 
 }
