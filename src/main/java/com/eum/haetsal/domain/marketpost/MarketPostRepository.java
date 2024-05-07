@@ -62,6 +62,6 @@ public interface MarketPostRepository extends JpaRepository<MarketPost,Long> {
             @Param("title") String title
     );
 
-    List<MarketPost> findByProfileAndStatusIn(Profile profile, List<Status> statusList);
+    List<MarketPost> findByProfileAndDeletedAndStatusIn(Profile profile,boolean deleted, List<Status> statusList);
 
 }
