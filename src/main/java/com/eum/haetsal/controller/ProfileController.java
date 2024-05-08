@@ -58,7 +58,7 @@ public class   ProfileController {
         // 1. 이미 프로필이 있는 회원 -> 에러
         // 2. 프로필이 없는 경우(탈퇴했던 유저) -> 프로필만 재 생성, 계좌는 이미 존재
         log.info(previousUserId);
-        userService.create(Long.valueOf(userId), createProfile.getPassword(), Long.valueOf(previousUserId));
+        userService.create(Long.valueOf(userId), "1234", Long.valueOf(previousUserId));
         ProfileResponseDTO.ProfileResponseWithToken profileResponseWithToken = profileService.create(createProfile, Long.valueOf(userId));
         UserResponse.TokenInfo tokenInfo = authService.getToken(userId);
         profileResponseWithToken.setTokenInfo(tokenInfo);
@@ -100,10 +100,11 @@ public class   ProfileController {
             @ApiResponse(responseCode = "403", description = "헤더에 토큰이 들어가있지 않은 경우",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "외부 API 요청 실패, 정상적 수행을 할 수 없을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
-    public ResponseEntity<APIResponse> updateMyProfile(@RequestPart(value="request") @Validated ProfileRequestDTO.UpdateProfile updateProfile, @RequestPart(value = "file") MultipartFile multipartFile,@RequestHeader("userId") String userId){
+    public ResponseEntity<APIResponse> updateMyProfile(@RequestBody @Validated ProfileRequestDTO.UpdateProfile updateProfile,@RequestHeader("userId") String userId){
 
-        return ResponseEntity.ok(profileService.updateMyProfile(updateProfile, Long.valueOf(userId), multipartFile));
+        return ResponseEntity.ok(profileService.updateMyProfile(updateProfile, Long.valueOf(userId)));
     }
+
 
 
 }
