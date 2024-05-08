@@ -46,7 +46,6 @@ public class MarketPostRequestDTO {
     public static class MarketUpdate {
         @NotEmpty(message = "제목을 입력하세요")
         private String title;
-        @NotEmpty(message = "내용을 입력하세요")
         private String content;
 //        @NotNull(message = "null이 오면 안됩니다")
         @Schema(description = "시작시간",example ="2023-11-29T00:17:08+0900" )
