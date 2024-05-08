@@ -23,6 +23,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -127,11 +129,11 @@ public class  MarketPostController {
     })
     @GetMapping("")
     public  ResponseEntity<APIResponse<List<MarketPostResponseDTO.MarketPostResponse>>> findByFilter(@RequestParam(value = "search",required = false) String keyword, @RequestParam(name = "category",required = false) String category,
-                                                                                                     @RequestParam(name = "marketType",required = false) MarketType marketType, @RequestParam(name = "status",required = false) Status status,
+                                                                                                     @RequestParam(name = "marketType",required = false) MarketType marketType, @RequestParam(name = "status",required = false) Status status,@PageableDefault(size = 10) Pageable pageable,
                                                                                                       @RequestHeader("userId") String userId){
         Profile profile = profileService.findByUser(Long.valueOf(userId));
         List<Profile> blockedUsers = blockService.getBlockedUser(profile);
-        return ResponseEntity.ok(marketPostService.findByFilter(keyword,category,marketType,status,blockedUsers));
+        return ResponseEntity.ok(marketPostService.findByFilter(keyword,category,marketType,Status.RECRUITING,blockedUsers,pageable));
     }
 
 

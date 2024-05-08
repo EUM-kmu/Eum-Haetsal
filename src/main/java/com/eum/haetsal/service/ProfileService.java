@@ -74,15 +74,15 @@ public class ProfileService {
      * @return
      */
     @Transactional
-    public APIResponse updateMyProfile(ProfileRequestDTO.UpdateProfile updateProfile,Long userId,MultipartFile multipartFile) {
+    public APIResponse updateMyProfile(ProfileRequestDTO.UpdateProfile updateProfile,Long userId) {
         Profile getProfile = findByUser(userId);
-
-        fileService.deleteFile("profile",getProfile.getFileName());
-        FileDto fileDto = fileService.uploadFile(multipartFile,"profile");
-
-        getProfile.updateNickName(updateProfile.getNickname());
-        getProfile.updateProfileImage(fileDto.getUploadFileUrl());
-        getProfile.updateFileName(fileDto.getUploadFileName());
+        if(!getProfile.getFileName().equals("")) fileService.deleteFile("profile",getProfile.getFileName());
+        if(updateProfile.getFileByte() != null) {
+            FileDto fileDto = fileService.uploadFileFromBase64(updateProfile.getFileByte(),"profile", "profile");
+            getProfile.updateProfileImage(fileDto.getUploadFileUrl());
+            getProfile.updateFileName(fileDto.getUploadFileName());
+        }
+        getProfile.updateNickName(updateProfile.getNickName());
 
         profileRepository.save(getProfile);
         return APIResponse.of(SuccessCode.UPDATE_SUCCESS);

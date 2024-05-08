@@ -25,6 +25,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
@@ -193,14 +194,15 @@ public class MarketPostService {
      * @return : 검색어(게시글 전체) > 카테고리 > 카테고리 내 게시글 유형 , 카테고리 내 모집중
      */
     @Transactional
-    public  APIResponse<List<MarketPostResponseDTO.MarketPostResponse>> findByFilter(String keyword, String category, MarketType marketType, Status status, List<Profile> blockedUsers) {
+    public  APIResponse<List<MarketPostResponseDTO.MarketPostResponse>> findByFilter(String keyword, String category, MarketType marketType, Status status, List<Profile> blockedUsers,Pageable pageable) {
 //        검색 키워드 있을떄
         if (!(keyword == null || keyword.isBlank())) {
             return findByKeyWord(keyword,blockedUsers);
         }
         MarketCategory marketCategory = marketCategoryRepository.findByContents(category).orElse(null);
-        List<MarketPost> marketPosts = (blockedUsers.isEmpty()) ? marketPostRepository.findByFilters(marketCategory, marketType, status).orElse(Collections.emptyList()) :marketPostRepository.findByFiltersWithoutBlocked(marketCategory, marketType,status,blockedUsers).orElse(Collections.emptyList()); //조건에 맞는 리스트 조회
-        List<MarketPostResponseDTO.MarketPostResponse> marketPostResponses = getAllPostResponse(marketPosts); //리스트 dto
+//        List<MarketPost> marketPosts = (blockedUsers.isEmpty()) ? marketPostRepository.findByFilters(marketCategory, marketType, status).orElse(Collections.emptyList()) :marketPostRepository.findByFiltersWithoutBlocked(marketCategory, marketType,status,blockedUsers).orElse(Collections.emptyList()); //조건에 맞는 리스트 조회
+        Page<MarketPost> marketPosts1 = (blockedUsers.isEmpty()) ? marketPostRepository.findByFiltersWithPage(marketCategory, marketType, status,pageable):marketPostRepository.findByFiltersWithoutBlockedPage(marketCategory, marketType,status,blockedUsers,pageable);
+        List<MarketPostResponseDTO.MarketPostResponse> marketPostResponses = getAllPostResponse(marketPosts1.getContent()); //리스트 dto
 
         return APIResponse.of(SuccessCode.SELECT_SUCCESS,marketPostResponses);
      }
