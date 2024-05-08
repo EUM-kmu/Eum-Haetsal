@@ -4,6 +4,8 @@ package com.eum.haetsal.domain.marketpost;
 import com.eum.haetsal.controller.DTO.request.enums.MarketType;
 import com.eum.haetsal.domain.category.MarketCategory;
 import com.eum.haetsal.domain.profile.Profile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -36,6 +38,31 @@ public interface MarketPostRepository extends JpaRepository<MarketPost,Long> {
             @Param("marketCategory") MarketCategory marketCategory,
             @Param("marketType") MarketType marketType,
             @Param("status") Status status
+    );
+    @Query("SELECT e FROM MarketPost e " +
+            "WHERE (:marketCategory IS NULL OR e.marketCategory = :marketCategory) " +
+            "AND (:marketType IS NULL OR e.marketType = :marketType) " +
+            "AND (:status IS NULL OR e.status = :status) " +
+            "AND e.isDeleted = false " +
+            "ORDER BY e.pullUpDate DESC")
+    Page<MarketPost> findByFiltersWithPage(
+            @Param("marketCategory") MarketCategory marketCategory,
+            @Param("marketType") MarketType marketType,
+            @Param("status") Status status, Pageable pageable
+    );
+    @Query("SELECT e FROM MarketPost e " +
+            "WHERE (:marketCategory IS NULL OR e.marketCategory = :marketCategory) " +
+            "AND (:marketType IS NULL OR e.marketType = :marketType) " +
+            "AND (:status IS NULL OR e.status = :status) " +
+            "AND e.isDeleted = false " +
+            "AND (e.profile NOT IN :profiles) " + // Exclude blocked users
+            "ORDER BY e.pullUpDate DESC")
+    Page<MarketPost> findByFiltersWithoutBlockedPage(
+            @Param("marketCategory") MarketCategory marketCategory,
+            @Param("marketType") MarketType marketType,
+            @Param("status") Status status,
+            @Param("profiles") List<Profile> profiles,
+            Pageable pageable
     );
 
 

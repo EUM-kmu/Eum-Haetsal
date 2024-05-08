@@ -14,10 +14,10 @@ public class ProfileRequestDTO {
         @NotEmpty
         @Schema(description = "닉네임")
         private String nickName;
-        @NotEmpty
-        @Pattern(regexp = "\\d{4}", message = "4자리 정수 비밀번호")
-        @Schema(description = "계좌비밀번호")
-        private String password;
+//        @NotEmpty
+//        @Pattern(regexp = "\\d{4}", message = "4자리 정수 비밀번호")
+//        @Schema(description = "계좌비밀번호")
+//        private String password;
         @NotEmpty
         @Schema(description = "이름")
         private String name;
@@ -40,7 +40,10 @@ public class ProfileRequestDTO {
     @Setter
     public static class UpdateProfile{
         @NotEmpty(message = "닉네임을 입력하세요")
-        private String nickname;
+        private String nickName;
+        @NotEmpty
+        private String address;
+        private byte[] fileByte;
 
     }
     @Getter
