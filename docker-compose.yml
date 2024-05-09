@@ -1,0 +1,15 @@
+version: '3'
+services:
+  application:
+    container_name: eum-haetsal
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - eum-haetsal
+
+networks:
+  eum-haetsal:

@@ -100,9 +100,11 @@ public class   ProfileController {
             @ApiResponse(responseCode = "403", description = "헤더에 토큰이 들어가있지 않은 경우",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "외부 API 요청 실패, 정상적 수행을 할 수 없을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
-    public ResponseEntity<APIResponse> updateMyProfile(@RequestBody @Validated ProfileRequestDTO.UpdateProfile updateProfile,@RequestHeader("userId") String userId){
+    public ResponseEntity<APIResponse<ProfileResponseDTO.ProfileResponse>> updateMyProfile(@RequestBody @Validated ProfileRequestDTO.UpdateProfile updateProfile,@RequestHeader("userId") String userId){
+        Profile profile = profileService.updateMyProfile(updateProfile, Long.valueOf(userId));
+        ProfileResponseDTO.ProfileResponse profileResponse  = profileService.getProfile(profile);
 
-        return ResponseEntity.ok(profileService.updateMyProfile(updateProfile, Long.valueOf(userId)));
+        return ResponseEntity.ok(APIResponse.of(SuccessCode.UPDATE_SUCCESS,profileResponse));
     }
 
 

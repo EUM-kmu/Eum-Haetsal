@@ -29,7 +29,7 @@ public class MarketPostRequestDTO {
         @NotEmpty(message = "상세 주소를 작성해주세요")
         private String location;
 
-        @Positive(message = "참여 시간은 양수여야 합니다")
+        @Min(value = 30, message = "최소값은 30이며야합니다")
         private int volunteerTime;
 //        @NotNull(message = "null이 오면 안됩니다")
 //        private MarketType marketType;
