@@ -73,7 +73,7 @@ public class MarketPostService {
     @Transactional
     public APIResponse<MarketPostResponseDTO.MarketPostResponse> create(MarketPostRequestDTO.MarketCreate marketCreate, Profile profile, User user) throws ParseException {
         // 인당 지급 햇살 계산
-        if(marketCreate.getVolunteerTime() / 10 != 0) throw new IllegalArgumentException("10분 단위로 입력해주세요");
+        if(marketCreate.getVolunteerTime() % 10 != 0) throw new IllegalArgumentException("10분 단위로 입력해주세요");
         Long pay = Long.valueOf(marketCreate.getVolunteerTime()); //금액은 활동시간과 같은 값 설정
 
         String accountNumber = user.getAccountNumber();
@@ -172,6 +172,7 @@ public class MarketPostService {
         Long applyId = 0L;
 //        유저활동
         Boolean isApply = applyRepository.existsByProfileAndMarketPost(profile, getMarketPost);
+        boolean report = reportRepository.existsByMarketPostAndProfile(getMarketPost, profile);
         com.eum.haetsal.domain.apply.Status tradingStatus = com.eum.haetsal.domain.apply.Status.NONE;
 
         if(isApply){
@@ -179,7 +180,7 @@ public class MarketPostService {
             tradingStatus = getApply.getStatus();
             applyId = getApply.getApplyId();
         }
-        MarketPostResponseDTO.MarketPostDetail singlePostResponse = marketPostResponseDTO.toMarketPostDetails(profile,getMarketPost,isApply,tradingStatus,applyId);
+        MarketPostResponseDTO.MarketPostDetail singlePostResponse = marketPostResponseDTO.toMarketPostDetails(profile,getMarketPost,isApply,tradingStatus,applyId,report);
         return APIResponse.of(SuccessCode.SELECT_SUCCESS,singlePostResponse);
 
     }
@@ -283,15 +284,6 @@ public class MarketPostService {
         return APIResponse.of(SuccessCode.SELECT_SUCCESS, transactionPostDTOs);
     }
 
-//    /**
-//     * 거래 상태 업데이트 함수 -> 지원 데이터에 상태 업데이트로 바뀌어야함
-//     * @param chatRoomId : 채팅방 Id
-//     */
-//    public void updateStatusCompleted(Long chatRoomId){
-//        MarketPost marketPost = chatRoomRepository.findById(chatRoomId).orElseThrow(()->new NullPointerException("invalid chatRoomdId")).getMarketPost();
-//        marketPost.updateStatus(Status.TRANSACTION_COMPLETED);
-//        marketPostRepository.save(marketPost);
-//    }
 
     /**
      * 게시글의 pulluptime 최신
@@ -333,7 +325,7 @@ public class MarketPostService {
         bankService.executeDeal(getMarketPost.getDealId(), profile.getUser().getAccountNumber(),profile.getUser().getAccountPassword(), chatTransfer.getTotalAmount(), chatTransfer.getReceiverAndAmounts());
         // chatTransfer.getReceiverAndAmounts()에 있는 사람들의 dealCount 증가
         for (DealRequestDTO.ReceiverAndAmount receiverAndAmount : chatTransfer.getReceiverAndAmounts()) {
-            if(receiverAndAmount.getAmount() / 10 != 0) throw new IllegalArgumentException("10분 단위로 입력해주세요");
+            if(receiverAndAmount.getAmount() % 10 != 0) throw new IllegalArgumentException("10분 단위로 입력해주세요");
             String receiverId = receiverAndAmount.getReceiverAccountNumber();
             Profile receiverProfile = profileRepository.findByUser_AccountNumber(receiverId).orElseThrow(() -> new IllegalArgumentException("Invalid receiverId"));
             receiverProfile.setDealCount(receiverProfile.getDealCount() + 1);
