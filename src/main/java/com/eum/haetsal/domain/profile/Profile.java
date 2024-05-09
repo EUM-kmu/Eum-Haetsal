@@ -85,8 +85,13 @@ public class Profile extends BaseTimeEntity {
         this.address = address;
     }
 
+    public void updateBirth(String birth) {
+        this.birth = KoreaLocalDateTime.stringToLocalDateTime(birth);
+    }
 
-
+    public void updateGender(String gender) {
+        this.gender = gender;
+    }
 
     public static Profile toEntity(ProfileRequestDTO.CreateProfile createProfile, User user, FileDto fileDto) throws ParseException {
         LocalDate birthDate = KoreaLocalDateTime.stringToLocalDateTime(createProfile.getBirth());

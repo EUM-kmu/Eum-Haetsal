@@ -74,6 +74,7 @@ public interface MarketPostRepository extends JpaRepository<MarketPost,Long> {
 
     @Query("SELECT mp FROM MarketPost mp " +
             "WHERE mp.title LIKE %:title% " +
+            "OR mp.content LIKE %:search% " +
             "AND mp.isDeleted = false " +
             "AND (mp.profile NOT IN :profiles) " + // Exclude blocked users
             "ORDER BY mp.pullUpDate DESC")
@@ -82,11 +83,12 @@ public interface MarketPostRepository extends JpaRepository<MarketPost,Long> {
             @Param("profiles") List<Profile> profiles
     );
     @Query("SELECT mp FROM MarketPost mp " +
-            "WHERE mp.title LIKE %:title% " +
+            "WHERE mp.title LIKE %:search% " +
+            "OR mp.content LIKE %:search% " +
             "AND mp.isDeleted = false " +
             "ORDER BY mp.pullUpDate DESC")
     Optional<List<MarketPost>> findByKeywords(
-            @Param("title") String title
+            @Param("search") String search
     );
     @Query("SELECT mp FROM MarketPost mp " +
             "WHERE mp.profile = :profile " +

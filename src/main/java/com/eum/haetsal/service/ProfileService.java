@@ -74,7 +74,7 @@ public class ProfileService {
      * @return
      */
     @Transactional
-    public APIResponse updateMyProfile(ProfileRequestDTO.UpdateProfile updateProfile,Long userId) {
+    public Profile updateMyProfile(ProfileRequestDTO.UpdateProfile updateProfile,Long userId) {
         Profile getProfile = findByUser(userId);
         if(!getProfile.getFileName().equals("")) fileService.deleteFile("profile",getProfile.getFileName());
         if(updateProfile.getFileByte() != null) {
@@ -83,9 +83,11 @@ public class ProfileService {
             getProfile.updateFileName(fileDto.getUploadFileName());
         }
         getProfile.updateNickName(updateProfile.getNickName());
+        getProfile.updateAddress(updateProfile.getAddress());
+        getProfile.updateBirth(updateProfile.getBirth());
+        getProfile.updateGender(updateProfile.getGender());
 
-        profileRepository.save(getProfile);
-        return APIResponse.of(SuccessCode.UPDATE_SUCCESS);
+        return profileRepository.save(getProfile);
     }
     public Profile findByUser(Long userId){
         User getUser = userRepository.findById(userId).orElseThrow(() -> new NullPointerException("Invalid userId"));

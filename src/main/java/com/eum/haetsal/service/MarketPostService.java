@@ -73,6 +73,7 @@ public class MarketPostService {
     @Transactional
     public APIResponse<MarketPostResponseDTO.MarketPostResponse> create(MarketPostRequestDTO.MarketCreate marketCreate, Profile profile, User user) throws ParseException {
         // 인당 지급 햇살 계산
+        if(marketCreate.getVolunteerTime() / 10 != 0) throw new IllegalArgumentException("10분 단위로 입력해주세요");
         Long pay = Long.valueOf(marketCreate.getVolunteerTime()); //금액은 활동시간과 같은 값 설정
 
         String accountNumber = user.getAccountNumber();
@@ -332,6 +333,7 @@ public class MarketPostService {
         bankService.executeDeal(getMarketPost.getDealId(), profile.getUser().getAccountNumber(),profile.getUser().getAccountPassword(), chatTransfer.getTotalAmount(), chatTransfer.getReceiverAndAmounts());
         // chatTransfer.getReceiverAndAmounts()에 있는 사람들의 dealCount 증가
         for (DealRequestDTO.ReceiverAndAmount receiverAndAmount : chatTransfer.getReceiverAndAmounts()) {
+            if(receiverAndAmount.getAmount() / 10 != 0) throw new IllegalArgumentException("10분 단위로 입력해주세요");
             String receiverId = receiverAndAmount.getReceiverAccountNumber();
             Profile receiverProfile = profileRepository.findByUser_AccountNumber(receiverId).orElseThrow(() -> new IllegalArgumentException("Invalid receiverId"));
             receiverProfile.setDealCount(receiverProfile.getDealCount() + 1);
@@ -349,6 +351,7 @@ public class MarketPostService {
         MarketPost getMarketPost = validateUserAndPost(postId, profile);
         bankService.rollbackDeal(getMarketPost.getDealId(), profile.getUser().getAccountNumber(), profile.getUser().getAccountPassword());
         getMarketPost.setStatus(Status.RECRUITING);
+        getMarketPost.setPullUpDate(LocalDateTime.now());
         marketPostRepository.save(getMarketPost);
     }
     public void addViewsCount(Long postId){
