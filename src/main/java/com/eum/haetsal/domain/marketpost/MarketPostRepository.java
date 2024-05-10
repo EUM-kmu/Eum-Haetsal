@@ -80,7 +80,8 @@ public interface MarketPostRepository extends JpaRepository<MarketPost,Long> {
             "ORDER BY mp.pullUpDate DESC")
     Optional<List<MarketPost>> findByKeywordsWithoutBlocked(
             @Param("title") String title,
-            @Param("profiles") List<Profile> profiles
+            @Param("profiles") List<Profile> profiles,
+            Pageable pageable
     );
     @Query("SELECT mp FROM MarketPost mp " +
             "WHERE mp.title LIKE %:search% " +
@@ -88,7 +89,8 @@ public interface MarketPostRepository extends JpaRepository<MarketPost,Long> {
             "AND mp.isDeleted = false " +
             "ORDER BY mp.pullUpDate DESC")
     Optional<List<MarketPost>> findByKeywords(
-            @Param("search") String search
+            @Param("search") String search,
+            Pageable pageable
     );
     @Query("SELECT mp FROM MarketPost mp " +
             "WHERE mp.profile = :profile " +

@@ -199,7 +199,7 @@ public class MarketPostService {
     public  APIResponse<List<MarketPostResponseDTO.MarketPostResponse>> findByFilter(String keyword, String category, MarketType marketType, Status status, List<Profile> blockedUsers,Pageable pageable) {
 //        검색 키워드 있을떄
         if (!(keyword == null || keyword.isBlank())) {
-            return findByKeyWord(keyword,blockedUsers);
+            return findByKeyWord(keyword,blockedUsers,pageable);
         }
         MarketCategory marketCategory = marketCategoryRepository.findByContents(category).orElse(null);
 //        List<MarketPost> marketPosts = (blockedUsers.isEmpty()) ? marketPostRepository.findByFilters(marketCategory, marketType, status).orElse(Collections.emptyList()) :marketPostRepository.findByFiltersWithoutBlocked(marketCategory, marketType,status,blockedUsers).orElse(Collections.emptyList()); //조건에 맞는 리스트 조회
@@ -261,9 +261,9 @@ public class MarketPostService {
      * @param blockedUsers
      * @return
      */
-    private APIResponse<List<MarketPostResponseDTO.MarketPostResponse>> findByKeyWord(String keyWord, List<Profile> blockedUsers) {
+    private APIResponse<List<MarketPostResponseDTO.MarketPostResponse>> findByKeyWord(String keyWord, List<Profile> blockedUsers,Pageable pageable) {
 
-        List<MarketPost> marketPosts = (blockedUsers.isEmpty()) ? marketPostRepository.findByKeywords(keyWord).orElse(Collections.emptyList()):marketPostRepository.findByKeywordsWithoutBlocked(keyWord,blockedUsers).orElse(Collections.emptyList());
+        List<MarketPost> marketPosts = (blockedUsers.isEmpty()) ? marketPostRepository.findByKeywords(keyWord,pageable).orElse(Collections.emptyList()):marketPostRepository.findByKeywordsWithoutBlocked(keyWord,blockedUsers,pageable).orElse(Collections.emptyList());
         List<MarketPostResponseDTO.MarketPostResponse> transactionPostDTOs = getAllPostResponse(marketPosts);
         return APIResponse.of(SuccessCode.SELECT_SUCCESS, transactionPostDTOs);
     }
@@ -307,6 +307,8 @@ public class MarketPostService {
      */
     public void report(Long postId, Long userId,String reason,Profile profile) {
         MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
+        if(getMarketPost.getProfile().getUser().getUserId() == userId)
+            throw new IllegalArgumentException("자기 게시글에는 신고할 수 없습니다");
         getMarketPost.increaseReportedCount(userId);
         marketPostRepository.save(getMarketPost);
         Report report = Report.toEntity(reason,profile , getMarketPost);
