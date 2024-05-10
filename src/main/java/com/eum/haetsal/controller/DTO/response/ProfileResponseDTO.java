@@ -30,12 +30,14 @@ public class ProfileResponseDTO {
         private String address;
         @Schema(description = "나이대",example = "20")
         private int ageRange;
+        private String birth;
         @Schema(description = "계좌정보")
         private String accountNumber;
         @Schema(description = "이미지 url")
         private String profileImage; //네이버 클라우드 Urlprivate String profileImage; //네이버 클라우드 Url
         @Schema(description = "치단 여부")
         private Boolean blocked;
+
 
     }
 
@@ -82,6 +84,7 @@ public class ProfileResponseDTO {
                 .nickName(profile.getNickname())
                 .gender(profile.getGender())
                 .ageRange((thisYear - userBirth + 1) / 10)
+                .birth(String.valueOf(profile.getBirth()))
                 .address(profile.getAddress())
                 .accountNumber(profile.getUser().getAccountNumber())
                 .profileImage(profile.getProfileImage())
