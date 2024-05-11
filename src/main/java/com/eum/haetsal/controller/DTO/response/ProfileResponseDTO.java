@@ -101,6 +101,7 @@ public class ProfileResponseDTO {
         private String address;
         private String gender;
         private int ageRange;
+        private int dealCount;
     }
     public static UserInfo toUserInfo(Profile profile){
         LocalDate now = LocalDate.now();
@@ -111,6 +112,7 @@ public class ProfileResponseDTO {
                 .nickName(profile.getNickname())
                 .profileImage(profile.getProfileImage())
                 .ageRange((thisYear - userBirth + 1) / 10)
+                .dealCount(profile.getDealCount())
                 .gender(profile.getGender())
                 .address(profile.getAddress()).build();
 
