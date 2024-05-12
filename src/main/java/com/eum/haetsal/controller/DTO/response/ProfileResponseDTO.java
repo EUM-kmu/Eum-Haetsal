@@ -37,6 +37,7 @@ public class ProfileResponseDTO {
         private String profileImage; //네이버 클라우드 Urlprivate String profileImage; //네이버 클라우드 Url
         @Schema(description = "치단 여부")
         private Boolean blocked;
+        private int dealCount;
 
 
     }
@@ -57,6 +58,7 @@ public class ProfileResponseDTO {
         private String accountNumber;
         @Schema(description = "이미지 url")
         private String profileImage; //네이버 클라우드 Url
+        private int dealCount;
         private UserResponse.TokenInfo tokenInfo;
 
     }
@@ -71,6 +73,7 @@ public class ProfileResponseDTO {
                 .ageRange((thisYear - userBirth + 1) / 10)
                 .address(profile.getAddress())
                 .accountNumber(profile.getUser().getAccountNumber())
+                .dealCount(profile.getDealCount())
                 .profileImage(profile.getProfileImage())
                 .build();
     }
@@ -86,6 +89,7 @@ public class ProfileResponseDTO {
                 .ageRange((thisYear - userBirth + 1) / 10)
                 .birth(String.valueOf(profile.getBirth()))
                 .address(profile.getAddress())
+                .dealCount(profile.getDealCount())
                 .accountNumber(profile.getUser().getAccountNumber())
                 .profileImage(profile.getProfileImage())
                 .build();
