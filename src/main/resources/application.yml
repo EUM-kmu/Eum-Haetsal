@@ -58,7 +58,7 @@ springdoc:
 openapi:
   service:
     # API Gateway 포트
-    url: http://localhost:80
+    url: http://175.45.203.201:80
 
 server:
   port: 8000
