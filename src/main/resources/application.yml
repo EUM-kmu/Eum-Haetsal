@@ -33,13 +33,13 @@ spring:
 #  api-docs:
 #    enabled: true
 #  swagger-ui:
-#    path: /api/docs/v1
-springdoc:
-  api-docs:
-    path: /haetsal-service/docs
-  swagger-ui:
-    path: /haetsal-service/docs/swagger-ui.html
-#    groups-order: desc
+##    path: /api/docs/v1
+#springdoc:
+#  api-docs:
+#    path: /haetsal-service/docs
+#  swagger-ui:
+#    path: /haetsal-service/docs/swagger-ui.html
+##    groups-order: desc
 #    tags-sorter: alpha
 #    operations-sorter: method
 #    disable-swagger-default-url: true
@@ -55,10 +55,10 @@ springdoc:
 #  model-and-view-allowed: true
 #  paths-to-match:
 #    - /api/v2/*
-openapi:
-  service:
-    # API Gateway 포트
-    url: http://175.45.203.201:80
+#openapi:
+#  service:
+#    # API Gateway 포트
+#    url: http://175.45.203.201:80
 
 server:
   port: 8000
