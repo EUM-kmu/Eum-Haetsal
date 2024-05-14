@@ -1,11 +1,12 @@
 spring:
   application:
     name: haetsal-service
+  forward-headers-strategy: FRAMEWORK
   jackson:
     time-zone: Asia/Seoul
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3309/haetsal?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://localhost:3308/haetsal?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul
     username: root
     password: root
   mvc:
@@ -32,28 +33,32 @@ spring:
 #  api-docs:
 #    enabled: true
 #  swagger-ui:
-#    path: /api/docs/v1
-springdoc:
-  api-docs:
-    enabled: true
-    path: /api/docs/v1
-  swagger-ui:
-    groups-order: desc
-    tags-sorter: alpha
-    operations-sorter: method
-    disable-swagger-default-url: true
-    display-request-duration: true
-    default-models-expand-depth: 2
-    default-model-expand-depth: 2
-    display-operation-id: false
-    show-extensions: false
-  show-actuator: true
-  default-consumes-media-type: application/json
-  default-produces-media-type: application/json
-  writer-with-default-pretty-printer: true
-  model-and-view-allowed: true
+##    path: /api/docs/v1
+#springdoc:
+#  api-docs:
+#    path: /haetsal-service/docs
+#  swagger-ui:
+#    path: /haetsal-service/docs/swagger-ui.html
+##    groups-order: desc
+#    tags-sorter: alpha
+#    operations-sorter: method
+#    disable-swagger-default-url: true
+#    display-request-duration: true
+#    default-models-expand-depth: 2
+#    default-model-expand-depth: 2
+#    display-operation-id: false
+#    show-extensions: false
+#  show-actuator: true
+#  default-consumes-media-type: application/json
+#  default-produces-media-type: application/json
+#  writer-with-default-pretty-printer: true
+#  model-and-view-allowed: true
 #  paths-to-match:
-#    - /api/v2/**
+#    - /api/v2/*
+#openapi:
+#  service:
+#    # API Gateway 포트
+#    url: http://175.45.203.201:80
 
 server:
   port: 8000
