@@ -76,7 +76,11 @@ public class ProfileService {
     @Transactional
     public Profile updateMyProfile(ProfileRequestDTO.UpdateProfile updateProfile,Long userId) {
         Profile getProfile = findByUser(userId);
-        if(updateProfile.getFileByte() != null) {
+        if(getProfile.getProfileImage().equals("")){
+            FileDto fileDto = fileService.uploadFileFromBase64(updateProfile.getFileByte(),"profile", "profile");
+            getProfile.updateProfileImage(fileDto.getUploadFileUrl());
+            getProfile.updateFileName(fileDto.getUploadFileName());
+        } else if(updateProfile.getFileByte() != null ) {
             fileService.deleteFile("profile",getProfile.getFileName());
             FileDto fileDto = fileService.uploadFileFromBase64(updateProfile.getFileByte(),"profile", "profile");
             getProfile.updateProfileImage(fileDto.getUploadFileUrl());
