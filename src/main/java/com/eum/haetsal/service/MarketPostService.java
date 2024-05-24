@@ -204,7 +204,7 @@ public class MarketPostService {
         MarketCategory marketCategory = marketCategoryRepository.findByContents(category).orElse(null);
 //        List<MarketPost> marketPosts = (blockedUsers.isEmpty()) ? marketPostRepository.findByFilters(marketCategory, marketType, status).orElse(Collections.emptyList()) :marketPostRepository.findByFiltersWithoutBlocked(marketCategory, marketType,status,blockedUsers).orElse(Collections.emptyList()); //조건에 맞는 리스트 조회
         Page<MarketPost> marketPosts1 = (blockedUsers.isEmpty()) ? marketPostRepository.findByFiltersWithPage(marketCategory, marketType, status,pageable):marketPostRepository.findByFiltersWithoutBlockedPage(marketCategory, marketType,status,blockedUsers,pageable);
-        List<MarketPostResponseDTO.MarketPostResponse> marketPostResponses = getAllPostResponse(marketPosts1.getContent()); //리스트 dto
+        List<MarketPostResponseDTO.MarketPostResponse> marketPostResponses = getAllPostResponse(marketPosts1.getContent()); //리스트 DTO
 
         return APIResponse.of(SuccessCode.SELECT_SUCCESS,marketPostResponses);
      }
