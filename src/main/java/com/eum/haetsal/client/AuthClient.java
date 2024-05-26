@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-@FeignClient(name = "auth-service", url = "http://localhost:8081")
+@FeignClient(name = "auth-service", url = "http://175.45.203.201:8081")
 public interface AuthClient {
     @PutMapping("auth-service/api/v2/token")
     UserResponse.TokenInfo updateToken(@RequestHeader("userId") String userId) ;
