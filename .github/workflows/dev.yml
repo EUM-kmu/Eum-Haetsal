@@ -67,16 +67,6 @@ jobs:
       - name: Login to Docker Hub
         run: sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      # - name: Pull Docker image from Private Docker Hub
-      #   run: docker pull solhee0912/eum-dev:lates
-
-      # - name: Deploy to server
-      #   run: |
-      #     # sudo docker stop $(sudo docker ps -a -q) || true
-      #     # sudo docker rm -f $(sudo docker ps -a -q) || true
-      #     sudo docker run -d -p 8082:8082 solhee0912/eum-dev:lates
-      #     sudo docker image prune -f
-      #     ps -ef | grep java
       -  name: Deploy
          uses: appleboy/ssh-action@v0.1.6
          with:
@@ -90,10 +80,7 @@ jobs:
               sudo docker stop haetsal
               sudo docker rm haetsal
             fi
-            # sudo docker stop $(sudo docker ps -a -q)
-            # sudo docker rm -f $(sudo docker ps -a -q)
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/eum-dev:haetsal
             sudo docker run -d -p 8000:8000 --name haetsal ${{ secrets.DOCKERHUB_USERNAME }}/eum-dev:haetsal
-            # sudo docker-compose up -d
             sudo docker image prune -f
             ps -ef | grep java
