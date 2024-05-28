@@ -9,7 +9,7 @@ name: Deploy action
 
 on:
   push:
-    branches: [ "deploy" ]
+    branches: [ "46-타임뱅크와-연동하는-api" ]
   pull_request:
     branches: [ "deploy" ]
 
