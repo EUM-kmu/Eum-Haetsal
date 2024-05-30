@@ -129,7 +129,7 @@ public class  MarketPostController {
     })
     @GetMapping("")
     public  ResponseEntity<APIResponse<List<MarketPostResponseDTO.MarketPostResponse>>> findByFilter(@RequestParam(value = "search",required = false) String keyword, @RequestParam(name = "category",required = false) Long category,
-                                                                                                     @RequestParam(name = "marketType",required = false) MarketType marketType, @RequestParam(name = "status",required = false) Status status,@PageableDefault(size = 10) Pageable pageable,
+                                                                                                     @RequestParam(name = "marketType",required = false) MarketType marketType, @RequestParam(name = "status",required = false) Status status,@PageableDefault(size = 15) Pageable pageable,
                                                                                                       @RequestHeader("userId") String userId){
         Profile profile = profileService.findByUser(Long.valueOf(userId));
         List<Profile> blockedUsers = blockService.getBlockedUser(profile);
