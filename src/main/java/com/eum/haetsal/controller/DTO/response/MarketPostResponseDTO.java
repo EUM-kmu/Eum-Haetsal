@@ -40,6 +40,7 @@ public class MarketPostResponseDTO {
         private Long dealId;
         private ProfileResponseDTO.UserInfo writerInfo;
         private boolean deleted;
+        private Long categoryId;
 
     }
     @Builder
@@ -82,6 +83,7 @@ public class MarketPostResponseDTO {
                 .status(marketPost.getStatus())
                 .currentApplicant(currentApplicant)
                 .maxNumOfPeople(marketPost.getMaxNumOfPeople())
+                .categoryId(marketPost.getMarketCategory().getCategoryId())
                 .build();
     }
     public static MarketPostDetail toMarketPostDetails(Profile profile, MarketPost marketPost, Boolean isApply, com.eum.haetsal.domain.apply.Status tradingStatus,Long applyId,boolean report){

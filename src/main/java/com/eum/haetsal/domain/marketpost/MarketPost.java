@@ -124,7 +124,7 @@ public class MarketPost extends BaseTimeEntity {
     }
 
 
-    public static MarketPost toEntity(MarketPostRequestDTO.MarketCreate marketCreate, Long pay, Profile profile) throws ParseException {
+    public static MarketPost toEntity(MarketCategory marketCategory,MarketPostRequestDTO.MarketCreate marketCreate, Long pay, Profile profile) throws ParseException {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.KOREAN);
         return MarketPost.builder()
                 .title(marketCreate.getTitle())
@@ -136,6 +136,7 @@ public class MarketPost extends BaseTimeEntity {
                 .volunteerTime(marketCreate.getVolunteerTime())
                 .viewsCount(0L)
                 .marketType(MarketType.REQUEST_HELP)
+                .marketCategory(marketCategory)
                 .maxNumOfPeople(marketCreate.getMaxNumOfPeople())
                 .status(Status.RECRUITING)
                 .profile(profile)
