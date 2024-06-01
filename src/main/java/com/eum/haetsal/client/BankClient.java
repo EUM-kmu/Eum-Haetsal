@@ -11,7 +11,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "bank-service", url = "http://223.130.146.39:8080")
+@FeignClient(name = "bank-service", url = "http://localhost:8080")
 public interface BankClient {
 
     // AccountController

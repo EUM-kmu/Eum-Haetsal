@@ -11,6 +11,9 @@ import com.eum.haetsal.domain.marketpost.MarketPostRepository;
 import com.eum.haetsal.domain.marketpost.Status;
 import com.eum.haetsal.domain.profile.Profile;
 import java.util.Objects;
+
+import com.eum.haetsal.service.DTO.FcmMessage;
+import com.eum.haetsal.service.DTO.enums.MessageForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,6 +33,7 @@ public class ApplyService {
     private final MarketPostRepository marketPostRepository;
     private final ApplyResponseDTO applyResponseDTO;
     private final BankService bankService;
+    private final FcmService fcmService;
 
     /**
      * 지원하기
@@ -50,6 +54,10 @@ public class ApplyService {
         Apply apply = Apply.toEntity(applyRequest.getIntroduction(), profile, getMarketPost);
         applyRepository.save(apply);
         marketPostRepository.save(getMarketPost);
+//        지원 알림
+        FcmMessage fcmMessage = FcmMessage.of(MessageForm.APPLY_NOTIFICATION);
+        fcmService.sendNotification(getMarketPost.getProfile().getUser(), fcmMessage.getTitle(),getMarketPost.getTitle() +"\n" + fcmMessage.getMessage() );
+
         return APIResponse.of(SuccessCode.INSERT_SUCCESS);
     }
 
@@ -110,6 +118,9 @@ public class ApplyService {
             marketPost.addCurrentAcceptedPeople(); //게시글에 반영
 
             applyRepository.save(getApply);
+
+            FcmMessage fcmMessage = FcmMessage.of(MessageForm.ACCEPT_NOTIFICATION);
+            fcmService.sendNotification(getApply.getProfile().getUser(),fcmMessage.getTitle(), getApply.getMarketPost().getTitle() + "\n" +fcmMessage.getMessage() );
         });
 
         marketPost.updateStatus(Status.RECRUITMENT_COMPLETED);
