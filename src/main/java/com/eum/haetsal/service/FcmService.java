@@ -3,6 +3,7 @@ package com.eum.haetsal.service;
 import com.eum.haetsal.domain.fcmtoken.FcmToken;
 import com.eum.haetsal.domain.fcmtoken.FcmTokenRepository;
 import com.eum.haetsal.domain.user.User;
+import com.eum.haetsal.domain.user.UserRepository;
 import com.eum.haetsal.messageq.FcmProducer;
 import com.eum.haetsal.service.DTO.FcmTokenDTO;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -14,12 +15,12 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class FcmService {
-    private final FcmTokenRepository fcmTokenRepository;
+    private  final FcmTokenRepository fcmTokenRepository;
     private final FcmProducer fcmProducer;
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     public void updateToken(String token, Long userId){
-        User user = userService.findByUserId(userId);
+        User user = userRepository.findById(userId).orElseThrow(()-> new IllegalArgumentException("invalid userId"));
 
         FcmToken fcmToken = fcmTokenRepository.findByUser(user)
                 .map(existingToken -> {

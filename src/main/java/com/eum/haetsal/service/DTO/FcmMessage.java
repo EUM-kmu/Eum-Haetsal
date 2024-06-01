@@ -25,7 +25,7 @@ public class FcmMessage {
         this.message = message;
     }
     public static FcmMessage of(final MessageForm messageForm) {return new FcmMessage(messageForm);}
-    public static FcmMessage of(final MessageForm messageForm,String message) {return new FcmMessage(messageForm,message)}
+    public static FcmMessage of(final MessageForm messageForm,String message) {return new FcmMessage(messageForm,message);}
     public static FcmMessage of(final String title,String message) {return new FcmMessage(title, message);}
 
 

@@ -8,7 +8,7 @@ public enum MessageForm {
 
     ACCEPT_NOTIFICATION("타임페이 지원 수락", "지원 신청이 수락되었습니다 "),
 
-    TRANSFER_NOTIFICATION("타임페이 입출금","원 계좌 잔액")
+    TRANSFER_NOTIFICATION("타임페이 입출금","원")
     ;
 
     private final String title;

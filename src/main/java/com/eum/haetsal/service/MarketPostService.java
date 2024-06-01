@@ -21,6 +21,8 @@ import com.eum.haetsal.domain.profile.ProfileRepository;
 import com.eum.haetsal.domain.report.Report;
 import com.eum.haetsal.domain.report.ReportRepository;
 import com.eum.haetsal.domain.user.User;
+import com.eum.haetsal.service.DTO.FcmMessage;
+import com.eum.haetsal.service.DTO.enums.MessageForm;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +54,7 @@ public class MarketPostService {
     private final BankService bankService;
     private final ApplyRepository applyRepository;
     private final EntityManager em;
+    private final FcmService fcmService;
 
     /**
      * 유저와 게시글 검증
@@ -334,6 +337,12 @@ public class MarketPostService {
             String receiverId = receiverAndAmount.getReceiverAccountNumber();
             Profile receiverProfile = profileRepository.findByUser_AccountNumber(receiverId).orElseThrow(() -> new IllegalArgumentException("Invalid receiverId"));
             receiverProfile.setDealCount(receiverProfile.getDealCount() + 1);
+            String message = String.format("%s, %s이 %s원을 보냈습니다",
+                    getMarketPost.getTitle(),
+                    getMarketPost.getProfile().getNickname(),
+                    receiverAndAmount.getAmount()); //
+            FcmMessage fcmMessage = FcmMessage.of(MessageForm.TRANSFER_NOTIFICATION,message);
+            fcmService.sendNotification(receiverProfile.getUser(),fcmMessage.getTitle(),fcmMessage.getMessage());
         }
         marketPostRepository.save(getMarketPost);
     }
