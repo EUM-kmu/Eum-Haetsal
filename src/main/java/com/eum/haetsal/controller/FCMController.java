@@ -22,9 +22,9 @@ public class FCMController {
         return fcmService.sendTestNotification(fcmMessage.getToken(),fcmMessage.getTitle(),fcmMessage.getMessage());
 
     }
-    @PostMapping("")
-    public ResponseEntity<APIResponse> updateFcm(@RequestBody TokenDTO token, @RequestHeader("userId") String userId){
-        fcmService.updateToken(token.getFcmToken(), Long.valueOf(userId));
-        return ResponseEntity.ok(APIResponse.of(SuccessCode.UPDATE_SUCCESS, "fcm 토큰 등록"));
-    }
+//    @PostMapping("")
+//    public ResponseEntity<APIResponse> updateFcm(@RequestBody TokenDTO token, @RequestHeader("userId") String userId){
+//        fcmService.updateToken(token.getFcmToken(), Long.valueOf(userId));
+//        return ResponseEntity.ok(APIResponse.of(SuccessCode.UPDATE_SUCCESS, "fcm 토큰 등록"));
+//    }
 }
