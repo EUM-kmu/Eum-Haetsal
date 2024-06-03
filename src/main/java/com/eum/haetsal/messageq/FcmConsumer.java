@@ -1,5 +1,6 @@
 package com.eum.haetsal.messageq;
 
+import com.eum.haetsal.domain.fcmtoken.FcmToken;
 import com.eum.haetsal.domain.fcmtoken.FcmTokenRepository;
 import com.eum.haetsal.domain.user.User;
 import com.eum.haetsal.domain.user.UserRepository;
@@ -14,14 +15,14 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 @Slf4j
-@Service
 @RequiredArgsConstructor
-public class FcmDeleteConsumer {
+@Service
+public class FcmConsumer {
     private final UserRepository userRepository;
     private final FcmTokenRepository fcmTokenRepository;
-    @KafkaListener(topics = "eum-fcm-delete")
+    @KafkaListener(topics = "eum-fcm-create")
     public void updateQty(String kafkaMessage) {
-        log.info("fcm delete Kafka Message: ->" + kafkaMessage);
+        log.info("fcm 토큰 Kafka Message: ->" + kafkaMessage);
 
         Map<Object, Object> map = new HashMap<>();
         ObjectMapper mapper = new ObjectMapper();
@@ -31,9 +32,20 @@ public class FcmDeleteConsumer {
             ex.printStackTrace();
         }
         Integer index = (Integer) map.get("userId");
-        User getUser = userRepository.findById(Long.valueOf(index)).orElseThrow(() -> new IllegalArgumentException("Invalid userId"));
-        fcmTokenRepository.findByUser(getUser).ifPresent(existingToken -> fcmTokenRepository.delete(existingToken));
+        String token = (String) map.get("token");
 
+        User getUser = userRepository.findById(Long.valueOf(index)).orElseThrow(() -> new IllegalArgumentException("Invalid userId"));
+        if(!token.equals("")){
+            fcmTokenRepository.findByUser(getUser)
+                    .map(existingToken -> {
+                        existingToken.setToken(token); // 기존 토큰 값을 새로운 토큰 값으로 업데이트
+                        return fcmTokenRepository.save(existingToken); // 업데이트된 토큰을 저장
+                    })
+                    .orElseGet(() -> {
+                        FcmToken newToken = FcmToken.builder().user(getUser).token(token).build();
+                        return fcmTokenRepository.save(newToken); // 새로 생성된 토큰을 저장
+                    });
+        }
 
     }
 }
