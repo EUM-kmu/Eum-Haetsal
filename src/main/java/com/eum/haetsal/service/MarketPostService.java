@@ -21,6 +21,8 @@ import com.eum.haetsal.domain.profile.ProfileRepository;
 import com.eum.haetsal.domain.report.Report;
 import com.eum.haetsal.domain.report.ReportRepository;
 import com.eum.haetsal.domain.user.User;
+import com.eum.haetsal.service.DTO.FcmMessage;
+import com.eum.haetsal.service.DTO.enums.MessageForm;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +54,7 @@ public class MarketPostService {
     private final BankService bankService;
     private final ApplyRepository applyRepository;
     private final EntityManager em;
+    private final FcmService fcmService;
 
     /**
      * 유저와 게시글 검증
@@ -75,11 +78,12 @@ public class MarketPostService {
         // 인당 지급 햇살 계산
         if(marketCreate.getVolunteerTime() % 10 != 0) throw new IllegalArgumentException("10분 단위로 입력해주세요");
         Long pay = Long.valueOf(marketCreate.getVolunteerTime()); //금액은 활동시간과 같은 값 설정
+        MarketCategory marketCategory = marketCategoryRepository.findById(marketCreate.getCategoryId()).orElseThrow(() -> new IllegalArgumentException("invalid category"));
 
         String accountNumber = user.getAccountNumber();
         String password = user.getAccountPassword();
 
-        MarketPost marketPost = MarketPost.toEntity(marketCreate,pay,profile);
+        MarketPost marketPost = MarketPost.toEntity(marketCategory,marketCreate,pay,profile);
         em.persist(marketPost);
 
         // 뱅크에 deal 생성 요청
@@ -196,15 +200,17 @@ public class MarketPostService {
      * @return : 검색어(게시글 전체) > 카테고리 > 카테고리 내 게시글 유형 , 카테고리 내 모집중
      */
     @Transactional
-    public  APIResponse<List<MarketPostResponseDTO.MarketPostResponse>> findByFilter(String keyword, String category, MarketType marketType, Status status, List<Profile> blockedUsers,Pageable pageable) {
+    public  APIResponse<List<MarketPostResponseDTO.MarketPostResponse>> findByFilter(String keyword, Long category, MarketType marketType, Status status, List<Profile> blockedUsers,Pageable pageable) {
 //        검색 키워드 있을떄
         if (!(keyword == null || keyword.isBlank())) {
             return findByKeyWord(keyword,blockedUsers,pageable);
         }
-        MarketCategory marketCategory = marketCategoryRepository.findByContents(category).orElse(null);
+
+        MarketCategory marketCategory = category == null ? null : marketCategoryRepository.findById(category).orElse(null);
+
 //        List<MarketPost> marketPosts = (blockedUsers.isEmpty()) ? marketPostRepository.findByFilters(marketCategory, marketType, status).orElse(Collections.emptyList()) :marketPostRepository.findByFiltersWithoutBlocked(marketCategory, marketType,status,blockedUsers).orElse(Collections.emptyList()); //조건에 맞는 리스트 조회
         Page<MarketPost> marketPosts1 = (blockedUsers.isEmpty()) ? marketPostRepository.findByFiltersWithPage(marketCategory, marketType, status,pageable):marketPostRepository.findByFiltersWithoutBlockedPage(marketCategory, marketType,status,blockedUsers,pageable);
-        List<MarketPostResponseDTO.MarketPostResponse> marketPostResponses = getAllPostResponse(marketPosts1.getContent()); //리스트 dto
+        List<MarketPostResponseDTO.MarketPostResponse> marketPostResponses = getAllPostResponse(marketPosts1.getContent()); //리스트 DTO
 
         return APIResponse.of(SuccessCode.SELECT_SUCCESS,marketPostResponses);
      }
@@ -331,6 +337,12 @@ public class MarketPostService {
             String receiverId = receiverAndAmount.getReceiverAccountNumber();
             Profile receiverProfile = profileRepository.findByUser_AccountNumber(receiverId).orElseThrow(() -> new IllegalArgumentException("Invalid receiverId"));
             receiverProfile.setDealCount(receiverProfile.getDealCount() + 1);
+            String message = String.format("%s, %s이 %s원을 보냈습니다",
+                    getMarketPost.getTitle(),
+                    getMarketPost.getProfile().getNickname(),
+                    receiverAndAmount.getAmount()); //
+            FcmMessage fcmMessage = FcmMessage.of(MessageForm.TRANSFER_NOTIFICATION,message);
+            fcmService.sendNotification(receiverProfile.getUser(),fcmMessage.getTitle(),fcmMessage.getMessage());
         }
         marketPostRepository.save(getMarketPost);
     }
