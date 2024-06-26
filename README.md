@@ -12,7 +12,9 @@
 
 해당 서버는 msa 구조의 서버로 커뮤니티 기능이 있는 'haetsal server'에 해당한다
 
-![스크린샷 2024-06-26 16.50.00.png](..%2F..%2F..%2F..%2F..%2FDesktop%2F%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%2F%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202024-06-26%2016.50.00.png)
+<img width="1194" alt="스크린샷 2024-06-26 16 50 00" src="https://github.com/EUM-kmu/Eum-Haetsal/assets/66052043/795a33fc-4774-4fc9-a6ef-4c51a49cebca">
+
+
 
 ### 3. 실행방법
 ```bash
