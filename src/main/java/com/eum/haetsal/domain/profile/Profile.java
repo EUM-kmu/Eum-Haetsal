@@ -2,18 +2,17 @@ package com.eum.haetsal.domain.profile;
 
 
 import com.eum.haetsal.common.BaseTimeEntity;
+import com.eum.haetsal.common.DTO.FileDto;
 import com.eum.haetsal.common.KoreaLocalDateTime;
 import com.eum.haetsal.controller.DTO.request.ProfileRequestDTO;
 import com.eum.haetsal.domain.block.Block;
 import com.eum.haetsal.domain.apply.Apply;
 import com.eum.haetsal.domain.marketpost.MarketPost;
+import com.eum.haetsal.domain.report.Report;
 import com.eum.haetsal.domain.withdrawaluser.WithdrawalUser;
 import com.eum.haetsal.domain.user.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.text.ParseException;
 import java.time.LocalDate;
@@ -25,6 +24,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 public class Profile extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,6 +39,8 @@ public class Profile extends BaseTimeEntity {
     private String address;
     private String fileName;
     private int dealCount;
+    private boolean deleted;
+
 
     @OneToMany(mappedBy = "blocker")
     private List<Block> blockers = new ArrayList<>();
@@ -57,6 +59,9 @@ public class Profile extends BaseTimeEntity {
 
     @OneToOne(mappedBy = "profile", orphanRemoval = true)
     private WithdrawalUser withdrawalUser;
+
+    @OneToMany(mappedBy = "profile")
+    private List<Report> reports;
 
     @OneToOne
     @JoinColumn(name="user_id")
@@ -80,10 +85,15 @@ public class Profile extends BaseTimeEntity {
         this.address = address;
     }
 
+    public void updateBirth(String birth) {
+        this.birth = KoreaLocalDateTime.stringToLocalDateTime(birth);
+    }
 
+    public void updateGender(String gender) {
+        this.gender = gender;
+    }
 
-
-    public static Profile toEntity(ProfileRequestDTO.CreateProfile createProfile, User user, String profileImage, String fileName) throws ParseException {
+    public static Profile toEntity(ProfileRequestDTO.CreateProfile createProfile, User user, FileDto fileDto) throws ParseException {
         LocalDate birthDate = KoreaLocalDateTime.stringToLocalDateTime(createProfile.getBirth());
         return Profile.builder()
                 .nickname(createProfile.getNickName())
@@ -91,8 +101,9 @@ public class Profile extends BaseTimeEntity {
                 .name(createProfile.getName())
                 .birth(birthDate)
                 .gender(createProfile.getGender())
-                .fileName(fileName)
-                .profileImage(profileImage)
+                .fileName(fileDto.getUploadFileName())
+                .profileImage(fileDto.getUploadFileUrl())
+                .deleted(false)
                 .address(createProfile.getAddress())
                 .build();
     }

@@ -10,6 +10,10 @@ import com.eum.haetsal.domain.marketpost.MarketPost;
 import com.eum.haetsal.domain.marketpost.MarketPostRepository;
 import com.eum.haetsal.domain.marketpost.Status;
 import com.eum.haetsal.domain.profile.Profile;
+import java.util.Objects;
+
+import com.eum.haetsal.service.DTO.FcmMessage;
+import com.eum.haetsal.service.DTO.enums.MessageForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.eum.haetsal.domain.apply.Status.*;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -27,6 +33,7 @@ public class ApplyService {
     private final MarketPostRepository marketPostRepository;
     private final ApplyResponseDTO applyResponseDTO;
     private final BankService bankService;
+    private final FcmService fcmService;
 
     /**
      * 지원하기
@@ -47,6 +54,10 @@ public class ApplyService {
         Apply apply = Apply.toEntity(applyRequest.getIntroduction(), profile, getMarketPost);
         applyRepository.save(apply);
         marketPostRepository.save(getMarketPost);
+//        지원 알림
+        FcmMessage fcmMessage = FcmMessage.of(MessageForm.APPLY_NOTIFICATION);
+        fcmService.sendNotification(getMarketPost.getProfile().getUser(), fcmMessage.getTitle(),getMarketPost.getTitle() +"\n" + fcmMessage.getMessage() );
+
         return APIResponse.of(SuccessCode.INSERT_SUCCESS);
     }
 
@@ -79,7 +90,7 @@ public class ApplyService {
     }
 
     /**
-     * 지언 수락
+     * 지원 수락
      * @param applyIds 수락할 지원 id들
      * @param profile
      * @return
@@ -98,14 +109,18 @@ public class ApplyService {
             Apply getApply = applyRepository.findById(applyId).orElseThrow(() -> new NullPointerException("invalid applyId"));
 
             if (getApply.getMarketPost().getProfile() != profile) throw new IllegalArgumentException("해당 게시글에 대한 권한이 없다");
-            if(getApply.getIsAccepted() || getApply.getStatus() == com.eum.haetsal.domain.apply.Status.TRADING_CANCEL) throw new IllegalArgumentException("이미 선정했더나 과거 거래 취소를 했던 사람입니다");
+            if(!marketPost.getStatus().equals(Status.RECRUITING)) throw new IllegalArgumentException("이미 모집완료 된 게시글입니다");
+            if( getApply.getStatus().equals(TRADING_CANCEL)) throw new IllegalArgumentException("과거 거래 취소를 했던 사람입니다");
 
 
             getApply.updateAccepted(true); //수락
-            getApply.updateStatus(com.eum.haetsal.domain.apply.Status.TRADING); //지원 상태 변경
+            getApply.updateStatus(TRADING); //지원 상태 변경
             marketPost.addCurrentAcceptedPeople(); //게시글에 반영
 
             applyRepository.save(getApply);
+
+            FcmMessage fcmMessage = FcmMessage.of(MessageForm.ACCEPT_NOTIFICATION);
+            fcmService.sendNotification(getApply.getProfile().getUser(),fcmMessage.getTitle(), getApply.getMarketPost().getTitle() + "\n" +fcmMessage.getMessage() );
         });
 
         marketPost.updateStatus(Status.RECRUITMENT_COMPLETED);
@@ -116,42 +131,43 @@ public class ApplyService {
     }
 
     /**
-     * 선정 전 지원 취소
+     * 지원 취소
      * @param postId
-     * @param profile
+
+     * @param applyId
+     * @param profile 신청자
      * @return
      */
-    public APIResponse unApply(Long postId, Profile profile) {
-        MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
-        Apply getApply = applyRepository.findByProfileAndMarketPost(profile,getMarketPost).orElseThrow(() -> new IllegalArgumentException("해당 유저는 신청한적이 없습니다"));
+    public APIResponse unApply(Long postId, Long applyId, Profile profile, Profile deleteProfile) {
+        Apply getApply = applyRepository.findById(applyId).orElseThrow(() -> new NullPointerException("invalid applyId"));
+        MarketPost post = marketPostRepository.findById(postId).orElseThrow(() -> new NullPointerException("invalid postId"));
+        Profile hostProfile = post.getProfile();
 
-        applyRepository.delete(getApply);
+        if(!Objects.equals(getApply.getMarketPost().getMarketPostId(), postId)) throw new IllegalArgumentException("invalid postId");
+//        if(getApply.getIsAccepted()) throw new IllegalArgumentException("이미 선정되서 취소할 수 없습니다");
+        if (!post.getStatus().equals(Status.RECRUITING)) throw new IllegalArgumentException("모집중인 게시글이 아닙니다");
+
+        /*
+        호스트가 취소 or 지원자가 취소 가 아닐 경우 권한이 없다.
+         */
+        if( !hostProfile.equals(profile) && !deleteProfile.equals(profile)) {
+            throw new IllegalArgumentException("취소할수있는 권한이 없습니다");
+        }
+        if(getApply.getStatus() == TRADING) {
+            getApply.setIsAccepted(false);
+            getApply.setStatus(TRADING_CANCEL);
+            applyRepository.save(getApply);
+        }else if (getApply.getStatus() == WAITING){
+            applyRepository.delete(getApply);
+        }
+        // 지원자의 지원 상태를 변경
+        post.setCurrentAcceptedPeople(post.getCurrentAcceptedPeople() - 1);
+        marketPostRepository.save(post);
+
         return APIResponse.of(SuccessCode.DELETE_SUCCESS);
-
     }
 
-    /**
-     * 선정 후 활동 파기
-     * @param postId
-     * @param chatId
-     * @param userId
-     * @return
-     */
-    public void cancel(Long postId, Long chatId, Long userId) {
-//        Users getUser = usersRepository.findById(userId). orElseThrow(() -> new NullPointerException("Invalid email"));
-//        ChatRoom chatRoom = chatRoomRepository.findById(chatId).orElseThrow(() -> new IllegalArgumentException("해딩 채팅방이 없습니다"));
-//        if(chatRoom.getMarketPost().getMarketPostId() != postId) throw new IllegalArgumentException("invalid postId");
-//
-//        MarketPost getMarketPost = chatRoom.getMarketPost();
-//        Apply getApply = applyRepository.findByProfileAndMarketPost(chatRoom.getApplicant(), getMarketPost).orElseThrow(()->new IllegalArgumentException("신청한 이력이 없는데 채팅방이 있다"));
-//
-//        if(!(getUser == chatRoom.getApplicant() || getUser == chatRoom.getPostWriter() )) throw new IllegalArgumentException("활동 파기할수있는 권한이 없습니다");
-////        채팅 금지 처리
-//        chatRoom.upDateBlocked(true);
-//        cancel(getApply);
-//        return APIResponse.of(SuccessCode.DELETE_SUCCESS);
 
-    }
 
     /**
      * 차단 할 때 지원 리스트 반영
@@ -185,7 +201,7 @@ public class ApplyService {
      * @param getApply
      */
     private void cancel(Apply getApply){
-        getApply.updateStatus(com.eum.haetsal.domain.apply.Status.TRADING_CANCEL); //상태변경
+        getApply.updateStatus(TRADING_CANCEL); //상태변경
         getApply.updateAccepted(false);
         applyRepository.save(getApply);
 
@@ -202,7 +218,7 @@ public class ApplyService {
         for (Apply apply:applies) {
             if (apply.getStatus() == com.eum.haetsal.domain.apply.Status.WAITING) {
                 applyRepository.delete(apply);
-            } else if (apply.getStatus() == com.eum.haetsal.domain.apply.Status.TRADING) {
+            } else if (apply.getStatus() == TRADING) {
                 cancel(apply);
             }
         }

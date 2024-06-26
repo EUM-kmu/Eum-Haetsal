@@ -3,9 +3,12 @@ package com.eum.haetsal.controller.DTO.request;
 import com.eum.haetsal.domain.marketpost.Status;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
+
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 
 public class MarketPostRequestDTO {
@@ -26,7 +29,7 @@ public class MarketPostRequestDTO {
         @NotEmpty(message = "상세 주소를 작성해주세요")
         private String location;
 
-        @Positive(message = "참여 시간은 양수여야 합니다")
+        @Min(value = 30, message = "최소값은 30이며야합니다")
         private int volunteerTime;
 //        @NotNull(message = "null이 오면 안됩니다")
 //        private MarketType marketType;
@@ -35,15 +38,14 @@ public class MarketPostRequestDTO {
         @Max(value = 50, message = "최대값은 50이어야 합니다.")
         private int maxNumOfPeople;
 
-//        @NotNull(message = "카테고리를 입력해주세요")
-//        private String category;
+        @NotNull(message = "카테고리를 입력해주세요")
+        private Long categoryId;
     }
     @Setter
     @Getter
     public static class MarketUpdate {
         @NotEmpty(message = "제목을 입력하세요")
         private String title;
-        @NotEmpty(message = "내용을 입력하세요")
         private String content;
 //        @NotNull(message = "null이 오면 안됩니다")
         @Schema(description = "시작시간",example ="2023-11-29T00:17:08+0900" )
@@ -62,5 +64,32 @@ public class MarketPostRequestDTO {
     @Setter
     public static class UpdateStatus{
         private Status status;
+    }
+    @Getter
+    @Setter
+    public static class ReportReason{
+        private String reason;
+    }
+
+    @Getter
+    @Setter
+    public static class ChatTransfer{
+        // 거래ID
+        @Schema(description = "거래ID", example = "1")
+        @NotEmpty(message = "거래ID를 입력해주세요.")
+        private Long dealId;
+
+        @Schema(description = "비밀번호", example = "1234")
+        private String password;
+
+        // 수신 계좌번호 및 금액 리스트
+        @Schema(description = "수신 계좌번호 및 금액 리스트")
+        @NotEmpty(message = "수신 계좌번호 및 금액을 입력해주세요.")
+        private List<DealRequestDTO.ReceiverAndAmount> receiverAndAmounts;
+
+        // 송금 총액
+        @Schema(description = "송금 총액", example = "10000")
+        @NotEmpty(message = "송금 총액을 입력해주세요.")
+        private Long totalAmount;
     }
 }

@@ -11,7 +11,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "bank-service", url = "http://localhost:8080")
+@FeignClient(name = "bank-service", url = "http://223.130.146.39:8080")
 public interface BankClient {
 
     // AccountController
@@ -95,6 +95,14 @@ public interface BankClient {
      * @return ResponseEntity<APIResponse<List<TotalTransferHistoryResponseDTO.GetTotalTransferHistory>>>
      */
     @PostMapping("/deal/execute")
-    ResponseEntity<APIResponse<TotalTransferHistoryResponseDTO.GetTotalTransferHistory>> executeDeal(@RequestBody DealRequestDTO.ExecuteDeal executeDeal);
+    ResponseEntity<APIResponse> executeDeal(@RequestBody DealRequestDTO.ExecuteDeal executeDeal);
+
+    /**
+     * 거래 롤백
+     * @param rollback
+     * @return ResponseEntity<APIResponse>
+     */
+    @PatchMapping("/deal/rollback")
+    ResponseEntity<APIResponse> rollbackDeal(@RequestBody DealRequestDTO.RollbackDeal rollback);
 
 }

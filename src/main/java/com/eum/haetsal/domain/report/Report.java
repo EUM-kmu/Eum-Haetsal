@@ -1,6 +1,7 @@
 package com.eum.haetsal.domain.report;
 
 import com.eum.haetsal.domain.marketpost.MarketPost;
+import com.eum.haetsal.domain.profile.Profile;
 import com.eum.haetsal.domain.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,12 +27,22 @@ public class Report {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "report_id", nullable = false)
     private Long reportId;
+    @Column
+    private String reason;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "profile_id")
+    private Profile profile;
 
     @ManyToOne
     @JoinColumn(name = "market_post_id")
     private MarketPost marketPost;
+
+    public static Report toEntity(String reason, Profile profile, MarketPost marketPost) {
+        return Report.builder()
+                .reason(reason)
+                .profile(profile)
+                .marketPost(marketPost).build();
+    }
+
 }

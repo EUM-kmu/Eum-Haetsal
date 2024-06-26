@@ -30,33 +30,32 @@ public class ProfileService {
      * @return
      */
     @Transactional
-    public ProfileResponseDTO.ProfileResponseWithToken create(ProfileRequestDTO.CreateProfile createProfile, Long userId, MultipartFile multipartFile) throws ParseException {
+    public ProfileResponseDTO.ProfileResponseWithToken create(ProfileRequestDTO.CreateProfile createProfile, Long userId) throws ParseException {
         User getUser = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("invalid userId"));
         if (profileRepository.existsByUser(getUser)) throw new IllegalArgumentException("이미 프로필이 있는 회원");
 
-        validateNickname(createProfile.getNickName());
-        FileDto fileDto = fileService.uploadFile(multipartFile, "profile");
-        Profile profile = Profile.toEntity(createProfile,getUser,fileDto.getUploadFileUrl(),fileDto.getUploadFileName());
+        FileDto fileDto = fileService.uploadFileFromBase64(createProfile.getFileByte(),"profile", "profile");
+        Profile profile = Profile.toEntity(createProfile,getUser,fileDto);
         Profile savedProfile = profileRepository.save(profile);
 
         ProfileResponseDTO.ProfileResponseWithToken createProfileResponse = ProfileResponseDTO.toProfileToken(savedProfile);
         return createProfileResponse;
 
     }
-    @Transactional
-    public ProfileResponseDTO.ProfileResponse createT(ProfileRequestDTO.CreateProfile createProfile, Long userId) throws ParseException {
-        User getUser = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("invalid userId"));
-        if (profileRepository.existsByUser(getUser)) throw new IllegalArgumentException("이미 프로필이 있는 회원");
-
-        validateNickname(createProfile.getNickName());
-//        FileDto fileDto = fileService.uploadFile(multipartFile, "profile");
-        Profile profile = Profile.toEntity(createProfile,getUser,"","");
-        Profile savedProfile = profileRepository.save(profile);
-
-        ProfileResponseDTO.ProfileResponse createProfileResponse = ProfileResponseDTO.toProfileResponse(savedProfile);
-        return createProfileResponse;
-
-    }
+//    @Transactional
+//    public ProfileResponseDTO.ProfileResponse createT(ProfileRequestDTO.CreateProfile createProfile, Long userId) throws ParseException {
+//        User getUser = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("invalid userId"));
+//        if (profileRepository.existsByUser(getUser)) throw new IllegalArgumentException("이미 프로필이 있는 회원");
+//
+//        validateNickname(createProfile.getNickName());
+////        FileDto fileDto = fileService.uploadFile(multipartFile, "profile");
+////        Profile profile = Profile.toEntity(createProfile,getUser,FileDto);
+////        Profile savedProfile = profileRepository.save(profile);
+//
+//        ProfileResponseDTO.ProfileResponse createProfileResponse = ProfileResponseDTO.toProfileResponse(savedProfile);
+//        return createProfileResponse;
+//
+//    }
 
     /**
      * 프로필 조회
@@ -69,43 +68,48 @@ public class ProfileService {
     }
 
     /**
-     * 닉네임 중복 확인
-     * @param nickname
-     */
-    private void validateNickname(String nickname){
-        if(profileRepository.existsByNickname(nickname)) throw new IllegalArgumentException("이미 있는 닉네임");
-    }
-
-    /**
      * 프로필 수정
      * @param updateProfile
      * @param userId
      * @return
      */
     @Transactional
-    public APIResponse updateMyProfile(ProfileRequestDTO.UpdateProfile updateProfile,Long userId,MultipartFile multipartFile) {
+    public Profile updateMyProfile(ProfileRequestDTO.UpdateProfile updateProfile,Long userId) {
         Profile getProfile = findByUser(userId);
-        validateNickname(updateProfile.getNickname());
+        if(getProfile.getProfileImage().equals("")){
+            FileDto fileDto = fileService.uploadFileFromBase64(updateProfile.getFileByte(),"profile", "profile");
+            getProfile.updateProfileImage(fileDto.getUploadFileUrl());
+            getProfile.updateFileName(fileDto.getUploadFileName());
+        } else if(updateProfile.getFileByte() != null ) {
+            fileService.deleteFile("profile",getProfile.getFileName());
+            FileDto fileDto = fileService.uploadFileFromBase64(updateProfile.getFileByte(),"profile", "profile");
+            getProfile.updateProfileImage(fileDto.getUploadFileUrl());
+            getProfile.updateFileName(fileDto.getUploadFileName());
+        }
+        getProfile.updateNickName(updateProfile.getNickName());
+        getProfile.updateAddress(updateProfile.getAddress());
+        getProfile.updateBirth(updateProfile.getBirth());
+        getProfile.updateGender(updateProfile.getGender());
 
-        fileService.deleteFile("profile",getProfile.getFileName());
-        FileDto fileDto = fileService.uploadFile(multipartFile,"profile");
-
-        getProfile.updateNickName(updateProfile.getNickname());
-        getProfile.updateProfileImage(fileDto.getUploadFileUrl());
-        getProfile.updateFileName(fileDto.getUploadFileName());
-
-        profileRepository.save(getProfile);
-        return APIResponse.of(SuccessCode.UPDATE_SUCCESS);
+        return profileRepository.save(getProfile);
     }
     public Profile findByUser(Long userId){
         User getUser = userRepository.findById(userId).orElseThrow(() -> new NullPointerException("Invalid userId"));
         Profile getProfile = profileRepository.findByUser(getUser).orElseThrow(() -> new NullPointerException("None profile User"));
         return getProfile;
     }
-    public Profile findById(Long profileId){
-        Profile getProfile = profileRepository.findById(profileId).orElseThrow(() -> new NullPointerException("Invalid profileId"));
-        return getProfile;
+    @Transactional
+    public void removePrivacy(Profile profile){
+        profile.setAddress("");
+        profile.setName("");
+        profile.setNickname("알수없음");
+        fileService.deleteFile("profile",profile.getFileName());
+        profile.setFileName("");
+        profile.setProfileImage("");
+        profile.setDeleted(false);
+        profileRepository.save(profile);
     }
+
 
 
 }

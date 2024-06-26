@@ -4,7 +4,12 @@ import com.eum.haetsal.common.DTO.APIResponse;
 import com.eum.haetsal.common.DTO.ErrorResponse;
 import com.eum.haetsal.controller.DTO.response.AccountResponseDTO;
 import com.eum.haetsal.controller.DTO.response.TotalTransferHistoryResponseDTO;
+import com.eum.haetsal.domain.profile.Profile;
+import com.eum.haetsal.domain.user.User;
+import com.eum.haetsal.domain.user.UserRepository;
 import com.eum.haetsal.service.BankService;
+import com.eum.haetsal.service.ProfileService;
+import com.eum.haetsal.service.UserService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,9 +24,21 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 @RequestMapping("/test")
 @Hidden
-@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
+//@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
 public class BankTestController {
     private final BankService bankService;
+    private final UserService userService;
+    private final UserRepository userRepository;
+    @PostMapping("/create/account")
+    public String createAccount(@RequestParam Long userId){
+        User getUser = userService.findByUserId(userId);
+        APIResponse<AccountResponseDTO.Create> accountDTO = bankService.createAccount("1234");
+        getUser.setAccountNumber(accountDTO.getData().getAccountNumber());
+        getUser.setAccountPassword("1234");
+        userRepository.save(getUser);
+        return "ok";
+
+    }
 
     @GetMapping()
     public APIResponse<Long> healthCheck(){

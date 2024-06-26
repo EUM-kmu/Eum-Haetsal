@@ -1,8 +1,10 @@
 package com.eum.haetsal.service;
 
 
+import com.eum.haetsal.client.BankClient;
 import com.eum.haetsal.common.DTO.APIResponse;
 import com.eum.haetsal.common.DTO.enums.SuccessCode;
+import com.eum.haetsal.controller.DTO.request.DealRequestDTO;
 import com.eum.haetsal.controller.DTO.request.MarketPostRequestDTO;
 import com.eum.haetsal.controller.DTO.request.enums.MarketType;
 import com.eum.haetsal.controller.DTO.request.enums.ServiceType;
@@ -15,10 +17,20 @@ import com.eum.haetsal.domain.marketpost.MarketPost;
 import com.eum.haetsal.domain.marketpost.MarketPostRepository;
 import com.eum.haetsal.domain.marketpost.Status;
 import com.eum.haetsal.domain.profile.Profile;
+import com.eum.haetsal.domain.profile.ProfileRepository;
+import com.eum.haetsal.domain.report.Report;
+import com.eum.haetsal.domain.report.ReportRepository;
 import com.eum.haetsal.domain.user.User;
+import com.eum.haetsal.service.DTO.FcmMessage;
+import com.eum.haetsal.service.DTO.enums.MessageForm;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,12 +46,15 @@ import java.util.Locale;
 @RequiredArgsConstructor
 @Slf4j
 public class MarketPostService {
+    private final ReportRepository reportRepository;
     private final MarketPostRepository marketPostRepository;
+    private final ProfileRepository profileRepository;
     private final MarketCategoryRepository marketCategoryRepository;
     private final MarketPostResponseDTO marketPostResponseDTO;
     private final BankService bankService;
     private final ApplyRepository applyRepository;
     private final EntityManager em;
+    private final FcmService fcmService;
 
     /**
      * 유저와 게시글 검증
@@ -61,12 +76,14 @@ public class MarketPostService {
     @Transactional
     public APIResponse<MarketPostResponseDTO.MarketPostResponse> create(MarketPostRequestDTO.MarketCreate marketCreate, Profile profile, User user) throws ParseException {
         // 인당 지급 햇살 계산
+        if(marketCreate.getVolunteerTime() % 10 != 0) throw new IllegalArgumentException("10분 단위로 입력해주세요");
         Long pay = Long.valueOf(marketCreate.getVolunteerTime()); //금액은 활동시간과 같은 값 설정
+        MarketCategory marketCategory = marketCategoryRepository.findById(marketCreate.getCategoryId()).orElseThrow(() -> new IllegalArgumentException("invalid category"));
 
         String accountNumber = user.getAccountNumber();
         String password = user.getAccountPassword();
 
-        MarketPost marketPost = MarketPost.toEntity(marketCreate,pay,profile);
+        MarketPost marketPost = MarketPost.toEntity(marketCategory,marketCreate,pay,profile);
         em.persist(marketPost);
 
         // 뱅크에 deal 생성 요청
@@ -156,15 +173,18 @@ public class MarketPostService {
      */
     public  APIResponse<MarketPostResponseDTO.MarketPostDetail> getMarketPosts(Long postId, Profile profile) {
         MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
-
+        Long applyId = 0L;
 //        유저활동
         Boolean isApply = applyRepository.existsByProfileAndMarketPost(profile, getMarketPost);
+        boolean report = reportRepository.existsByMarketPostAndProfile(getMarketPost, profile);
         com.eum.haetsal.domain.apply.Status tradingStatus = com.eum.haetsal.domain.apply.Status.NONE;
 
         if(isApply){
-            tradingStatus = applyRepository.findByProfileAndMarketPost(profile,getMarketPost).get().getStatus();
+            Apply getApply = applyRepository.findByProfileAndMarketPost(profile,getMarketPost).get();
+            tradingStatus = getApply.getStatus();
+            applyId = getApply.getApplyId();
         }
-        MarketPostResponseDTO.MarketPostDetail singlePostResponse = marketPostResponseDTO.toMarketPostDetails(profile,getMarketPost,isApply,tradingStatus);
+        MarketPostResponseDTO.MarketPostDetail singlePostResponse = marketPostResponseDTO.toMarketPostDetails(profile,getMarketPost,isApply,tradingStatus,applyId,report);
         return APIResponse.of(SuccessCode.SELECT_SUCCESS,singlePostResponse);
 
     }
@@ -180,14 +200,17 @@ public class MarketPostService {
      * @return : 검색어(게시글 전체) > 카테고리 > 카테고리 내 게시글 유형 , 카테고리 내 모집중
      */
     @Transactional
-    public  APIResponse<List<MarketPostResponseDTO.MarketPostResponse>> findByFilter(String keyword, String category, MarketType marketType, Status status, List<Profile> blockedUsers) {
+    public  APIResponse<List<MarketPostResponseDTO.MarketPostResponse>> findByFilter(String keyword, Long category, MarketType marketType, Status status, List<Profile> blockedUsers,Pageable pageable) {
 //        검색 키워드 있을떄
         if (!(keyword == null || keyword.isBlank())) {
-            return findByKeyWord(keyword,blockedUsers);
+            return findByKeyWord(keyword,blockedUsers,pageable);
         }
-        MarketCategory marketCategory = marketCategoryRepository.findByContents(category).orElse(null);
-        List<MarketPost> marketPosts = (blockedUsers.isEmpty()) ? marketPostRepository.findByFilters(marketCategory, marketType, status).orElse(Collections.emptyList()) :marketPostRepository.findByFiltersWithoutBlocked(marketCategory, marketType,status,blockedUsers).orElse(Collections.emptyList()); //조건에 맞는 리스트 조회
-        List<MarketPostResponseDTO.MarketPostResponse> marketPostResponses = getAllPostResponse(marketPosts); //리스트 dto
+
+        MarketCategory marketCategory = category == null ? null : marketCategoryRepository.findById(category).orElse(null);
+
+//        List<MarketPost> marketPosts = (blockedUsers.isEmpty()) ? marketPostRepository.findByFilters(marketCategory, marketType, status).orElse(Collections.emptyList()) :marketPostRepository.findByFiltersWithoutBlocked(marketCategory, marketType,status,blockedUsers).orElse(Collections.emptyList()); //조건에 맞는 리스트 조회
+        Page<MarketPost> marketPosts1 = (blockedUsers.isEmpty()) ? marketPostRepository.findByFiltersWithPage(marketCategory, marketType, status,pageable):marketPostRepository.findByFiltersWithoutBlockedPage(marketCategory, marketType,status,blockedUsers,pageable);
+        List<MarketPostResponseDTO.MarketPostResponse> marketPostResponses = getAllPostResponse(marketPosts1.getContent()); //리스트 DTO
 
         return APIResponse.of(SuccessCode.SELECT_SUCCESS,marketPostResponses);
      }
@@ -244,9 +267,9 @@ public class MarketPostService {
      * @param blockedUsers
      * @return
      */
-    private APIResponse<List<MarketPostResponseDTO.MarketPostResponse>> findByKeyWord(String keyWord, List<Profile> blockedUsers) {
+    private APIResponse<List<MarketPostResponseDTO.MarketPostResponse>> findByKeyWord(String keyWord, List<Profile> blockedUsers,Pageable pageable) {
 
-        List<MarketPost> marketPosts = (blockedUsers.isEmpty()) ? marketPostRepository.findByKeywords(keyWord).orElse(Collections.emptyList()):marketPostRepository.findByKeywordsWithoutBlocked(keyWord,blockedUsers).orElse(Collections.emptyList());
+        List<MarketPost> marketPosts = (blockedUsers.isEmpty()) ? marketPostRepository.findByKeywords(keyWord,pageable).orElse(Collections.emptyList()):marketPostRepository.findByKeywordsWithoutBlocked(keyWord,blockedUsers,pageable).orElse(Collections.emptyList());
         List<MarketPostResponseDTO.MarketPostResponse> transactionPostDTOs = getAllPostResponse(marketPosts);
         return APIResponse.of(SuccessCode.SELECT_SUCCESS, transactionPostDTOs);
     }
@@ -267,15 +290,6 @@ public class MarketPostService {
         return APIResponse.of(SuccessCode.SELECT_SUCCESS, transactionPostDTOs);
     }
 
-//    /**
-//     * 거래 상태 업데이트 함수 -> 지원 데이터에 상태 업데이트로 바뀌어야함
-//     * @param chatRoomId : 채팅방 Id
-//     */
-//    public void updateStatusCompleted(Long chatRoomId){
-//        MarketPost marketPost = chatRoomRepository.findById(chatRoomId).orElseThrow(()->new NullPointerException("invalid chatRoomdId")).getMarketPost();
-//        marketPost.updateStatus(Status.TRANSACTION_COMPLETED);
-//        marketPostRepository.save(marketPost);
-//    }
 
     /**
      * 게시글의 pulluptime 최신
@@ -297,9 +311,53 @@ public class MarketPostService {
      * 게시글 신고
      * @param postId : 게시글 id
      */
-    public void report(Long postId, Long userId) {
+    public void report(Long postId, Long userId,String reason,Profile profile) {
         MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
+        if(getMarketPost.getProfile().getUser().getUserId() == userId)
+            throw new IllegalArgumentException("자기 게시글에는 신고할 수 없습니다");
         getMarketPost.increaseReportedCount(userId);
+        marketPostRepository.save(getMarketPost);
+        Report report = Report.toEntity(reason,profile , getMarketPost);
+        reportRepository.save(report);
+    }
+
+    /**
+     * 채팅방으로 송금
+     * @param postId : 게시글 id
+     * @param profile : 프로필
+     */
+    @Transactional
+    public void chatTransfer(Long postId, MarketPostRequestDTO.ChatTransfer chatTransfer, Profile profile) {
+        MarketPost getMarketPost = validateUserAndPost(postId, profile);
+        getMarketPost.setStatus(Status.TRANSACTION_COMPLETED);
+        bankService.executeDeal(getMarketPost.getDealId(), profile.getUser().getAccountNumber(),profile.getUser().getAccountPassword(), chatTransfer.getTotalAmount(), chatTransfer.getReceiverAndAmounts());
+        // chatTransfer.getReceiverAndAmounts()에 있는 사람들의 dealCount 증가
+        for (DealRequestDTO.ReceiverAndAmount receiverAndAmount : chatTransfer.getReceiverAndAmounts()) {
+            if(receiverAndAmount.getAmount() % 10 != 0) throw new IllegalArgumentException("10분 단위로 입력해주세요");
+            String receiverId = receiverAndAmount.getReceiverAccountNumber();
+            Profile receiverProfile = profileRepository.findByUser_AccountNumber(receiverId).orElseThrow(() -> new IllegalArgumentException("Invalid receiverId"));
+            receiverProfile.setDealCount(receiverProfile.getDealCount() + 1);
+            String message = String.format("%s, %s이 %s원을 보냈습니다",
+                    getMarketPost.getTitle(),
+                    getMarketPost.getProfile().getNickname(),
+                    receiverAndAmount.getAmount()); //
+            FcmMessage fcmMessage = FcmMessage.of(MessageForm.TRANSFER_NOTIFICATION,message);
+            fcmService.sendNotification(receiverProfile.getUser(),fcmMessage.getTitle(),fcmMessage.getMessage());
+        }
+        marketPostRepository.save(getMarketPost);
+    }
+
+    /**
+     * 모집완료 -> 모집중
+     * @param postId : 게시글 id
+     * @param profile : 프로필
+     */
+    @Transactional
+    public void rollback(Long postId, Profile profile) {
+        MarketPost getMarketPost = validateUserAndPost(postId, profile);
+        bankService.rollbackDeal(getMarketPost.getDealId(), profile.getUser().getAccountNumber(), profile.getUser().getAccountPassword());
+        getMarketPost.setStatus(Status.RECRUITING);
+        getMarketPost.setPullUpDate(LocalDateTime.now());
         marketPostRepository.save(getMarketPost);
     }
     public void addViewsCount(Long postId){
@@ -310,5 +368,6 @@ public class MarketPostService {
     public MarketPostResponseDTO.MarketPostResponse getPostInfo(Long postId){
         MarketPost getMarketPost = marketPostRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
         return MarketPostResponseDTO.toMarketPostResponse(getMarketPost,getMarketPost.getApplies().size());
+
     }
 }

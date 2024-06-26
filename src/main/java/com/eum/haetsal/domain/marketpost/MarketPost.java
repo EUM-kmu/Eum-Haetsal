@@ -115,7 +115,7 @@ public class MarketPost extends BaseTimeEntity {
 
     public void increaseReportedCount(Long userId) {
         this.reports.forEach(report -> {
-                    if(report.getUser().getUserId().equals(userId)){
+                    if(report.getProfile().getUser().getUserId().equals(userId)){
                         throw new IllegalArgumentException("이미 신고한 게시물입니다.");
                     }
                 });
@@ -124,7 +124,7 @@ public class MarketPost extends BaseTimeEntity {
     }
 
 
-    public static MarketPost toEntity(MarketPostRequestDTO.MarketCreate marketCreate, Long pay, Profile profile) throws ParseException {
+    public static MarketPost toEntity(MarketCategory marketCategory,MarketPostRequestDTO.MarketCreate marketCreate, Long pay, Profile profile) throws ParseException {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.KOREAN);
         return MarketPost.builder()
                 .title(marketCreate.getTitle())
@@ -136,9 +136,11 @@ public class MarketPost extends BaseTimeEntity {
                 .volunteerTime(marketCreate.getVolunteerTime())
                 .viewsCount(0L)
                 .marketType(MarketType.REQUEST_HELP)
+                .marketCategory(marketCategory)
                 .maxNumOfPeople(marketCreate.getMaxNumOfPeople())
                 .status(Status.RECRUITING)
                 .profile(profile)
+                .reportedCount(0L)
                 .build();
     }
 }

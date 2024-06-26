@@ -11,10 +11,12 @@ import com.eum.haetsal.domain.profile.Profile;
 import com.eum.haetsal.service.ApplyService;
 import com.eum.haetsal.service.MarketPostService;
 import com.eum.haetsal.service.ProfileService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import java.util.Objects;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,7 +29,7 @@ import java.util.List;
 @RequestMapping("haetsal-service/api/v2/market/post")
 @RequiredArgsConstructor
 @Tag(name = "Apply")
-@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "x-requested-with, Authorization, Content-Type")
+@CrossOrigin(origins = {"http://localhost:3000","https://hanmaeul.vercel.app","https://k-eum2023.web.app"}, allowedHeaders = "*")
 public class ApplyController {
     private final ApplyService applyService;
     private final ProfileService profileService;
@@ -54,12 +56,18 @@ public class ApplyController {
 
     /**
      * 지원취소
-     * @param postId
-     * @param applyId
-     * @param userId
+     *
+     * 지원자가 취소할 경우
+     * 호스트가 지원자를 취소할 경우
+     * @param postId 게시글 id
+     * @param applyId 지원 id
+     * @param userId 로그인 한 사용자 지금은 신청자
+     * @param deleteId 삭제할 Id
      * @return
      */
-    @DeleteMapping("/{postId}/apply")
+
+    @DeleteMapping("/{postId}/apply/{applyId}/{deleteId}")
+    @Operation(summary = "지원 삭제",description = "deleteId는 삭제하고자 하는 userid, 지원자에 해당")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "성공"),
             @ApiResponse(responseCode = "400", description = "요청 형식 혹은 요청 콘텐츠가 올바르지 않을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -67,9 +75,14 @@ public class ApplyController {
             @ApiResponse(responseCode = "403", description = "헤더에 토큰이 들어가있지 않은 경우",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "외부 API 요청 실패, 정상적 수행을 할 수 없을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
-    public ResponseEntity<APIResponse> unapply(@PathVariable Long postId, @RequestHeader("userId") String userId){
+
+    public ResponseEntity<APIResponse> unapply(@PathVariable Long postId,@PathVariable Long applyId,@PathVariable String deleteId, @RequestHeader("userId") String userId){
+
+        Profile deleteProfile = profileService.findByUser(Long.valueOf(deleteId));
         Profile profile = profileService.findByUser(Long.valueOf(userId));
-        return new ResponseEntity<>(applyService.unApply(postId, profile), HttpStatus.CREATED);
+
+        return new ResponseEntity<>(applyService.unApply(postId, applyId, profile, deleteProfile), HttpStatus.CREATED);
+
     }
 
     /**
@@ -91,10 +104,11 @@ public class ApplyController {
 
     /**
      * 지원 수락하기
-     * @param acceptList : 수락할 지원 리스크
+     * @param acceptList : 수락할 지원 리스트
      * @return
      */
     @PostMapping("/{postId}/accept")
+    @Operation(summary = "지원수락")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "성공"),
             @ApiResponse(responseCode = "400", description = "요청 형식 혹은 요청 콘텐츠가 올바르지 않을 때,",content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
