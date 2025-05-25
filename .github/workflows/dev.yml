@@ -9,9 +9,9 @@ name: Dev action
 
 on:
   push:
-    branches: [ "dev" ]
-  pull_request:
-    branches: [ "dev" ]
+    branches:
+      - dev
+      - dev-temp
 
 jobs:
   build:

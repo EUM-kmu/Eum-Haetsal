@@ -9,9 +9,10 @@ name: Deploy action
 
 on:
   push:
-    branches: [ "deploy" ]
-  pull_request:
-    branches: [ "deploy" ]
+    branches:
+      - deploy
+      - deploy-temp
+      - main
 
 jobs:
   build:
