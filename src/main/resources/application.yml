@@ -22,6 +22,9 @@ spring:
     init:
       mode: always
 
+  profiles:
+    active: dev
+
 openapi:
   service:
     # API Gateway 포트
