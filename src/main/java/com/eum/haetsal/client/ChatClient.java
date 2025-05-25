@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@FeignClient(name = "chat-service", url = "http://175.45.203.201:8080/")
+@FeignClient(name = "chat-service", url = "${feign-client.url.chat-service}")
 public interface ChatClient {
     @GetMapping("/api/haetsal/oneToOneChat")
     List<ChatResponse> getChatList(@RequestParam String myProfileId, @RequestParam String otherProfileId);
