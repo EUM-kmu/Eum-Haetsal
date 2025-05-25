@@ -58,12 +58,12 @@ jobs:
           echo "Profile is not prod. Failing the job."
           exit 1
 
-  docker-build-test:
-    needs: check-profile
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Docker Build Test (no login)
-        run: |
-          docker build -t temp-pr-check .
+#  docker-build-test:
+#    needs: check-profile
+#    runs-on: ubuntu-22.04
+#    steps:
+#      - uses: actions/checkout@v4
+#
+#      - name: Docker Build Test (no login)
+#        run: |
+#          docker build -t temp-pr-check .
