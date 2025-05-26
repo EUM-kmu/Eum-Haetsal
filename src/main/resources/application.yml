@@ -61,11 +61,6 @@ firebase:
   client_x509_cert_url: ${FIREBASE_CLIENT_X509_CERT_URL}
   universe_domain: ${FIREBASE_UNIVERSE_DOMAIN}
 
-logging:
-  level:
-    org:
-      springframework:
-        security=INFO:
 
 #springdoc:
 #  api-docs:
