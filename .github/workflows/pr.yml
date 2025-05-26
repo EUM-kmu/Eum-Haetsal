@@ -1,13 +1,13 @@
 # PR이 오픈되면 실행된다.
 # application.yml 의 profile.active 를 검사한다.
-# 올바르지 않으면 실패 후 메시지 출력을, 올바르면 docker build 테스트를 진행한다.
+# 올바르지 않으면 실패 원인을 담은 메시지를 출력하고 workflow를 실패 처리한다.
+
 name: PR
 
 on:
   pull_request:
     branches:
       - dev
-      - dev-temp
       - deploy
       - deploy-temp
       - main
@@ -23,7 +23,7 @@ jobs:
 
       - name: Determine expected profile based on PR target branch
         run: |
-          if [[ "${{ github.base_ref }}" == "dev" || "${{ github.base_ref }}" == "dev-temp" ]]; then
+          if [[ "${{ github.base_ref }}" == "dev" ]]; then
             echo "expected_profile=dev" >> $GITHUB_ENV
           elif [[ "${{ github.base_ref }}" == "deploy" || "${{ github.base_ref }}" == "deploy-temp" || "${{ github.base_ref }}" == "main" ]]; then
             echo "expected_profile=prod" >> $GITHUB_ENV
@@ -64,6 +64,6 @@ jobs:
 #    steps:
 #      - uses: actions/checkout@v4
 #
-#      - name: Docker Build Test (no login)
+#      - name: Docker Build Test
 #        run: |
-#          docker build -t temp-pr-check .
+#
