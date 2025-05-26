@@ -23,7 +23,7 @@ spring:
       mode: always
 
   profiles:
-    active: dev
+    active: prod
 
 openapi:
   service:
