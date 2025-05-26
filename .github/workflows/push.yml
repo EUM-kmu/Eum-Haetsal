@@ -81,6 +81,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Show GitHub Actions Public IP
+        run: |
+          echo "GitHub Actions runner public IP is:"
+          curl https://ifconfig.me
+
       - name: Set environment variables based on branch
         run: |
           BRANCH_NAME="${GITHUB_REF##*/}"
