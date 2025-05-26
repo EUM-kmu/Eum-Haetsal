@@ -118,3 +118,5 @@ jobs:
             cd dev-haetsal
             echo "${{ secrets.SPRING_ENV }}" > .env
             docker run -d -p 8000:8000 --network root_eum_network --name haetsal --env-file .env $DOCKER_REPO:$TAG
+
+#            docker image prune -a -f --filter "until=48h"
