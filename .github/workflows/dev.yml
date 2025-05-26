@@ -40,7 +40,8 @@ jobs:
       run: ./gradlew build -x test
 
     - name: Set Short Commit SHA
-      run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+      id: set_short_sha
+      run: echo "short_sha=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
     - name: Docker Login
       uses: docker/login-action@v2
@@ -51,13 +52,13 @@ jobs:
     - name: Docker Image Build
 #      run: docker build . --file Dockerfile --tag ${{ secrets.DOCKERHUB_USERNAME_TEST }}/eum-dev:haetsal
       run: |
-        docker build -t ${{ secrets.DOCKER_REPO_TEST }}:$SHORT_SHA .
-        docker tag ${{ secrets.DOCKER_REPO_TEST }}:$SHORT_SHA ${{ secrets.DOCKER_REPO_TEST }}:latest
+        docker build -t ${{ secrets.DOCKER_REPO_TEST }}:${{ steps.set_short_sha.outputs.short_sha }} .
+        docker tag ${{ secrets.DOCKER_REPO_TEST }}:${{ steps.set_short_sha.outputs.short_sha }} ${{ secrets.DOCKER_REPO_TEST }}:latest
 
     - name: Docker Hub push
 #      run: docker push ${{ secrets.DOCKERHUB_USERNAME_TEST }}/eum-dev:haetsal
       run: |
-        docker push ${{ secrets.DOCKER_REPO_TEST }}:$SHORT_SHA
+        docker push ${{ secrets.DOCKER_REPO_TEST }}:${{ steps.set_short_sha.outputs.short_sha }}
         docker push ${{ secrets.DOCKER_REPO_TEST }}:latest
 
   deploy:
@@ -75,11 +76,9 @@ jobs:
           password: ${{ secrets.DEV_SSH_PASSWORD }}
 #          port: 22
           script: |
-            export SHORT_SHA=${{ env.SHORT_SHA }}
-
             set -e
             docker login -u ${{ secrets.DOCKERHUB_USERNAME_TEST }} -p ${{ secrets.DOCKERHUB_PASSWORD_TEST }}
-            docker pull ${{ secrets.DOCKER_REPO_TEST }}:$SHORT_SHA
+            docker pull ${{ secrets.DOCKER_REPO_TEST }}:${{ steps.set_short_sha.outputs.short_sha }}
             docker rm -f haetsal || true
             cd dev-haetsal
             echo "${{ secrets.SPRING_ENV }}" > .env
