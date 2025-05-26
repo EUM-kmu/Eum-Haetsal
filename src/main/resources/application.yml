@@ -1,0 +1,86 @@
+spring:
+  application:
+    name: haetsal-service
+  jackson:
+    time-zone: Asia/Seoul
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  jpa:
+    show-sql: true
+    hibernate:
+      format-sql: true
+      highlight-sql: true
+      ddl-auto: update
+      dialect: org.hibernate.dialect.MySQLDialect # ??? ??
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect # ?? ?? ??
+    generate-ddl: true
+
+  sql:
+    init:
+      mode: always
+
+  profiles:
+    active: dev
+
+openapi:
+  service:
+    # API Gateway 포트
+    url: ${OPENAPI_SERVICE_URL}
+
+server:
+  port: 8000
+
+
+s3:
+  access-key: ${S3_ACCESS_KEY}
+  secret-key: ${S3_SECRET_KEY}
+
+# 유레카
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_DEFAULTZONE}
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
+firebase:
+  type: ${FIREBASE_TYPE}
+  project_id: ${FIREBASE_PROJECT_ID}
+  private_key_id: ${FIREBASE_PRIVATE_KEY_ID}
+  private_key: ${FIREBASE_PRIVATE_KEY}
+  client_email: ${FIREBASE_CLIENT_EMAIL}
+  client_id: ${FIREBASE_CLIENT_ID}
+  auth_uri: ${FIREBASE_AUTH_URI}
+  token_uri: ${FIREBASE_TOKEN_URI}
+  auth_provider_x509_cert_url: ${FIREBASE_AUTH_PROVIDER_X509_CERT_URL}
+  client_x509_cert_url: ${FIREBASE_CLIENT_X509_CERT_URL}
+  universe_domain: ${FIREBASE_UNIVERSE_DOMAIN}
+
+
+#springdoc:
+#  api-docs:
+#    enabled: true
+#  swagger-ui:
+#    path: /api/docs/v1
+
+#    groups-order: desc
+#    tags-sorter: alpha
+#    operations-sorter: method
+#    disable-swagger-default-url: true
+#    display-request-duration: true
+#    default-models-expand-depth: 2
+#    default-model-expand-depth: 2
+#    display-operation-id: false
+#    show-extensions: false
+#  show-actuator: true
+#  default-consumes-media-type: application/json
+#  default-produces-media-type: application/json
+#  writer-with-default-pretty-printer: true
+#  model-and-view-allowed: true
+#  paths-to-match:
+#    - /api/v2/*
