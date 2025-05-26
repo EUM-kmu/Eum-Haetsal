@@ -13,3 +13,11 @@ spring:
     username: ${HAETSAL_DEV_DB_USERNAME}
     password: ${HAETSAL_DEV_DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+logging:
+  level:
+    root: INFO
+    com.eum.haetsal: DEBUG
+    org.springframework:
+      web: DEBUG
+      security: INFO
