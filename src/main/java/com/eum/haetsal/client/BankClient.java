@@ -1,6 +1,5 @@
 package com.eum.haetsal.client;
 
-import com.eum.haetsal.EumHaetsalApplication;
 import com.eum.haetsal.common.DTO.APIResponse;
 import com.eum.haetsal.controller.DTO.request.AccountRequestDTO;
 import com.eum.haetsal.controller.DTO.request.DealRequestDTO;
@@ -11,7 +10,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "bank-service", url = "http://bank:8080")
+@FeignClient(name = "bank-service", url = "${feign-client.url.bank-service}")
 public interface BankClient {
 
     // AccountController
