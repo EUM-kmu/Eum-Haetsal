@@ -1,4 +1,5 @@
 # 브랜치에 push 이벤트가 발생하면 실행된다. (pr merge 시에도 실햄)
+# 원격 서버에 Docker Image를 배포한다.
 
 name: push
 
@@ -91,15 +92,14 @@ jobs:
             echo "SSH_USER=${{ secrets.DEV_SSH_USER }}" >> $GITHUB_ENV
             echo "SSH_PASSWORD=${{ secrets.DEV_SSH_PASSWORD }}" >> $GITHUB_ENV
             echo "DIR_PATH=dev-haetsal" >> $GITHUB_ENV
+            echo "PROFILES_ACTIVE=dev" >> $GITHUB_ENV
           elif [[ "$BRANCH_NAME" == "deploy" || "$BRANCH_NAME" == "deploy-temp" || "$BRANCH_NAME" == "main" ]]; then
             echo "DOCKER_REPO=${{ secrets.DOCKER_REPO_PROD }}" >> $GITHUB_ENV
             echo "SSH_HOST=${{ secrets.SSH_IP }}" >> $GITHUB_ENV
             echo "SSH_USER=${{ secrets.SSH_USER }}" >> $GITHUB_ENV
             echo "SSH_PASSWORD=${{ secrets.SSH_PASSWORD }}" >> $GITHUB_ENV
             echo "DIR_PATH=haetsal" >> $GITHUB_ENV
-          else
-            echo "Unsupported branch: $BRANCH_NAME"
-            exit 1
+            echo "PROFILES_ACTIVE=prod" >> $GITHUB_ENV
           fi
 
       -  name: Deploy to Server
@@ -109,16 +109,25 @@ jobs:
           username: ${{ env.SSH_USER }}
           password: ${{ env.SSH_PASSWORD }}
           script: |
-            export DIR_PATH=${{ env.DIR_PATH }}
-            export DOCKER_REPO=${{ env.DOCKER_REPO }}
-            export TAG=${{ needs.build.outputs.docker_tag }}
+            DIR_PATH=${{ env.DIR_PATH }}
+            DOCKER_REPO=${{ env.DOCKER_REPO }}
+            TAG=${{ needs.build.outputs.docker_tag }}
+            PROFILES_ACTIVE=${{ env.PROFILES_ACTIVE }}
+            CONTAINER_NAME=haetsal
             
             set -e
             docker login -u ${{ secrets.DOCKERHUB_USERNAME_TP }} -p ${{ secrets.DOCKERHUB_PASSWORD_TP }}
             docker pull $DOCKER_REPO:$TAG
-            docker rm -f haetsal || true
+            docker rm -f $CONTAINER_NAME || true
+            
             cd $DIR_PATH
             echo "${{ secrets.SPRING_ENV }}" > .env
-            docker run -d -p 8000:8000 --network root_eum_network --name haetsal --env-file .env $DOCKER_REPO:$TAG
+            
+            docker run -d -p 8000:8000 \
+              --network root_eum_network \
+              --name $CONTAINER_NAME \
+              --env-file .env \
+              -e SPRING_PROFILES_ACTIVE=$PROFILES_ACTIVE \
+              $DOCKER_REPO:$TAG
 
 #            docker image prune -a -f --filter "until=48h"

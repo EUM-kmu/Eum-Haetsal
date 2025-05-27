@@ -23,7 +23,7 @@ spring:
       mode: always
 
   profiles:
-    active: prod
+    active: ${SPRING_PROFILES_ACTIVE:local}  # 기본값 local
 
 openapi:
   service:
