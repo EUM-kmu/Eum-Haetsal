@@ -109,10 +109,10 @@ jobs:
           username: ${{ env.SSH_USER }}
           password: ${{ env.SSH_PASSWORD }}
           script: |
-            export DIR_PATH=${{ env.DIR_PATH }}
-            export DOCKER_REPO=${{ env.DOCKER_REPO }}
-            export TAG=${{ needs.build.outputs.docker_tag }}
-            export PROFILES_ACTIVE=${{ env.PROFILES_ACTIVE }}
+            DIR_PATH=${{ env.DIR_PATH }}
+            DOCKER_REPO=${{ env.DOCKER_REPO }}
+            TAG=${{ needs.build.outputs.docker_tag }}
+            PROFILES_ACTIVE=${{ env.PROFILES_ACTIVE }}
             CONTAINER_NAME=haetsal
             
             set -e
