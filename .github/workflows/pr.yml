@@ -1,6 +1,5 @@
 # PR이 오픈되면 실행된다.
-# application.yml 의 profile.active 를 검사한다.
-# 올바르지 않으면 실패 원인을 담은 메시지를 출력하고 workflow를 실패 처리한다.
+# 빌드 테스트를 진행한다.
 
 name: PR
 
@@ -13,57 +12,21 @@ on:
       - main
 
 jobs:
-  check-profile:
+  build-test:
     runs-on: ubuntu-22.04
-    permissions:
-      pull-requests: write
-      contents: read
     steps:
       - uses: actions/checkout@v4
 
-      - name: Determine expected profile based on PR target branch
-        run: |
-          if [[ "${{ github.base_ref }}" == "dev" ]]; then
-            echo "expected_profile=dev" >> $GITHUB_ENV
-          elif [[ "${{ github.base_ref }}" == "deploy" || "${{ github.base_ref }}" == "deploy-temp" || "${{ github.base_ref }}" == "main" ]]; then
-            echo "expected_profile=prod" >> $GITHUB_ENV
-          else
-            echo "Unknown target branch: ${{ github.base_ref }}"
-            exit 1
-          fi
-
-      - name: Check spring.profile.active in application.yml
-        run: |
-          actual_profile=$(grep -E '^\s*active:\s*' src/main/resources/application.yml | awk '{print $2}')
-          echo "Detected profile: $actual_profile"
-          echo "Detected profile: $expected_profile"
-          if [ "$actual_profile" != "$expected_profile" ]; then
-            echo "Profile mismatch: expected '$expected_profile', but found '$actual_profile'"
-            echo "wrong_profile=true" >> $GITHUB_ENV
-          fi
-
-      - name: Create a comment on PR if profile.active is wrong
-        if: env.wrong_profile == 'true'
-        uses: peter-evans/create-or-update-comment@v4
+      - name: Set up JDK 17 with Gradle cache
+        uses: actions/setup-java@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            ❌ **Check 실패: profile.active 설정**
-            `application.yml`의 `spring.profiles.active` 값을 `${{ env.expected_profile }}` 으로 변경 해주세요.
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle' # gradle 의존성 캐싱
 
-      - name: Fail the job if profile is wrong
-        if: env.wrong_profile == 'true'
+      - name: Build with Gradle Wrapper
+        run: ./gradlew build -x test
+
+      - name: Docker Build Test Only (no login)
         run: |
-          echo "Profile is not prod. Failing the job."
-          exit 1
-
-#  docker-build-test:
-#    needs: check-profile
-#    runs-on: ubuntu-22.04
-#    steps:
-#      - uses: actions/checkout@v4
-#
-#      - name: Docker Build Test
-#        run: |
-#
+          docker build -t temp-pr-check .
